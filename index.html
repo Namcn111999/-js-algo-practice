@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luyện Thuật Toán JS</title>
+<title>Học Tập Hàng Ngày · FE / Java Backend / Thuật Toán</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -11,19 +11,18 @@
     --bg-primary:#0B0E14;
     --bg-panel:#11151E;
     --bg-elevated:#1A2030;
-    --bg-elevated-2:#212942;
     --border:#242C3E;
     --text-primary:#E7E9F0;
     --text-muted:#8B93A7;
     --text-dim:#5A6273;
-    --accent-teal:#4FD1C5;
-    --accent-teal-dim:rgba(79,209,197,0.12);
-    --accent-amber:#F0B429;
-    --accent-amber-dim:rgba(240,180,41,0.12);
-    --accent-coral:#FF6B6B;
-    --accent-coral-dim:rgba(255,107,107,0.12);
-    --accent-violet:#9F7AEA;
-    --accent-violet-dim:rgba(159,122,234,0.12);
+    --fe:#4FD1C5;       /* teal - Frontend */
+    --fe-dim:rgba(79,209,197,0.12);
+    --be:#F0B429;        /* amber - Java Backend */
+    --be-dim:rgba(240,180,41,0.12);
+    --algo:#9F7AEA;       /* violet - Algorithm */
+    --algo-dim:rgba(159,122,234,0.12);
+    --coral:#FF6B6B;
+    --coral-dim:rgba(255,107,107,0.12);
     --mono:'JetBrains Mono', ui-monospace, monospace;
     --sans:'Inter', system-ui, sans-serif;
   }
@@ -38,271 +37,212 @@
     flex-direction:column;
     min-height:100vh;
   }
+  ::selection{background:var(--algo-dim); color:var(--algo);}
 
-  ::selection{background:var(--accent-teal-dim); color:var(--accent-teal);}
-
-  /* Header */
   header{
-    padding:20px 28px;
+    padding:18px 28px;
     border-bottom:1px solid var(--border);
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:16px;
     flex-wrap:wrap;
+    position:sticky; top:0; z-index:10;
+    background:rgba(11,14,20,0.92);
+    backdrop-filter:blur(8px);
   }
   .brand{display:flex; align-items:baseline; gap:12px;}
   .brand .dot{
     width:10px; height:10px; border-radius:50%;
-    background:var(--accent-teal);
+    background:var(--algo);
     display:inline-block;
-    box-shadow:0 0 12px var(--accent-teal);
+    box-shadow:0 0 12px var(--algo);
     animation:pulse 2.4s ease-in-out infinite;
   }
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
-  .brand h1{
-    font-family:var(--mono);
-    font-size:18px;
-    font-weight:700;
-    letter-spacing:-0.02em;
-  }
-  .brand .path{
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--text-dim);
-  }
-  .stats{
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--text-muted);
-    display:flex;
-    gap:18px;
-  }
-  .stats b{color:var(--accent-teal); font-weight:600;}
+  .brand h1{font-family:var(--mono); font-size:16px; font-weight:700; letter-spacing:-0.02em;}
+  .brand .path{font-family:var(--mono); font-size:11.5px; color:var(--text-dim);}
 
-  /* Layout */
+  .progress-wrap{display:flex; align-items:center; gap:14px;}
+  .progress-track{
+    width:140px; height:6px; border-radius:6px;
+    background:var(--bg-elevated); overflow:hidden;
+  }
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--fe),var(--algo)); border-radius:6px; transition:width .3s;}
+  .progress-label{font-family:var(--mono); font-size:12px; color:var(--text-muted);}
+  .progress-label b{color:var(--text-primary);}
+
   .app{
     flex:1;
     display:grid;
-    grid-template-columns:260px 1fr;
+    grid-template-columns:220px 1fr;
     min-height:0;
   }
   @media (max-width:860px){
     .app{grid-template-columns:1fr;}
-    .sidebar{border-right:none; border-bottom:1px solid var(--border); max-height:220px;}
+    .sidebar{border-right:none; border-bottom:1px solid var(--border); max-height:180px;}
   }
 
-  /* Sidebar */
   .sidebar{
     border-right:1px solid var(--border);
     overflow-y:auto;
-    padding:16px 0;
+    padding:14px 0;
   }
-  .sidebar-group{margin-bottom:6px;}
   .sidebar-label{
-    font-family:var(--mono);
-    font-size:10px;
-    letter-spacing:0.12em;
-    color:var(--text-dim);
-    padding:8px 20px 6px;
-    text-transform:uppercase;
+    font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+    color:var(--text-dim); padding:6px 20px 8px; text-transform:uppercase;
   }
-  .problem-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-    padding:10px 20px;
-    cursor:pointer;
+  .day-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 20px; cursor:pointer;
     border-left:2px solid transparent;
     transition:background .15s, border-color .15s;
   }
-  .problem-item:hover{background:var(--bg-elevated);}
-  .problem-item.active{
-    background:var(--bg-elevated);
-    border-left-color:var(--accent-teal);
-  }
-  .problem-item .name{
-    font-size:13.5px;
-    color:var(--text-primary);
-  }
-  .problem-item .badge{
-    font-family:var(--mono);
-    font-size:10px;
-    font-weight:600;
-    padding:2px 7px;
-    border-radius:20px;
-    white-space:nowrap;
-  }
-  .badge.easy{background:var(--accent-violet-dim); color:var(--accent-violet);}
-  .badge.medium{background:var(--accent-amber-dim); color:var(--accent-amber);}
-  .badge.hard{background:var(--accent-coral-dim); color:var(--accent-coral);}
-  .problem-item .check{
-    font-family:var(--mono);
-    color:var(--accent-teal);
-    font-size:12px;
-    width:14px;
-    text-align:center;
-  }
+  .day-item:hover{background:var(--bg-elevated);}
+  .day-item.active{background:var(--bg-elevated); border-left-color:var(--algo);}
+  .day-item .num{font-family:var(--mono); font-size:12.5px; color:var(--text-dim); width:20px;}
+  .day-item .theme{font-size:12.5px; color:var(--text-muted); flex:1; line-height:1.3;}
+  .day-item.active .theme{color:var(--text-primary);}
+  .day-dots{display:flex; gap:3px; flex-shrink:0;}
+  .day-dots span{width:5px; height:5px; border-radius:50%; background:var(--border);}
+  .day-dots span.done.fe{background:var(--fe);}
+  .day-dots span.done.be{background:var(--be);}
+  .day-dots span.done.algo{background:var(--algo);}
 
-  /* Main */
-  main{
-    padding:28px 32px 40px;
-    overflow-y:auto;
+  main{padding:26px 32px 60px; overflow-y:auto; max-width:920px;}
+
+  .day-title{
+    font-family:var(--mono); font-size:22px; font-weight:700;
+    letter-spacing:-0.01em; margin-bottom:4px;
   }
-  .problem-header{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:16px;
-    margin-bottom:6px;
-  }
-  .problem-header h2{
-    font-family:var(--mono);
-    font-size:22px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-  }
-  .desc{
-    color:var(--text-muted);
-    font-size:14.5px;
-    line-height:1.6;
-    max-width:70ch;
-    margin:12px 0 20px;
-  }
-  .example{
-    font-family:var(--mono);
-    font-size:12.5px;
+  .day-subtitle{color:var(--text-dim); font-size:13px; margin-bottom:28px;}
+
+  .section{
+    border:1px solid var(--border);
+    border-radius:12px;
     background:var(--bg-panel);
+    margin-bottom:24px;
+    overflow:hidden;
+  }
+  .section-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px;
+    background:var(--bg-elevated);
+    border-bottom:1px solid var(--border);
+  }
+  .section-head .left{display:flex; align-items:center; gap:10px;}
+  .track-tag{
+    font-family:var(--mono); font-size:10.5px; font-weight:700;
+    padding:3px 9px; border-radius:20px; letter-spacing:.04em;
+  }
+  .track-tag.fe{background:var(--fe-dim); color:var(--fe);}
+  .track-tag.be{background:var(--be-dim); color:var(--be);}
+  .track-tag.algo{background:var(--algo-dim); color:var(--algo);}
+  .section-head h3{font-size:15px; font-weight:600;}
+
+  .check-btn{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:11.5px;
+    background:transparent; border:1px solid var(--border);
+    color:var(--text-muted); padding:6px 12px; border-radius:6px;
+    cursor:pointer; transition:.15s;
+  }
+  .check-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
+  .check-btn.checked{background:var(--fe-dim); border-color:var(--fe); color:var(--fe);}
+  .check-btn.checked.be-style{background:var(--be-dim); border-color:var(--be); color:var(--be);}
+
+  .section-body{padding:18px 20px;}
+  .points{list-style:none; margin-bottom:16px;}
+  .points li{
+    position:relative; padding-left:20px; margin-bottom:10px;
+    font-size:14px; line-height:1.65; color:var(--text-muted);
+  }
+  .points li::before{
+    content:'—'; position:absolute; left:0; color:var(--text-dim);
+  }
+  .task-box{
+    background:var(--bg-elevated);
     border:1px solid var(--border);
     border-radius:8px;
-    padding:12px 14px;
-    color:var(--text-muted);
-    margin-bottom:22px;
-    max-width:70ch;
+    padding:13px 16px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--text-primary);
   }
-  .example b{color:var(--accent-teal); font-weight:600;}
+  .task-box b{
+    display:block; font-family:var(--mono); font-size:10.5px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim);
+    margin-bottom:6px; font-weight:700;
+  }
 
-  .editor-wrap{
-    border:1px solid var(--border);
-    border-radius:10px;
-    overflow:hidden;
-    background:var(--bg-panel);
-    margin-bottom:16px;
+  /* Algorithm section specifics */
+  .algo-desc{color:var(--text-muted); font-size:14px; line-height:1.6; margin-bottom:14px;}
+  .algo-example{
+    font-family:var(--mono); font-size:12px;
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-radius:8px; padding:11px 14px; color:var(--text-muted);
+    margin-bottom:16px; white-space:pre-wrap;
   }
+  .algo-example b{color:var(--algo); font-weight:600;}
+
+  .editor-wrap{border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:14px;}
   .editor-topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:9px 14px;
-    background:var(--bg-elevated);
-    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 14px; background:var(--bg-elevated); border-bottom:1px solid var(--border);
   }
-  .editor-topbar .fname{
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--text-muted);
-  }
-  .btn-row{display:flex; gap:10px;}
-  button{
-    font-family:var(--mono);
-    font-size:12.5px;
-    font-weight:600;
-    border:none;
-    border-radius:6px;
-    padding:8px 16px;
-    cursor:pointer;
+  .editor-topbar .fname{font-family:var(--mono); font-size:11.5px; color:var(--text-muted);}
+  .btn-row{display:flex; gap:8px;}
+  button.action{
+    font-family:var(--mono); font-size:12px; font-weight:600;
+    border:none; border-radius:6px; padding:7px 14px; cursor:pointer;
     transition:transform .1s, opacity .15s;
   }
-  button:active{transform:scale(0.97);}
-  .btn-run{
-    background:var(--accent-teal);
-    color:#04211E;
-  }
-  .btn-run:hover{opacity:0.88;}
-  .btn-reset{
-    background:transparent;
-    color:var(--text-muted);
-    border:1px solid var(--border);
-  }
+  button.action:active{transform:scale(0.97);}
+  .btn-run{background:var(--algo); color:#1A0E33;}
+  .btn-run:hover{opacity:.88;}
+  .btn-reset{background:transparent; color:var(--text-muted); border:1px solid var(--border);}
   .btn-reset:hover{color:var(--text-primary); border-color:var(--text-dim);}
 
-  textarea#editor{
-    width:100%;
-    min-height:220px;
-    background:var(--bg-panel);
-    color:var(--text-primary);
-    border:none;
-    outline:none;
-    resize:vertical;
-    font-family:var(--mono);
-    font-size:13.5px;
-    line-height:1.65;
-    padding:16px 18px;
-    tab-size:2;
+  textarea.editor{
+    width:100%; min-height:180px; background:var(--bg-panel);
+    color:var(--text-primary); border:none; outline:none; resize:vertical;
+    font-family:var(--mono); font-size:13px; line-height:1.6; padding:14px 16px; tab-size:2;
   }
 
-  /* Console */
-  .console{
-    border:1px solid var(--border);
-    border-radius:10px;
-    background:#080A0F;
-    overflow:hidden;
-  }
+  .console{border:1px solid var(--border); border-radius:10px; background:#080A0F; overflow:hidden;}
   .console-topbar{
-    padding:9px 14px;
-    background:var(--bg-elevated);
-    border-bottom:1px solid var(--border);
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--text-dim);
-    display:flex;
-    justify-content:space-between;
+    padding:8px 14px; background:var(--bg-elevated); border-bottom:1px solid var(--border);
+    font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
   }
-  .console-body{
-    padding:14px 16px;
-    font-family:var(--mono);
-    font-size:13px;
-    line-height:1.9;
-    min-height:60px;
-    max-height:320px;
-    overflow-y:auto;
-  }
+  .console-body{padding:13px 16px; font-family:var(--mono); font-size:12.5px; line-height:1.8; min-height:50px;}
   .console-empty{color:var(--text-dim);}
-  .console-empty .cursor{
-    display:inline-block;
-    width:7px; height:14px;
-    background:var(--text-dim);
-    vertical-align:middle;
-    margin-left:4px;
-    animation:blink 1s step-end infinite;
-  }
-  @keyframes blink{0%,49%{opacity:1;} 50%,100%{opacity:0;}}
-
-  .test-line{display:flex; gap:10px; align-items:flex-start; margin-bottom:6px;}
-  .test-line .mark{width:14px; flex-shrink:0;}
-  .test-line.pass .mark{color:var(--accent-teal);}
-  .test-line.fail .mark{color:var(--accent-coral);}
+  .test-line{display:flex; gap:9px; align-items:flex-start; margin-bottom:5px;}
+  .test-line .mark{width:13px; flex-shrink:0;}
+  .test-line.pass .mark{color:var(--algo);}
+  .test-line.fail .mark{color:var(--coral);}
   .test-line .txt{color:var(--text-muted);}
   .test-line.fail .txt{color:var(--text-primary);}
-  .test-line .detail{color:var(--text-dim); display:block; margin-top:2px; font-size:12px;}
-  .summary-line{
-    margin-top:10px;
-    padding-top:10px;
-    border-top:1px dashed var(--border);
-    font-weight:600;
+  .test-line .detail{color:var(--text-dim); display:block; margin-top:2px; font-size:11.5px;}
+  .summary-line{margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); font-weight:600;}
+  .summary-line.pass{color:var(--algo);}
+  .summary-line.fail{color:var(--coral);}
+  .error-line{color:var(--coral); white-space:pre-wrap;}
+
+  .day-nav{
+    display:flex; justify-content:space-between; margin-top:8px; gap:10px;
   }
-  .summary-line.pass{color:var(--accent-teal);}
-  .summary-line.fail{color:var(--accent-coral);}
-  .error-line{color:var(--accent-coral); white-space:pre-wrap;}
+  .nav-btn{
+    font-family:var(--mono); font-size:12.5px; font-weight:600;
+    background:var(--bg-panel); border:1px solid var(--border); color:var(--text-primary);
+    padding:10px 18px; border-radius:8px; cursor:pointer; flex:1; text-align:center;
+    transition:.15s;
+  }
+  .nav-btn:hover{border-color:var(--text-dim);}
+  .nav-btn:disabled{opacity:.35; cursor:default;}
 
   footer{
-    text-align:center;
-    padding:16px;
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--text-dim);
-    border-top:1px solid var(--border);
+    text-align:center; padding:16px; font-family:var(--mono);
+    font-size:11px; color:var(--text-dim); border-top:1px solid var(--border);
   }
 </style>
 </head>
@@ -311,286 +251,661 @@
 <header>
   <div class="brand">
     <span class="dot"></span>
-    <h1>luyện thuật toán JS</h1>
-    <span class="path">~/practice/algorithms</span>
+    <h1>học tập hàng ngày</h1>
+    <span class="path">FE · Java Backend · Thuật toán</span>
   </div>
-  <div class="stats">
-    <span>đã giải: <b id="stat-solved">0</b>/<span id="stat-total">0</span></span>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <span class="progress-label" id="progress-label"><b>0</b>/20 ngày</span>
   </div>
 </header>
 
 <div class="app">
-  <nav class="sidebar" id="sidebar"></nav>
-  <main>
-    <div class="problem-header">
-      <h2 id="p-title"></h2>
-      <span class="badge" id="p-badge"></span>
-    </div>
-    <p class="desc" id="p-desc"></p>
-    <div class="example" id="p-example"></div>
-
-    <div class="editor-wrap">
-      <div class="editor-topbar">
-        <span class="fname" id="p-signature">solution.js</span>
-        <div class="btn-row">
-          <button class="btn-reset" id="btn-reset">Đặt lại</button>
-          <button class="btn-run" id="btn-run">▶ Chạy test</button>
-        </div>
-      </div>
-      <textarea id="editor" spellcheck="false"></textarea>
-    </div>
-
-    <div class="console">
-      <div class="console-topbar">
-        <span>console</span>
-        <span id="console-time"></span>
-      </div>
-      <div class="console-body" id="console-body">
-        <div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải<span class="cursor"></span></div>
-      </div>
-    </div>
-  </main>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-label">Lộ trình 20 ngày</div>
+  </nav>
+  <main id="main"></main>
 </div>
 
-<footer>được tạo cho việc luyện tập cá nhân · toàn bộ code chạy ngay trên trình duyệt, không gửi đi đâu cả</footer>
+<footer>tự học mỗi ngày ~1–2 tiếng · tiến độ được lưu ngay trên trình duyệt này</footer>
 
 <script>
-const problems = [
-  {
-    id: 'two-sum',
-    name: 'Two Sum',
-    difficulty: 'easy',
-    signature: 'function solve(nums, target)',
-    desc: 'Cho mảng số nguyên nums và một số target, trả về chỉ số (index) của hai phần tử có tổng bằng target. Giả sử luôn có đúng một đáp án và không dùng một phần tử hai lần.',
-    example: '<b>Input:</b> nums = [2,7,11,15], target = 9\n<b>Output:</b> [0,1]',
-    starter: 'function solve(nums, target) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [[2,7,11,15], 9], expected: [0,1] },
-      { args: [[3,2,4], 6], expected: [1,2] },
-      { args: [[3,3], 6], expected: [0,1] },
-    ],
-  },
-  {
-    id: 'reverse-string',
-    name: 'Đảo ngược chuỗi',
-    difficulty: 'easy',
-    signature: 'function solve(str)',
-    desc: 'Viết hàm đảo ngược một chuỗi ký tự, không dùng hàm .reverse() có sẵn của Array.',
-    example: '<b>Input:</b> "hello"\n<b>Output:</b> "olleh"',
-    starter: 'function solve(str) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: ['hello'], expected: 'olleh' },
-      { args: ['JavaScript'], expected: 'tpircSavaJ' },
-      { args: [''], expected: '' },
-    ],
-  },
-  {
-    id: 'fizzbuzz',
-    name: 'FizzBuzz',
-    difficulty: 'easy',
-    signature: 'function solve(n)',
-    desc: 'Trả về mảng từ 1 đến n, thay số chia hết cho 3 bằng "Fizz", chia hết cho 5 bằng "Buzz", chia hết cho cả hai bằng "FizzBuzz".',
-    example: '<b>Input:</b> 5\n<b>Output:</b> ["1","2","Fizz","4","Buzz"]',
-    starter: 'function solve(n) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [5], expected: ["1","2","Fizz","4","Buzz"] },
-      { args: [15], expected: ["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"] },
-    ],
-  },
-  {
-    id: 'valid-palindrome',
-    name: 'Kiểm tra Palindrome',
-    difficulty: 'easy',
-    signature: 'function solve(str)',
-    desc: 'Kiểm tra một chuỗi có phải là palindrome hay không (đọc xuôi và ngược giống nhau), bỏ qua khoảng trắng và không phân biệt hoa thường.',
-    example: '<b>Input:</b> "A man a plan a canal Panama"\n<b>Output:</b> true',
-    starter: 'function solve(str) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: ['A man a plan a canal Panama'], expected: true },
-      { args: ['race a car'], expected: false },
-      { args: ['level'], expected: true },
-    ],
-  },
-  {
-    id: 'binary-search',
-    name: 'Tìm kiếm nhị phân',
-    difficulty: 'medium',
-    signature: 'function solve(sortedArr, target)',
-    desc: 'Cài đặt binary search trên mảng đã sắp xếp tăng dần, trả về chỉ số của target, hoặc -1 nếu không tìm thấy. Độ phức tạp yêu cầu O(log n).',
-    example: '<b>Input:</b> sortedArr = [1,3,5,7,9,11], target = 7\n<b>Output:</b> 3',
-    starter: 'function solve(sortedArr, target) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [[1,3,5,7,9,11], 7], expected: 3 },
-      { args: [[1,3,5,7,9,11], 2], expected: -1 },
-      { args: [[5], 5], expected: 0 },
-    ],
-  },
-  {
-    id: 'group-anagrams',
-    name: 'Nhóm Anagram',
-    difficulty: 'medium',
-    signature: 'function solve(words)',
-    desc: 'Cho mảng chuỗi, nhóm các từ là anagram của nhau lại thành các mảng con. Thứ tự các nhóm và thứ tự trong nhóm không quan trọng (kết quả sẽ được so sánh sau khi sắp xếp).',
-    example: '<b>Input:</b> ["eat","tea","tan","ate","nat","bat"]\n<b>Output:</b> [["eat","tea","ate"],["tan","nat"],["bat"]]',
-    starter: 'function solve(words) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [["eat","tea","tan","ate","nat","bat"]], expected: [["ate","eat","tea"],["nat","tan"],["bat"]], normalize: 'anagram' },
-    ],
-  },
-  {
-    id: 'debounce',
-    name: 'Cài đặt Debounce',
-    difficulty: 'medium',
-    signature: 'function solve(fn, delay)',
-    desc: 'Viết hàm debounce(fn, delay) trả về một hàm mới: chỉ gọi fn sau khi ngừng gọi hàm mới liên tục trong khoảng thời gian delay (ms). Bài này được kiểm tra logic gọi hàm bằng giả lập, không dùng timer thật.',
-    example: '<b>Input:</b> debounce(fn, 100) rồi gọi liên tục 5 lần trong 50ms\n<b>Output:</b> fn chỉ được gọi 1 lần, với tham số của lần gọi cuối',
-    starter: 'function solve(fn, delay) {\n  let timer = null;\n  return function(...args) {\n    // viết code tại đây\n  };\n}',
-    tests: [
-      { args: [], custom: 'debounce' },
-    ],
-  },
-  {
-    id: 'max-subarray',
-    name: 'Tổng mảng con lớn nhất',
-    difficulty: 'hard',
-    signature: 'function solve(nums)',
-    desc: 'Cho mảng số nguyên (có thể âm), tìm tổng lớn nhất của một mảng con liên tiếp. Yêu cầu độ phức tạp O(n) (thuật toán Kadane).',
-    example: '<b>Input:</b> [-2,1,-3,4,-1,2,1,-5,4]\n<b>Output:</b> 6  (mảng con [4,-1,2,1])',
-    starter: 'function solve(nums) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [[-2,1,-3,4,-1,2,1,-5,4]], expected: 6 },
-      { args: [[1]], expected: 1 },
-      { args: [[5,4,-1,7,8]], expected: 23 },
-      { args: [[-3,-1,-2]], expected: -1 },
-    ],
-  },
-  {
-    id: 'flatten',
-    name: 'Làm phẳng mảng lồng nhau',
-    difficulty: 'hard',
-    signature: 'function solve(arr)',
-    desc: 'Viết hàm làm phẳng hoàn toàn một mảng lồng nhau ở bất kỳ độ sâu nào, không dùng Array.prototype.flat(Infinity).',
-    example: '<b>Input:</b> [1,[2,[3,[4,5]],6]]\n<b>Output:</b> [1,2,3,4,5,6]',
-    starter: 'function solve(arr) {\n  // viết code tại đây\n}',
-    tests: [
-      { args: [[1,[2,[3,[4,5]],6]]], expected: [1,2,3,4,5,6] },
-      { args: [[1,2,3]], expected: [1,2,3] },
-      { args: [[[1],[2,[3]]]], expected: [1,2,3] },
-    ],
-  },
+/* ============ DATA: 20-DAY CURRICULUM ============ */
+const curriculum = [
+{day:1, theme:"Nền tảng: Component & OOP",
+ fe:{title:"Kiến trúc Component & Composable trong Vue 3", points:[
+   "Composable là hàm bắt đầu bằng \"use\" đóng gói logic có thể tái sử dụng, tách biệt khỏi UI.",
+   "Nguyên tắc: mỗi component nên làm một việc, logic phức tạp đẩy ra composable.",
+   "So với mixin cũ ở Vue 2, composable tránh xung đột tên và dễ trace nguồn gốc hơn.",
+   "Composable có thể nhận tham số reactive (ref/computed) và trả về state + method.",
+   "Trong AWX Refiner, các pattern lặp lại như gọi API + loading state là ứng viên tốt để tách composable."],
+  task:"Chọn 1 đoạn logic lặp lại trong AWX Refiner (ví dụ gọi API + loading state), tách thành composable useXxx() và áp dụng lại ở 2 component."},
+ be:{title:"Java cơ bản: cú pháp, kiểu dữ liệu, biến", points:[
+   "Java là ngôn ngữ biên dịch — code .java được compile thành bytecode .class chạy trên JVM.",
+   "Kiểu dữ liệu nguyên thủy (int, double, boolean, char...) khác với kiểu tham chiếu (String, Object).",
+   "Biến phải khai báo kiểu rõ ràng (static typing), không suy luận linh hoạt như JavaScript.",
+   "Java phân biệt hoa thường; mỗi file .java có class public phải trùng tên file.",
+   "Câu lệnh điều kiện (if/else, switch) và vòng lặp (for/while) khá giống JS về cú pháp."],
+  task:"Cài JDK, viết chương trình Java đầu tiên in ra \"Hello World\" và 1 phép tính đơn giản, chạy bằng javac rồi java."},
+ algoId:"two-sum"},
+
+{day:2, theme:"Reactivity & Class/Object",
+ fe:{title:"Reactivity system nội bộ (Proxy, ref vs reactive)", points:[
+   "Vue 3 dùng Proxy để theo dõi thay đổi object, thay cho Object.defineProperty ở Vue 2.",
+   "ref() bọc giá trị primitive trong object có .value; reactive() dùng cho object/array, không cần .value.",
+   "reactive() mất reactivity khi destructure — dùng toRefs() để giữ lại.",
+   "computed là giá trị được cache, chỉ tính lại khi dependency thay đổi.",
+   "watch theo dõi nguồn cụ thể; watchEffect tự động track mọi dependency dùng bên trong nó."],
+  task:"Viết đoạn code nhỏ minh họa việc destructure reactive() làm mất reactivity, rồi sửa lại bằng toRefs()."},
+ be:{title:"OOP: Class & Object", points:[
+   "Class là khuôn mẫu định nghĩa thuộc tính (field) và hành vi (method) của object.",
+   "Object là thực thể cụ thể được tạo ra từ class bằng từ khóa new.",
+   "Constructor là method đặc biệt chạy khi tạo object, dùng để khởi tạo giá trị ban đầu.",
+   "Access modifier (private, public, protected) kiểm soát phạm vi truy cập field/method.",
+   "Getter/Setter là cách phổ biến để truy cập field private một cách có kiểm soát (encapsulation)."],
+  task:"Viết class Model (giống khái niệm model trong AWX Refiner) với vài field private, constructor, getter/setter, rồi tạo vài object thử."},
+ algoId:"fizzbuzz"},
+
+{day:3, theme:"State Management & Kế thừa",
+ fe:{title:"State management pattern (Pinia)", points:[
+   "Pinia thay thế Vuex ở Vue 3, API đơn giản hơn và hỗ trợ TypeScript tốt.",
+   "Store gồm state, getters (như computed), actions (như methods, có thể async).",
+   "Nguyên tắc: chỉ đưa state vào store khi nhiều component không liên quan cần dùng chung.",
+   "Tránh lạm dụng store cho state cục bộ chỉ 1 component dùng — ref/reactive local là đủ.",
+   "Có thể chia nhiều store nhỏ theo domain (userStore, modelStore...) thay vì 1 store khổng lồ."],
+  task:"Liệt kê 3 state hiện đang truyền qua nhiều props (prop drilling) trong AWX Refiner, đánh giá xem có nên đưa vào store không."},
+ be:{title:"Kế thừa (Inheritance) & Đa hình (Polymorphism)", points:[
+   "extends cho phép 1 class kế thừa field/method từ class cha, tránh lặp code.",
+   "Đa hình cho phép gọi cùng 1 method nhưng hành vi khác nhau tùy class con.",
+   "@Override đánh dấu method con ghi đè method cha, giúp compiler kiểm tra lỗi.",
+   "super() gọi constructor của class cha từ class con.",
+   "Đa hình hữu ích khi xử lý danh sách nhiều loại object khác nhau qua cùng 1 kiểu cha."],
+  task:"Tạo class cha Animal và 2 class con Dog, Cat override method makeSound(), thử gọi qua 1 mảng kiểu Animal."},
+ algoId:"reverse-string"},
+
+{day:4, theme:"Performance & Interface",
+ fe:{title:"Performance: lazy loading & code splitting", points:[
+   "Code splitting chia bundle thành nhiều chunk nhỏ, chỉ tải khi cần.",
+   "Vue Router hỗ trợ lazy load route: component: () => import('./View.vue').",
+   "defineAsyncComponent cho phép lazy load component không qua router.",
+   "Lazy load ảnh bằng loading=\"lazy\" hoặc IntersectionObserver.",
+   "Đo tác động bằng Lighthouse hoặc tab Network trong DevTools trước/sau khi áp dụng."],
+  task:"Chọn 1 route ít dùng trong AWX Refiner, chuyển sang lazy load và so sánh kích thước bundle trước/sau."},
+ be:{title:"Interface & Abstract class", points:[
+   "Interface định nghĩa \"hợp đồng\" các method phải implement, không chứa logic (trước Java 8).",
+   "Abstract class có thể chứa cả method đã implement và method trừu tượng chưa implement.",
+   "1 class có thể implement nhiều interface nhưng chỉ extends 1 class (abstract hoặc thường).",
+   "Interface phù hợp khi muốn định nghĩa khả năng (Comparable, Runnable...) cho nhiều class không liên quan.",
+   "Abstract class phù hợp khi các class con có chung 1 phần logic cơ bản."],
+  task:"Định nghĩa interface Trainable với method train(), implement nó ở 2 class khác nhau."},
+ algoId:"valid-palindrome"},
+
+{day:5, theme:"Virtual DOM & Exception",
+ fe:{title:"Virtual DOM & thuật toán diffing", points:[
+   "Virtual DOM là cây object JS đại diện cho DOM thật, giúp so sánh (diff) rẻ hơn thao tác DOM trực tiếp.",
+   "Vue 3 dùng thuật toán diff tối ưu hơn Vue 2 nhờ compile-time hints (patch flag).",
+   "key trong v-for giúp Vue nhận diện đúng phần tử khi list thay đổi, tránh render sai.",
+   "Không phải lúc nào Virtual DOM cũng nhanh hơn thao tác DOM trực tiếp — nó đánh đổi để dễ maintain.",
+   "Hiểu cơ chế này giúp giải thích tại sao thiếu key gây bug re-render kỳ lạ."],
+  task:"Tìm 1 chỗ dùng v-for trong code hiện tại thiếu key hoặc dùng index làm key, đánh giá rủi ro và sửa nếu cần."},
+ be:{title:"Exception Handling", points:[
+   "try/catch/finally xử lý lỗi runtime mà không làm crash toàn chương trình.",
+   "Checked exception (bắt buộc catch hoặc khai báo throws) khác unchecked exception (RuntimeException).",
+   "finally luôn chạy dù có exception hay không, thường dùng để đóng tài nguyên (file, connection).",
+   "Tự định nghĩa custom exception bằng cách extends Exception hoặc RuntimeException.",
+   "Không nên catch Exception chung chung rồi bỏ qua — luôn xử lý hoặc log rõ ràng."],
+  task:"Viết hàm chia 2 số, ném custom exception khi chia cho 0, và catch xử lý ở nơi gọi."},
+ algoId:"count-chars"},
+
+{day:6, theme:"CSS Architecture & Collections",
+ fe:{title:"CSS Architecture", points:[
+   "BEM (Block Element Modifier) đặt tên class theo cấu trúc rõ ràng, tránh xung đột style.",
+   "Utility-first (như TailwindCSS) ưu tiên compose class nhỏ thay vì viết CSS riêng.",
+   "Scoped style trong Vue SFC (<style scoped>) tự động giới hạn phạm vi CSS theo component.",
+   "CSS Variables giúp theming động (dark mode, design token) mà không cần build lại.",
+   "Kiến trúc CSS nên nhất quán toàn dự án, tránh trộn lẫn nhiều cách đặt tên."],
+  task:"Xem lại 1 file .vue trong dự án, đánh giá style đang theo quy ước nào và có nhất quán với phần còn lại không."},
+ be:{title:"Collections Framework", points:[
+   "List (ArrayList, LinkedList) lưu dữ liệu có thứ tự, cho phép trùng lặp.",
+   "Set (HashSet, TreeSet) không cho phép trùng lặp; HashSet không đảm bảo thứ tự.",
+   "Map (HashMap, TreeMap) lưu cặp key-value, tra cứu theo key rất nhanh (gần O(1) với HashMap).",
+   "Chọn cấu trúc dữ liệu phù hợp quan trọng hơn nhớ hết API — hỏi \"cần thứ tự không, cần unique không, cần tra cứu nhanh không\".",
+   "Duyệt Collection bằng for-each hoặc Stream API (Java 8+)."],
+  task:"Dùng HashMap để đếm tần suất xuất hiện của từng ký tự trong 1 chuỗi."},
+ algoId:"bubble-sort"},
+
+{day:7, theme:"Accessibility & String",
+ fe:{title:"Accessibility (a11y) cơ bản cho SPA", points:[
+   "Dùng đúng thẻ HTML ngữ nghĩa (button, nav, header) thay vì div/span cho mọi thứ.",
+   "Mọi input cần có label liên kết (for/id hoặc aria-label).",
+   "Đảm bảo tương phản màu đủ để người khiếm thị màu vẫn đọc được.",
+   "Hỗ trợ điều hướng bằng bàn phím (Tab, Enter, Esc) cho modal, dropdown.",
+   "aria-* attributes bổ sung ngữ nghĩa cho screen reader khi HTML thuần không đủ."],
+  task:"Thử điều hướng 1 form trong AWX Refiner chỉ bằng bàn phím (không dùng chuột), ghi lại chỗ nào bị kẹt."},
+ be:{title:"String & StringBuilder", points:[
+   "String trong Java là immutable — mỗi lần \"sửa\" thực chất tạo object String mới.",
+   "Nối chuỗi bằng + trong vòng lặp lớn kém hiệu quả vì tạo nhiều object thừa.",
+   "StringBuilder mutable, phù hợp khi cần nối/sửa chuỗi nhiều lần trong vòng lặp.",
+   "Các method thường dùng: substring(), split(), trim(); dùng equals() để so sánh nội dung, không dùng ==.",
+   "== so sánh tham chiếu (địa chỉ object), equals() so sánh nội dung — lỗi phổ biến của người mới."],
+  task:"Viết hàm dùng StringBuilder để đảo ngược 1 chuỗi, so sánh cách viết với dùng String + trong vòng lặp."},
+ algoId:"binary-search"},
+
+{day:8, theme:"Web Security & Lambda/Stream",
+ fe:{title:"Web Security: XSS, CSRF trong ứng dụng FE", points:[
+   "XSS xảy ra khi input người dùng được render thẳng thành HTML/JS mà không escape.",
+   "Vue tự động escape nội dung trong {{ }}, nhưng v-html thì không — cẩn thận khi dùng.",
+   "CSRF lợi dụng session đã login để gửi request giả mạo.",
+   "CSRF token hoặc SameSite cookie là cách phòng chống phổ biến.",
+   "Không bao giờ tin dữ liệu từ client, kể cả khi đã validate ở FE."],
+  task:"Tìm trong dự án chỗ nào đang dùng v-html, kiểm tra dữ liệu đưa vào có được sanitize không."},
+ be:{title:"Java 8: Lambda & Stream API", points:[
+   "Lambda expression là cách viết hàm ẩn danh gọn hơn, cú pháp (params) -> expression.",
+   "Stream API xử lý Collection theo phong cách functional: filter, map, reduce, collect.",
+   "Stream không thay đổi dữ liệu gốc, trả về stream mới sau mỗi phép biến đổi (giống method chain trong JS).",
+   "Functional interface (Runnable, Comparator...) chỉ có 1 method trừu tượng, dùng được với lambda.",
+   "Stream giúp code ngắn gọn hơn nhưng debug khó hơn vòng lặp thường — cân nhắc độ phức tạp bài toán."],
+  task:"Dùng Stream API: từ 1 List<Integer>, lọc số chẵn rồi tính tổng bằng filter + reduce."},
+ algoId:"valid-parentheses"},
+
+{day:9, theme:"Network & Generics",
+ fe:{title:"HTTP caching & network optimization", points:[
+   "Cache-Control header quyết định trình duyệt lưu cache bao lâu, khi nào phải revalidate.",
+   "ETag giúp server trả 304 Not Modified nếu nội dung không đổi, tiết kiệm băng thông.",
+   "Gộp nhiều request nhỏ hoặc dùng HTTP/2 multiplexing để giảm overhead.",
+   "Debounce/throttle request khi người dùng gõ tìm kiếm liên tục.",
+   "Dùng DevTools tab Network để phân tích request nào chậm, request nào lặp không cần thiết."],
+  task:"Mở DevTools Network khi thao tác trên AWX Refiner, tìm 1 request có thể debounce hoặc cache lại."},
+ be:{title:"Generics trong Java", points:[
+   "Generics cho phép class/method hoạt động với nhiều kiểu dữ liệu mà vẫn type-safe tại compile time.",
+   "List<String> đảm bảo compiler bắt lỗi nếu thêm nhầm kiểu khác vào list.",
+   "Ký hiệu quy ước: T (Type), E (Element), K/V (Key/Value) khi định nghĩa generic.",
+   "Bounded type (<T extends Number>) giới hạn generic chỉ nhận kiểu con của 1 class/interface.",
+   "Generics giúp tránh phải ép kiểu (cast) thủ công và giảm lỗi runtime."],
+  task:"Viết 1 class Box<T> chứa 1 giá trị kiểu T bất kỳ, với method get/set."},
+ algoId:"merge-sorted-arrays"},
+
+{day:10, theme:"TypeScript & Multithreading",
+ fe:{title:"TypeScript nâng cao cho FE", points:[
+   "Generics cho phép viết hàm/type tái sử dụng với nhiều kiểu dữ liệu mà vẫn type-safe.",
+   "Utility types như Partial, Pick, Omit giúp biến đổi type có sẵn mà không viết lại.",
+   "Union type và discriminated union giúp mô hình hóa nhiều trạng thái rõ ràng (loading/success/error).",
+   "unknown an toàn hơn any vì bắt buộc kiểm tra kiểu trước khi dùng.",
+   "Type guard (typeof, in, instanceof) giúp TypeScript thu hẹp kiểu trong từng nhánh code."],
+  task:"Viết 1 type union cho trạng thái gọi API (loading | success | error) và áp dụng vào 1 component thực tế."},
+ be:{title:"Multithreading cơ bản", points:[
+   "Thread là 1 luồng thực thi độc lập, cho phép chương trình làm nhiều việc \"song song\".",
+   "Tạo thread bằng extends Thread hoặc implements Runnable (Runnable linh hoạt hơn).",
+   "Race condition xảy ra khi nhiều thread cùng truy cập/sửa 1 dữ liệu chung không kiểm soát.",
+   "Từ khóa synchronized đảm bảo chỉ 1 thread truy cập đoạn code tại 1 thời điểm.",
+   "Multithreading mạnh nhưng phức tạp — chỉ dùng khi thực sự cần xử lý song song."],
+  task:"Viết 2 Thread cùng in số đếm từ 1 đến 5, quan sát thứ tự output có bị xen kẽ không dự đoán được."},
+ algoId:"remove-duplicates"},
+
+{day:11, theme:"Testing & File I/O",
+ fe:{title:"Testing FE với Vitest", points:[
+   "Unit test kiểm tra 1 đơn vị logic nhỏ (function, composable) độc lập với UI.",
+   "Component test kiểm tra component render đúng, phản ứng đúng với sự kiện người dùng.",
+   "Vitest tích hợp tốt với Vite, cú pháp gần giống Jest.",
+   "Mock API call khi test để không phụ thuộc vào backend thật.",
+   "Test không cần phủ 100%, ưu tiên phần logic quan trọng và dễ vỡ khi refactor."],
+  task:"Viết 1 unit test đơn giản cho 1 composable hoặc function util hiện có trong dự án."},
+ be:{title:"File I/O trong Java", points:[
+   "java.io và java.nio là 2 package chính để đọc/ghi file trong Java.",
+   "BufferedReader/BufferedWriter đọc/ghi theo dòng, hiệu quả hơn đọc từng byte.",
+   "try-with-resources tự động đóng file/stream sau khi dùng xong, tránh leak tài nguyên.",
+   "Files.readAllLines() (java.nio) là cách ngắn gọn để đọc nhanh 1 file nhỏ.",
+   "Luôn xử lý exception khi làm việc với file vì file có thể không tồn tại hoặc thiếu quyền."],
+  task:"Viết chương trình đọc 1 file text và đếm số dòng, số từ trong file đó."},
+ algoId:"factorial"},
+
+{day:12, theme:"Build Tools & Maven/Gradle",
+ fe:{title:"Build tools: Vite", points:[
+   "Vite dùng ES Module native trong dev, khởi động nhanh hơn Webpack truyền thống.",
+   "Tree-shaking loại bỏ code không dùng tới khi build production.",
+   "Chia chunk hợp lý giúp trình duyệt cache hiệu quả hơn khi deploy version mới.",
+   "Plugin Vite mở rộng khả năng xử lý (SVG, i18n, compress ảnh...).",
+   "Phân biệt rõ config cho dev và production trong vite.config.js."],
+  task:"Xem file vite.config trong dự án, liệt kê các plugin đang dùng và tác dụng của từng cái."},
+ be:{title:"Maven/Gradle — quản lý dependency", points:[
+   "Maven/Gradle quản lý thư viện bên ngoài (dependency) và quy trình build của dự án Java.",
+   "pom.xml (Maven) hoặc build.gradle khai báo dependency, version, plugin cần dùng.",
+   "Dependency scope (compile, test, runtime) quyết định thư viện dùng ở giai đoạn nào.",
+   "Build lifecycle: compile → test → package → install/deploy.",
+   "Gradle dùng Groovy/Kotlin DSL, thường nhanh hơn Maven nhờ build cache và incremental build."],
+  task:"Tạo 1 project Maven/Gradle mới, thêm 1 dependency đơn giản (ví dụ JUnit) và build thử."},
+ algoId:"fibonacci"},
+
+{day:13, theme:"Rendering Pipeline & JDBC",
+ fe:{title:"Browser rendering pipeline", points:[
+   "Trình duyệt xử lý qua các bước: Parse HTML/CSS → Style → Layout → Paint → Composite.",
+   "Thay đổi CSS ảnh hưởng layout (width, height) tốn kém hơn thay đổi chỉ ảnh hưởng paint (color).",
+   "transform và opacity được tối ưu bởi GPU, nên ưu tiên dùng cho animation.",
+   "Reflow hàng loạt do đọc/ghi DOM xen kẽ gây giật lag — nên gộp (batch) lại.",
+   "Hiểu pipeline này giải thích tại sao animate width lại giật hơn animate transform."],
+  task:"Tìm 1 chỗ trong CSS/animation của dự án đang animate thuộc tính gây reflow (width, top...), đề xuất đổi sang transform."},
+ be:{title:"JDBC — kết nối Database", points:[
+   "JDBC (Java Database Connectivity) là API chuẩn để Java giao tiếp với database quan hệ.",
+   "Connection, Statement/PreparedStatement, ResultSet là 3 thành phần chính khi thao tác JDBC.",
+   "PreparedStatement tránh SQL Injection bằng cách tham số hóa câu query thay vì nối chuỗi thủ công.",
+   "Luôn đóng Connection/Statement/ResultSet sau khi dùng (hoặc dùng try-with-resources).",
+   "JDBC là nền tảng để hiểu ORM (JPA/Hibernate) hoạt động bên dưới thế nào."],
+  task:"Viết đoạn code JDBC kết nối tới 1 database (SQLite/MySQL) và query 1 bảng đơn giản."},
+ algoId:"missing-number"},
+
+{day:14, theme:"Web APIs & Spring Boot",
+ fe:{title:"Web APIs nâng cao", points:[
+   "IntersectionObserver phát hiện phần tử xuất hiện trong viewport, dùng cho lazy load, infinite scroll.",
+   "Web Worker chạy JS ở luồng riêng, không block UI khi xử lý nặng.",
+   "ResizeObserver theo dõi thay đổi kích thước phần tử mà không cần lắng nghe resize toàn trang.",
+   "localStorage/sessionStorage lưu dữ liệu phía client, khác nhau về vòng đời.",
+   "Các API này giúp giảm tải cho main thread và cải thiện trải nghiệm người dùng."],
+  task:"Nghĩ 1 tính năng trong AWX Refiner có thể hưởng lợi từ IntersectionObserver (ví dụ infinite scroll danh sách model)."},
+ be:{title:"Giới thiệu Spring Boot", points:[
+   "Spring Boot giúp xây dựng ứng dụng Java (đặc biệt REST API) nhanh, ít cấu hình thủ công.",
+   "@SpringBootApplication là annotation khởi động toàn bộ ứng dụng Spring Boot.",
+   "Dependency Injection (DI) là core concept: Spring tự quản lý vòng đời và inject các object (bean) cần thiết.",
+   "@Component, @Service, @Repository đánh dấu các loại bean khác nhau theo tầng trong ứng dụng.",
+   "Spring Boot dùng embedded server (Tomcat) nên chạy được ngay bằng lệnh, không cần cài server riêng."],
+  task:"Tạo project Spring Boot mới (dùng start.spring.io), chạy thử và xem log khởi động ứng dụng."},
+ algoId:"flatten"},
+
+{day:15, theme:"Design Patterns FE & REST API",
+ fe:{title:"Design patterns trong FE", points:[
+   "Observer pattern: component lắng nghe và phản ứng khi state thay đổi (nền tảng của reactivity).",
+   "Factory pattern: hàm tạo ra component/object khác nhau dựa trên điều kiện đầu vào.",
+   "Singleton: đảm bảo chỉ có 1 instance duy nhất (ví dụ 1 instance axios dùng chung toàn app).",
+   "Provide/Inject trong Vue là dạng Dependency Injection, tránh truyền props qua nhiều tầng.",
+   "Nhận diện pattern giúp đọc hiểu code người khác nhanh hơn, không phải để áp dụng máy móc."],
+  task:"Tìm 1 chỗ trong dự án đang truyền props qua 3+ tầng component, đánh giá có nên dùng provide/inject không."},
+ be:{title:"REST API với Spring Boot", points:[
+   "@RestController đánh dấu class xử lý request và trả về dữ liệu (thường là JSON).",
+   "@GetMapping, @PostMapping, @PutMapping, @DeleteMapping map tới các HTTP method tương ứng.",
+   "@RequestBody lấy dữ liệu từ body request, @PathVariable lấy dữ liệu từ URL path.",
+   "Response nên có status code rõ ràng (200, 201, 404, 400...) thay vì luôn trả 200.",
+   "Thiết kế REST tốt: đặt tên endpoint theo resource (danh từ), dùng đúng HTTP method cho đúng hành động."],
+  task:"Viết 1 REST API đơn giản quản lý danh sách \"model\" (giống AWX Refiner) với endpoint GET và POST."},
+ algoId:"group-anagrams"},
+
+{day:16, theme:"SSR/CSR/SSG & JPA",
+ fe:{title:"SSR vs CSR vs SSG", points:[
+   "CSR: trình duyệt tải JS rồi mới render — SEO kém, first paint chậm hơn.",
+   "SSR: server render HTML sẵn, tốt cho SEO và tốc độ tải đầu.",
+   "SSG: build sẵn HTML tĩnh lúc build time, nhanh nhất nhưng không hợp nội dung động.",
+   "Nuxt.js là framework phổ biến để làm SSR/SSG cho Vue.",
+   "Chọn hướng nào phụ thuộc vào yêu cầu SEO và tần suất thay đổi nội dung, không có hướng nào \"tốt hơn\" tuyệt đối."],
+  task:"AWX Refiner hiện là CSR — thử nghĩ xem có phần nào (landing page, docs) sẽ hưởng lợi nếu chuyển sang SSR/SSG."},
+ be:{title:"Spring Data JPA & ORM", points:[
+   "ORM ánh xạ giữa class Java và bảng database, giảm code SQL thủ công.",
+   "@Entity đánh dấu class tương ứng với 1 bảng, @Id đánh dấu khóa chính.",
+   "JpaRepository cung cấp sẵn các method CRUD cơ bản (save, findById, findAll, delete) không cần viết SQL.",
+   "Có thể viết custom query bằng tên method (findByName) hoặc @Query khi cần phức tạp hơn.",
+   "ORM tiện lợi nhưng cần hiểu SQL bên dưới để debug khi performance có vấn đề (N+1 query...)."],
+  task:"Định nghĩa 1 Entity Model với vài field, tạo Repository kế thừa JpaRepository và thử save/find dữ liệu."},
+ algoId:"longest-substring"},
+
+{day:17, theme:"Micro-frontend & Auth/JWT",
+ fe:{title:"Micro-frontend là gì, khi nào cần", points:[
+   "Micro-frontend chia 1 ứng dụng lớn thành nhiều phần độc lập, có thể phát triển/deploy riêng.",
+   "Phù hợp với team lớn, nhiều nhóm cùng làm trên 1 sản phẩm mà không muốn đụng code nhau.",
+   "Module Federation (Webpack 5) là kỹ thuật phổ biến để chia sẻ code giữa các micro-frontend.",
+   "Đánh đổi: phức tạp hơn về hạ tầng, cần đồng bộ version dependency giữa các phần.",
+   "Không nên áp dụng cho dự án nhỏ hoặc team nhỏ — độ phức tạp không đáng."],
+  task:"Viết vài dòng nhận định xem AWX Refiner có đang ở quy mô cần micro-frontend hay chưa, vì sao."},
+ be:{title:"Authentication & JWT cơ bản", points:[
+   "Authentication (xác thực) trả lời \"bạn là ai\"; Authorization (phân quyền) trả lời \"bạn được làm gì\".",
+   "JWT là chuỗi mã hóa chứa thông tin user, được ký để chống giả mạo.",
+   "Luồng phổ biến: login trả về JWT → client gửi JWT trong header Authorization ở các request sau.",
+   "JWT không nên chứa dữ liệu nhạy cảm vì phần payload chỉ encode chứ không mã hóa.",
+   "Spring Security là thư viện phổ biến để tích hợp authentication/authorization vào Spring Boot."],
+  task:"Đọc thử cấu trúc 1 JWT thật (header.payload.signature) bằng jwt.io, xác định phần nào chứa thông tin gì."},
+ algoId:"merge-intervals"},
+
+{day:18, theme:"PWA & Unit Testing Java",
+ fe:{title:"Progressive Web App (PWA) cơ bản", points:[
+   "PWA là web app có thể cài đặt như app native, hoạt động offline nhờ Service Worker.",
+   "Service Worker là script chạy nền, can thiệp vào network request để cache tài nguyên.",
+   "manifest.json khai báo icon, tên app, màu theme khi cài lên màn hình chính.",
+   "PWA phù hợp cho ứng dụng cần dùng offline hoặc muốn trải nghiệm giống app di động.",
+   "Không phải app nào cũng cần PWA — cân nhắc dựa trên nhu cầu người dùng thực tế."],
+  task:"Thử mở 1 web PWA quen thuộc trên điện thoại, quan sát cách nó hoạt động khi mất mạng."},
+ be:{title:"Unit Testing với JUnit", points:[
+   "JUnit là framework testing phổ biến nhất cho Java, tương tự Vitest/Jest bên JS.",
+   "@Test đánh dấu 1 method là test case; assertEquals/assertTrue kiểm tra kết quả mong đợi.",
+   "@BeforeEach/@AfterEach chạy trước/sau mỗi test, dùng để setup/cleanup dữ liệu test.",
+   "Mockito giúp giả lập (mock) dependency bên ngoài khi test logic, không phụ thuộc hệ thống thật.",
+   "Test tốt nên độc lập với nhau — thứ tự chạy test không được ảnh hưởng tới kết quả."],
+  task:"Viết 1–2 test case JUnit cho hàm chia có xử lý exception đã viết ở Ngày 5."},
+ algoId:"climbing-stairs"},
+
+{day:19, theme:"Debug/Profiling & Design Patterns Java",
+ fe:{title:"Debugging & performance profiling", points:[
+   "Tab Performance trong DevTools ghi lại timeline render, giúp tìm hàm nào tốn thời gian nhất.",
+   "Vue Devtools extension giúp xem component tree, props, state real-time.",
+   "console.time/console.timeEnd đo nhanh thời gian chạy 1 đoạn code cụ thể.",
+   "Memory tab giúp phát hiện memory leak (component không được garbage collect sau khi unmount).",
+   "Luôn đo trước khi tối ưu — đừng đoán chỗ nào chậm mà không có số liệu."],
+  task:"Dùng tab Performance ghi lại 1 thao tác trong AWX Refiner cảm thấy chậm, xem hàm nào chiếm nhiều thời gian nhất."},
+ be:{title:"Design Patterns phổ biến trong Java", points:[
+   "Singleton đảm bảo 1 class chỉ có đúng 1 instance trong toàn ứng dụng (ví dụ 1 connection pool).",
+   "Factory pattern tách logic tạo object ra khỏi nơi sử dụng, dễ mở rộng thêm loại mới.",
+   "Builder pattern giúp tạo object phức tạp với nhiều field optional mà không cần constructor rối rắm.",
+   "Strategy pattern cho phép đổi thuật toán/xử lý linh hoạt tại runtime thông qua interface chung.",
+   "Design pattern là công cụ giải quyết vấn đề lặp lại, không phải mục tiêu để nhồi vào mọi chỗ."],
+  task:"Nhận diện xem trong code Spring Boot đã viết (JpaRepository, @Service...) có dùng pattern nào ở trên không."},
+ algoId:"queue-two-stacks"},
+
+{day:20, theme:"Clean Code & Docker",
+ fe:{title:"Code review & clean code cho FE", points:[
+   "Đặt tên biến/hàm rõ nghĩa quan trọng hơn viết comment giải thích code khó hiểu.",
+   "1 hàm nên làm 1 việc — nếu tên hàm có chữ \"and\" thường là dấu hiệu nên tách nhỏ.",
+   "Khi review code người khác, hỏi \"tại sao\" trước khi hỏi \"sao không làm cách khác\".",
+   "Convention nhất quán (naming, cấu trúc file) quan trọng hơn convention \"đúng nhất\" về lý thuyết.",
+   "Refactor an toàn khi có test bảo vệ — nếu chưa có test, cẩn trọng hơn khi đổi cấu trúc."],
+  task:"Tự review lại 1 đoạn code bạn viết tuần trước, tìm 1 chỗ có thể đặt tên rõ hơn hoặc tách nhỏ hàm."},
+ be:{title:"Triển khai ứng dụng Java với Docker cơ bản", points:[
+   "Docker đóng gói ứng dụng cùng môi trường chạy (JDK, dependency) thành 1 image thống nhất.",
+   "Dockerfile định nghĩa các bước build image: FROM, COPY, RUN, CMD/ENTRYPOINT.",
+   "Build image bằng docker build, chạy container bằng docker run.",
+   "Multi-stage build giúp giảm kích thước image cuối (build bằng JDK, chạy bằng JRE nhẹ hơn).",
+   "Docker giúp môi trường dev/staging/production giống nhau, tránh lỗi \"chạy trên máy tôi thì được\"."],
+  task:"Viết 1 Dockerfile đơn giản để đóng gói ứng dụng Spring Boot đã tạo ở Ngày 14, build và chạy thử container."},
+ algoId:"max-subarray"},
 ];
 
-const solved = new Set();
-let currentId = problems[0].id;
+/* ============ DATA: ALGORITHM PROBLEMS ============ */
+const problems = {
+'two-sum':{name:'Two Sum', difficulty:'Dễ', signature:'function solve(nums, target)',
+  desc:'Cho mảng số nguyên nums và số target, trả về chỉ số của hai phần tử có tổng bằng target.',
+  example:'<b>Input:</b> nums=[2,7,11,15], target=9\n<b>Output:</b> [0,1]',
+  starter:'function solve(nums, target) {\n  // viết code tại đây\n}',
+  tests:[{args:[[2,7,11,15],9], expected:[0,1]},{args:[[3,2,4],6], expected:[1,2]},{args:[[3,3],6], expected:[0,1]}]},
+
+'fizzbuzz':{name:'FizzBuzz', difficulty:'Dễ', signature:'function solve(n)',
+  desc:'Trả về mảng từ 1 đến n, số chia hết cho 3 thành "Fizz", cho 5 thành "Buzz", cho cả hai thành "FizzBuzz".',
+  example:'<b>Input:</b> 5\n<b>Output:</b> ["1","2","Fizz","4","Buzz"]',
+  starter:'function solve(n) {\n  // viết code tại đây\n}',
+  tests:[{args:[5], expected:["1","2","Fizz","4","Buzz"]},{args:[15], expected:["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]}]},
+
+'reverse-string':{name:'Đảo ngược chuỗi', difficulty:'Dễ', signature:'function solve(str)',
+  desc:'Đảo ngược một chuỗi ký tự, không dùng .reverse() có sẵn của Array.',
+  example:'<b>Input:</b> "hello"\n<b>Output:</b> "olleh"',
+  starter:'function solve(str) {\n  // viết code tại đây\n}',
+  tests:[{args:['hello'], expected:'olleh'},{args:['JavaScript'], expected:'tpircSavaJ'},{args:[''], expected:''}]},
+
+'valid-palindrome':{name:'Kiểm tra Palindrome', difficulty:'Dễ', signature:'function solve(str)',
+  desc:'Kiểm tra chuỗi có phải palindrome không, bỏ qua khoảng trắng và không phân biệt hoa thường.',
+  example:'<b>Input:</b> "A man a plan a canal Panama"\n<b>Output:</b> true',
+  starter:'function solve(str) {\n  // viết code tại đây\n}',
+  tests:[{args:['A man a plan a canal Panama'], expected:true},{args:['race a car'], expected:false},{args:['level'], expected:true}]},
+
+'count-chars':{name:'Đếm tần suất ký tự', difficulty:'Dễ', signature:'function solve(str)',
+  desc:'Đếm số lần xuất hiện của mỗi ký tự trong chuỗi, trả về object {ký_tự: số_lần}.',
+  example:'<b>Input:</b> "aabbc"\n<b>Output:</b> {a:2, b:2, c:1}',
+  starter:'function solve(str) {\n  // viết code tại đây\n}',
+  tests:[{args:['aabbc'], expected:{a:2,b:2,c:1}},{args:['xyz'], expected:{x:1,y:1,z:1}}]},
+
+'bubble-sort':{name:'Bubble Sort', difficulty:'Dễ', signature:'function solve(arr)',
+  desc:'Tự cài đặt thuật toán Bubble Sort để sắp xếp mảng số tăng dần (không dùng .sort() có sẵn).',
+  example:'<b>Input:</b> [5,3,8,1]\n<b>Output:</b> [1,3,5,8]',
+  starter:'function solve(arr) {\n  // viết code tại đây\n}',
+  tests:[{args:[[5,3,8,1]], expected:[1,3,5,8]},{args:[[1]], expected:[1]},{args:[[4,2,2,1]], expected:[1,2,2,4]}]},
+
+'binary-search':{name:'Tìm kiếm nhị phân', difficulty:'Trung bình', signature:'function solve(sortedArr, target)',
+  desc:'Cài đặt binary search trên mảng đã sắp xếp tăng dần, trả về chỉ số của target hoặc -1. Yêu cầu O(log n).',
+  example:'<b>Input:</b> sortedArr=[1,3,5,7,9,11], target=7\n<b>Output:</b> 3',
+  starter:'function solve(sortedArr, target) {\n  // viết code tại đây\n}',
+  tests:[{args:[[1,3,5,7,9,11],7], expected:3},{args:[[1,3,5,7,9,11],2], expected:-1},{args:[[5],5], expected:0}]},
+
+'valid-parentheses':{name:'Ngoặc hợp lệ', difficulty:'Trung bình', signature:'function solve(str)',
+  desc:'Kiểm tra chuỗi chỉ gồm (){}[] có hợp lệ không (mở/đóng đúng thứ tự, dùng Stack).',
+  example:'<b>Input:</b> "({[]})"\n<b>Output:</b> true',
+  starter:'function solve(str) {\n  // viết code tại đây\n}',
+  tests:[{args:['({[]})'], expected:true},{args:['(]'], expected:false},{args:['(('], expected:false},{args:[''], expected:true}]},
+
+'merge-sorted-arrays':{name:'Trộn 2 mảng đã sắp xếp', difficulty:'Dễ', signature:'function solve(a, b)',
+  desc:'Trộn 2 mảng số đã sắp xếp tăng dần thành 1 mảng sắp xếp tăng dần.',
+  example:'<b>Input:</b> a=[1,3,5], b=[2,4,6]\n<b>Output:</b> [1,2,3,4,5,6]',
+  starter:'function solve(a, b) {\n  // viết code tại đây\n}',
+  tests:[{args:[[1,3,5],[2,4,6]], expected:[1,2,3,4,5,6]},{args:[[],[1,2]], expected:[1,2]},{args:[[1],[]], expected:[1]}]},
+
+'remove-duplicates':{name:'Xóa phần tử trùng', difficulty:'Dễ', signature:'function solve(sortedArr)',
+  desc:'Cho mảng số đã sắp xếp tăng dần, trả về mảng mới chỉ giữ giá trị duy nhất (không trùng).',
+  example:'<b>Input:</b> [1,1,2,2,3]\n<b>Output:</b> [1,2,3]',
+  starter:'function solve(sortedArr) {\n  // viết code tại đây\n}',
+  tests:[{args:[[1,1,2,2,3]], expected:[1,2,3]},{args:[[1,1,1]], expected:[1]},{args:[[]], expected:[]}]},
+
+'factorial':{name:'Giai thừa (đệ quy)', difficulty:'Dễ', signature:'function solve(n)',
+  desc:'Tính n! bằng đệ quy (n! = n * (n-1) * ... * 1, 0! = 1).',
+  example:'<b>Input:</b> 5\n<b>Output:</b> 120',
+  starter:'function solve(n) {\n  // viết code tại đây, dùng đệ quy\n}',
+  tests:[{args:[5], expected:120},{args:[0], expected:1},{args:[1], expected:1},{args:[6], expected:720}]},
+
+'fibonacci':{name:'Fibonacci', difficulty:'Trung bình', signature:'function solve(n)',
+  desc:'Trả về số Fibonacci thứ n (F(0)=0, F(1)=1). Nên dùng memoization để tối ưu thay vì đệ quy thuần.',
+  example:'<b>Input:</b> 10\n<b>Output:</b> 55',
+  starter:'function solve(n) {\n  // viết code tại đây\n}',
+  tests:[{args:[0], expected:0},{args:[1], expected:1},{args:[10], expected:55},{args:[20], expected:6765}]},
+
+'missing-number':{name:'Tìm số bị thiếu', difficulty:'Trung bình', signature:'function solve(nums)',
+  desc:'Cho mảng n số phân biệt lấy từ đoạn 0..n, tìm số duy nhất bị thiếu.',
+  example:'<b>Input:</b> [3,0,1]\n<b>Output:</b> 2',
+  starter:'function solve(nums) {\n  // viết code tại đây\n}',
+  tests:[{args:[[3,0,1]], expected:2},{args:[[0,1]], expected:2},{args:[[9,6,4,2,3,5,7,0,1]], expected:8}]},
+
+'flatten':{name:'Làm phẳng mảng lồng nhau', difficulty:'Khó', signature:'function solve(arr)',
+  desc:'Làm phẳng hoàn toàn mảng lồng nhau ở bất kỳ độ sâu nào, không dùng .flat(Infinity).',
+  example:'<b>Input:</b> [1,[2,[3,[4,5]],6]]\n<b>Output:</b> [1,2,3,4,5,6]',
+  starter:'function solve(arr) {\n  // viết code tại đây\n}',
+  tests:[{args:[[1,[2,[3,[4,5]],6]]], expected:[1,2,3,4,5,6]},{args:[[1,2,3]], expected:[1,2,3]},{args:[[[1],[2,[3]]]], expected:[1,2,3]}]},
+
+'group-anagrams':{name:'Nhóm Anagram', difficulty:'Trung bình', signature:'function solve(words)',
+  desc:'Nhóm các từ là anagram của nhau lại thành các mảng con.',
+  example:'<b>Input:</b> ["eat","tea","tan","ate","nat","bat"]\n<b>Output:</b> [["eat","tea","ate"],["tan","nat"],["bat"]]',
+  starter:'function solve(words) {\n  // viết code tại đây\n}',
+  tests:[{args:[["eat","tea","tan","ate","nat","bat"]], expected:[["ate","eat","tea"],["nat","tan"],["bat"]], normalize:'anagram'}]},
+
+'longest-substring':{name:'Chuỗi con không lặp dài nhất', difficulty:'Khó', signature:'function solve(str)',
+  desc:'Tìm độ dài của chuỗi con dài nhất không chứa ký tự lặp lại (sliding window).',
+  example:'<b>Input:</b> "abcabcbb"\n<b>Output:</b> 3  ("abc")',
+  starter:'function solve(str) {\n  // viết code tại đây\n}',
+  tests:[{args:['abcabcbb'], expected:3},{args:['bbbbb'], expected:1},{args:['pwwkew'], expected:3},{args:[''], expected:0}]},
+
+'merge-intervals':{name:'Gộp khoảng thời gian', difficulty:'Khó', signature:'function solve(intervals)',
+  desc:'Cho mảng các khoảng [start,end], gộp các khoảng chồng lấn lại với nhau.',
+  example:'<b>Input:</b> [[1,3],[2,6],[8,10]]\n<b>Output:</b> [[1,6],[8,10]]',
+  starter:'function solve(intervals) {\n  // viết code tại đây\n}',
+  tests:[{args:[[[1,3],[2,6],[8,10]]], expected:[[1,6],[8,10]]},{args:[[[1,4],[4,5]]], expected:[[1,5]]}]},
+
+'climbing-stairs':{name:'Leo cầu thang (DP)', difficulty:'Trung bình', signature:'function solve(n)',
+  desc:'Mỗi bước leo 1 hoặc 2 bậc, tính số cách khác nhau để leo hết n bậc thang.',
+  example:'<b>Input:</b> 3\n<b>Output:</b> 3  (1+1+1, 1+2, 2+1)',
+  starter:'function solve(n) {\n  // viết code tại đây\n}',
+  tests:[{args:[2], expected:2},{args:[3], expected:3},{args:[5], expected:8}]},
+
+'queue-two-stacks':{name:'Queue bằng 2 Stack', difficulty:'Khó', signature:'function solve(operations)',
+  desc:'Cài đặt hàng đợi (Queue) bằng 2 Stack. operations là mảng lệnh dạng ["enqueue",giá_trị] hoặc ["dequeue"]. Trả về mảng kết quả của các lệnh dequeue theo đúng thứ tự thực hiện.',
+  example:'<b>Input:</b> [["enqueue",1],["enqueue",2],["dequeue"],["enqueue",3],["dequeue"]]\n<b>Output:</b> [1,2]',
+  starter:'function solve(operations) {\n  // gợi ý: dùng 2 mảng làm 2 stack (inStack, outStack)\n}',
+  tests:[{args:[[["enqueue",1],["enqueue",2],["dequeue"],["enqueue",3],["dequeue"]]], expected:[1,2]},{args:[[["enqueue","a"],["dequeue"],["enqueue","b"],["enqueue","c"],["dequeue"],["dequeue"]]], expected:['a','b','c']}]},
+
+'max-subarray':{name:'Tổng mảng con lớn nhất', difficulty:'Khó', signature:'function solve(nums)',
+  desc:'Tìm tổng lớn nhất của 1 mảng con liên tiếp (thuật toán Kadane, O(n)).',
+  example:'<b>Input:</b> [-2,1,-3,4,-1,2,1,-5,4]\n<b>Output:</b> 6  (mảng con [4,-1,2,1])',
+  starter:'function solve(nums) {\n  // viết code tại đây\n}',
+  tests:[{args:[[-2,1,-3,4,-1,2,1,-5,4]], expected:6},{args:[[1]], expected:1},{args:[[5,4,-1,7,8]], expected:23},{args:[[-3,-1,-2]], expected:-1}]},
+};
+
+/* ============ STATE & PERSISTENCE ============ */
+let currentDay = 1;
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem('daily-progress') || '{}'); } catch(e){ progress = {}; }
 const savedCode = {};
+try { Object.assign(savedCode, JSON.parse(localStorage.getItem('daily-code') || '{}')); } catch(e){}
 
-const sidebar = document.getElementById('sidebar');
-const groups = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
-
-function renderSidebar(){
-  sidebar.innerHTML = '';
-  Object.keys(groups).forEach(diff => {
-    const group = document.createElement('div');
-    group.className = 'sidebar-group';
-    const label = document.createElement('div');
-    label.className = 'sidebar-label';
-    label.textContent = groups[diff];
-    group.appendChild(label);
-    problems.filter(p => p.difficulty === diff).forEach(p => {
-      const item = document.createElement('div');
-      item.className = 'problem-item' + (p.id === currentId ? ' active' : '');
-      item.innerHTML = `
-        <span class="check">${solved.has(p.id) ? '✓' : ''}</span>
-        <span class="name" style="flex:1">${p.name}</span>
-        <span class="badge ${p.difficulty}">${groups[p.difficulty]}</span>
-      `;
-      item.addEventListener('click', () => selectProblem(p.id));
-      group.appendChild(item);
-    });
-    sidebar.appendChild(group);
-  });
-  document.getElementById('stat-total').textContent = problems.length;
-  document.getElementById('stat-solved').textContent = solved.size;
-}
-
-function selectProblem(id){
-  currentId = id;
-  const p = problems.find(x => x.id === id);
-  document.getElementById('p-title').textContent = p.name;
-  document.getElementById('p-badge').textContent = groups[p.difficulty];
-  document.getElementById('p-badge').className = 'badge ' + p.difficulty;
-  document.getElementById('p-desc').textContent = p.desc;
-  document.getElementById('p-example').innerHTML = p.example;
-  document.getElementById('p-signature').textContent = p.signature.match(/solve\(.*\)/)[0] + '.js';
-  document.getElementById('editor').value = savedCode[id] || p.starter;
-  resetConsole();
+function saveProgress(){
+  localStorage.setItem('daily-progress', JSON.stringify(progress));
+  updateHeaderProgress();
   renderSidebar();
 }
-
-document.getElementById('btn-reset').addEventListener('click', () => {
-  const p = problems.find(x => x.id === currentId);
-  document.getElementById('editor').value = p.starter;
-  delete savedCode[currentId];
-  resetConsole();
-});
-
-document.getElementById('editor').addEventListener('input', (e) => {
-  savedCode[currentId] = e.target.value;
-});
-
-function resetConsole(){
-  document.getElementById('console-body').innerHTML =
-    '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải<span class="cursor"></span></div>';
-  document.getElementById('console-time').textContent = '';
+function saveCode(){
+  localStorage.setItem('daily-code', JSON.stringify(savedCode));
+}
+function getDayProgress(day){
+  return progress[day] || {fe:false, be:false, algo:false};
+}
+function setDayProgress(day, key, val){
+  if(!progress[day]) progress[day] = {fe:false, be:false, algo:false};
+  progress[day][key] = val;
+  saveProgress();
 }
 
+function updateHeaderProgress(){
+  const total = curriculum.length;
+  let full = 0;
+  curriculum.forEach(d => {
+    const p = getDayProgress(d.day);
+    if(p.fe && p.be && p.algo) full++;
+  });
+  document.getElementById('progress-fill').style.width = (full/total*100) + '%';
+  document.getElementById('progress-label').innerHTML = `<b>${full}</b>/${total} ngày`;
+}
+
+/* ============ SIDEBAR ============ */
+function renderSidebar(){
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '<div class="sidebar-label">Lộ trình 20 ngày</div>';
+  curriculum.forEach(d => {
+    const p = getDayProgress(d.day);
+    const item = document.createElement('div');
+    item.className = 'day-item' + (d.day === currentDay ? ' active' : '');
+    item.innerHTML = `
+      <span class="num">${String(d.day).padStart(2,'0')}</span>
+      <span class="theme">${d.theme}</span>
+      <span class="day-dots">
+        <span class="${p.fe ? 'done fe' : ''}"></span>
+        <span class="${p.be ? 'done be' : ''}"></span>
+        <span class="${p.algo ? 'done algo' : ''}"></span>
+      </span>
+    `;
+    item.addEventListener('click', () => selectDay(d.day));
+    sidebar.appendChild(item);
+  });
+}
+
+/* ============ TEST ENGINE ============ */
 function deepEqual(a, b){
-  return JSON.stringify(a) === JSON.stringify(b);
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    return a.every((v,i) => deepEqual(v, b[i]));
+  }
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    const ak = Object.keys(a).sort(), bk = Object.keys(b).sort();
+    if (ak.length !== bk.length) return false;
+    return ak.every((k,i) => k === bk[i] && deepEqual(a[k], b[k]));
+  }
+  return a === b;
 }
-
 function anagramEqual(a, b){
   const norm = (arr) => arr.map(inner => [...inner].sort().join(',')).sort().join('|');
   try { return norm(a) === norm(b); } catch(e){ return false; }
 }
 
-function runDebounceTest(userFn){
-  // Simulated timer to test debounce logic deterministically
-  let calls = [];
-  const fakeFn = (...args) => calls.push(args);
-  let scheduled = null;
-  const originalSetTimeout = window.setTimeout;
-  const originalClearTimeout = window.clearTimeout;
-  let virtualTime = 0;
-  let pending = null;
+/* ============ RENDER MAIN ============ */
+function selectDay(day){
+  currentDay = day;
+  const d = curriculum.find(x => x.day === day);
+  const p = getDayProgress(day);
+  const problem = problems[d.algoId];
+  const main = document.getElementById('main');
 
-  window.setTimeout = (cb, ms) => { pending = { cb, fireAt: virtualTime + ms }; return 1; };
-  window.clearTimeout = () => { pending = null; };
+  main.innerHTML = `
+    <div class="day-title">Ngày ${d.day}: ${d.theme}</div>
+    <div class="day-subtitle">Kế hoạch hôm nay — khoảng 1–2 tiếng, chia 3 phần: Frontend, Java Backend, Thuật toán</div>
 
-  try {
-    const debounced = userFn(fakeFn, 100);
-    debounced(1);
-    debounced(2);
-    debounced(3);
-    if (pending) { pending.cb(); }
-    window.setTimeout = originalSetTimeout;
-    window.clearTimeout = originalClearTimeout;
-    const pass = calls.length === 1 && deepEqual(calls[0], [3]);
-    return { pass, detail: pass ? '' : `gọi ${calls.length} lần, kỳ vọng đúng 1 lần với tham số cuối cùng` };
-  } catch(e){
-    window.setTimeout = originalSetTimeout;
-    window.clearTimeout = originalClearTimeout;
-    throw e;
-  }
+    <div class="section">
+      <div class="section-head">
+        <div class="left"><span class="track-tag fe">FRONTEND</span><h3>${d.fe.title}</h3></div>
+        <button class="check-btn ${p.fe ? 'checked' : ''}" id="check-fe">${p.fe ? '✓ Đã học' : 'Đánh dấu đã học'}</button>
+      </div>
+      <div class="section-body">
+        <ul class="points">${d.fe.points.map(pt => `<li>${pt}</li>`).join('')}</ul>
+        <div class="task-box"><b>Thực hành</b>${d.fe.task}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="left"><span class="track-tag be">JAVA BACKEND</span><h3>${d.be.title}</h3></div>
+        <button class="check-btn ${p.be ? 'checked be-style' : ''}" id="check-be">${p.be ? '✓ Đã học' : 'Đánh dấu đã học'}</button>
+      </div>
+      <div class="section-body">
+        <ul class="points">${d.be.points.map(pt => `<li>${pt}</li>`).join('')}</ul>
+        <div class="task-box"><b>Thực hành</b>${d.be.task}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="left"><span class="track-tag algo">THUẬT TOÁN</span><h3>${problem.name}</h3></div>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${problem.difficulty}</span>
+      </div>
+      <div class="section-body">
+        <p class="algo-desc">${problem.desc}</p>
+        <div class="algo-example">${problem.example}</div>
+        <div class="editor-wrap">
+          <div class="editor-topbar">
+            <span class="fname">${problem.signature}</span>
+            <div class="btn-row">
+              <button class="action btn-reset" id="btn-reset">Đặt lại</button>
+              <button class="action btn-run" id="btn-run">▶ Chạy test</button>
+            </div>
+          </div>
+          <textarea class="editor" id="editor" spellcheck="false">${(savedCode[d.algoId] || problem.starter).replace(/</g,'&lt;')}</textarea>
+        </div>
+        <div class="console">
+          <div class="console-topbar">console</div>
+          <div class="console-body" id="console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-nav">
+      <button class="nav-btn" id="btn-prev" ${day === 1 ? 'disabled' : ''}>← Ngày trước</button>
+      <button class="nav-btn" id="btn-next" ${day === curriculum.length ? 'disabled' : ''}>Ngày tiếp →</button>
+    </div>
+  `;
+
+  document.getElementById('check-fe').addEventListener('click', () => {
+    const np = !getDayProgress(day).fe;
+    setDayProgress(day, 'fe', np);
+    selectDay(day);
+  });
+  document.getElementById('check-be').addEventListener('click', () => {
+    const np = !getDayProgress(day).be;
+    setDayProgress(day, 'be', np);
+    selectDay(day);
+  });
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('editor').value = problem.starter;
+    delete savedCode[d.algoId];
+    saveCode();
+    document.getElementById('console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
+  });
+  document.getElementById('editor').addEventListener('input', (e) => {
+    savedCode[d.algoId] = e.target.value;
+    saveCode();
+  });
+  document.getElementById('btn-run').addEventListener('click', () => runTests(d, problem));
+  document.getElementById('btn-prev').addEventListener('click', () => { if(day>1) selectDay(day-1); window.scrollTo(0,0); });
+  document.getElementById('btn-next').addEventListener('click', () => { if(day<curriculum.length) selectDay(day+1); window.scrollTo(0,0); });
+
+  renderSidebar();
 }
 
-document.getElementById('btn-run').addEventListener('click', () => {
-  const p = problems.find(x => x.id === currentId);
+function runTests(d, problem){
   const code = document.getElementById('editor').value;
   const body = document.getElementById('console-body');
-  const now = new Date();
-  document.getElementById('console-time').textContent =
-    now.toLocaleTimeString('vi-VN', { hour12: false });
-
   let userFn;
   try {
     const scope = new Function(code + '\nreturn solve;');
@@ -603,51 +918,35 @@ document.getElementById('btn-run').addEventListener('click', () => {
 
   let lines = '';
   let passCount = 0;
-
-  p.tests.forEach((t, i) => {
+  problem.tests.forEach((t, i) => {
     try {
-      let pass, detail = '';
-      if (t.custom === 'debounce') {
-        const r = runDebounceTest(userFn);
-        pass = r.pass; detail = r.detail;
-      } else {
-        const actual = userFn(...t.args);
-        pass = t.normalize === 'anagram' ? anagramEqual(actual, t.expected) : deepEqual(actual, t.expected);
-        if (!pass) {
-          detail = `mong đợi ${JSON.stringify(t.expected)}, nhận được ${JSON.stringify(actual)}`;
-        }
-      }
+      const actual = userFn(...t.args);
+      const pass = t.normalize === 'anagram' ? anagramEqual(actual, t.expected) : deepEqual(actual, t.expected);
       if (pass) passCount++;
+      const detail = pass ? '' : `mong đợi ${JSON.stringify(t.expected)}, nhận được ${JSON.stringify(actual)}`;
       lines += `<div class="test-line ${pass ? 'pass' : 'fail'}">
         <span class="mark">${pass ? '✓' : '✗'}</span>
-        <span>
-          <span class="txt">test ${i + 1}${t.custom ? '' : ' — input: ' + JSON.stringify(t.args)}</span>
-          ${detail ? `<span class="detail">${detail}</span>` : ''}
-        </span>
+        <span><span class="txt">test ${i+1} — input: ${JSON.stringify(t.args)}</span>${detail ? `<span class="detail">${detail}</span>` : ''}</span>
       </div>`;
     } catch(e){
-      lines += `<div class="test-line fail">
-        <span class="mark">✗</span>
-        <span><span class="txt">test ${i + 1} — lỗi khi chạy</span><span class="detail">${e.message}</span></span>
-      </div>`;
+      lines += `<div class="test-line fail"><span class="mark">✗</span><span><span class="txt">test ${i+1} — lỗi khi chạy</span><span class="detail">${e.message}</span></span></div>`;
     }
   });
 
-  const allPass = passCount === p.tests.length;
-  lines += `<div class="summary-line ${allPass ? 'pass' : 'fail'}">
-    ${passCount}/${p.tests.length} test passed${allPass ? ' — hoàn thành bài này!' : ''}
-  </div>`;
-
+  const allPass = passCount === problem.tests.length;
+  lines += `<div class="summary-line ${allPass ? 'pass' : 'fail'}">${passCount}/${problem.tests.length} test passed${allPass ? ' — hoàn thành bài này!' : ''}</div>`;
   body.innerHTML = lines;
 
   if (allPass) {
-    solved.add(p.id);
-    renderSidebar();
+    setDayProgress(d.day, 'algo', true);
+    selectDay(d.day);
   }
-});
+}
 
+/* ============ INIT ============ */
+updateHeaderProgress();
 renderSidebar();
-selectProblem(currentId);
+selectDay(1);
 </script>
 </body>
 </html>
