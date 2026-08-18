@@ -76,7 +76,7 @@
   .notes-tab:hover{border-color:var(--text-dim); color:var(--text-primary);}
   .notes-tab.active{background:var(--track-color, var(--algo)); border-color:var(--track-color, var(--algo)); color:#fff;}
   .notes-body{flex:1; padding:16px 18px; display:flex; flex-direction:column; min-height:0;}
-  .notes-body textarea{flex:1; width:100%; min-height:200px; resize:none; border:1px solid var(--border); border-radius:8px; background:#FAFBFC; color:var(--text-primary); font-family:var(--sans); font-size:13.5px; line-height:1.6; padding:12px 14px; outline:none;}
+  .notes-body textarea{flex:1; width:100%; min-height:120px; box-sizing:border-box; resize:none; border:1px solid var(--border); border-radius:8px; background:#FAFBFC; color:var(--text-primary); font-family:var(--sans); font-size:13.5px; line-height:1.6; padding:12px 14px; outline:none;}
   .notes-body textarea:focus{border-color:var(--track-color, var(--algo));}
   .notes-hint{font-size:11px; color:var(--text-dim); margin-top:8px; line-height:1.5;}
   .notes-saved{font-family:var(--mono); font-size:10.5px; color:var(--fe); margin-top:6px; opacity:0; transition:opacity .3s;}
@@ -569,7 +569,25 @@ function bindNotesPanel(){
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => savedFlag.classList.remove('show'), 1200);
   });
+  fitNotesTextarea();
 }
+function fitNotesTextarea(){
+  const panel = document.getElementById('notesPanel');
+  const area = document.getElementById('notesArea');
+  if (!panel || !area || getComputedStyle(panel).display === 'none') return;
+  const body = panel.querySelector('.notes-body');
+  const hint = panel.querySelector('.notes-hint');
+  const saved = panel.querySelector('.notes-saved');
+  const bodyStyle = getComputedStyle(body);
+  const panelRect = panel.getBoundingClientRect();
+  const areaRect = area.getBoundingClientRect();
+  const reserved = saved.offsetHeight + hint.offsetHeight +
+    parseFloat(getComputedStyle(saved).marginTop) + parseFloat(getComputedStyle(hint).marginTop) +
+    parseFloat(bodyStyle.paddingBottom);
+  const available = panelRect.bottom - areaRect.top - reserved;
+  area.style.height = Math.max(120, available) + 'px';
+}
+window.addEventListener('resize', fitNotesTextarea);
 
 /* ============ RENDER: MAIN ============ */
 function renderMain(){
