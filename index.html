@@ -578,10 +578,13 @@ function fitNotesTextarea(){
   if (!panel) return;
   if (getComputedStyle(panel).display === 'none') return;
 
-  panel.style.top = header.offsetHeight + 'px';
-  panel.style.bottom = footer.offsetHeight + 'px';
+  const top = header.offsetHeight;
+  const h = window.innerHeight - top - footer.offsetHeight;
+  panel.style.top = top + 'px';
+  panel.style.height = h + 'px';
 }
 window.addEventListener('resize', fitNotesTextarea);
+window.addEventListener('load', fitNotesTextarea);
 
 /* ============ RENDER: MAIN ============ */
 function renderMain(){
