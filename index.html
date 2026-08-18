@@ -572,20 +572,27 @@ function bindNotesPanel(){
   fitNotesTextarea();
 }
 function fitNotesTextarea(){
+  const header = document.querySelector('header');
+  const footer = document.querySelector('footer');
   const panel = document.getElementById('notesPanel');
   const area = document.getElementById('notesArea');
   if (!panel || !area || getComputedStyle(panel).display === 'none') return;
-  const body = panel.querySelector('.notes-body');
+
+  const panelHeight = window.innerHeight - header.offsetHeight - footer.offsetHeight;
+  panel.style.height = panelHeight + 'px';
+
+  const notesHeader = panel.querySelector('.notes-header');
   const hint = panel.querySelector('.notes-hint');
   const saved = panel.querySelector('.notes-saved');
+  const body = panel.querySelector('.notes-body');
   const bodyStyle = getComputedStyle(body);
-  const panelRect = panel.getBoundingClientRect();
-  const areaRect = area.getBoundingClientRect();
-  const reserved = saved.offsetHeight + hint.offsetHeight +
-    parseFloat(getComputedStyle(saved).marginTop) + parseFloat(getComputedStyle(hint).marginTop) +
-    parseFloat(bodyStyle.paddingBottom);
-  const available = panelRect.bottom - areaRect.top - reserved;
-  area.style.height = Math.max(120, available) + 'px';
+
+  const reserved = notesHeader.offsetHeight +
+    parseFloat(bodyStyle.paddingTop) + parseFloat(bodyStyle.paddingBottom) +
+    saved.offsetHeight + hint.offsetHeight +
+    parseFloat(getComputedStyle(saved).marginTop) + parseFloat(getComputedStyle(hint).marginTop);
+
+  area.style.height = Math.max(120, panelHeight - reserved) + 'px';
 }
 window.addEventListener('resize', fitNotesTextarea);
 
