@@ -104,6 +104,25 @@
   .exercise-list li{margin-bottom:8px; line-height:1.6;}
   .exercise-list li:last-child{margin-bottom:0;}
 
+  .vocab-table{margin-top:16px; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
+  .vocab-row{display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:10px; padding:9px 12px; font-size:13px; line-height:1.5; border-bottom:1px solid var(--border);}
+  .vocab-row:last-child{border-bottom:none;}
+  .vocab-row.head{background:var(--bg-elevated); font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); font-weight:700;}
+  .vocab-row .term{font-weight:600; color:var(--text-primary);}
+  .vocab-row .meaning{color:var(--text-muted);}
+  .vocab-row .example{color:var(--text-dim); font-style:italic;}
+
+  .quiz-block{margin-top:18px;}
+  .quiz-block > .quiz-title{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px; font-weight:700;}
+  .quiz-item{border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:10px;}
+  .quiz-q{font-size:14px; margin-bottom:10px; line-height:1.5;}
+  .quiz-opts{display:flex; flex-direction:column; gap:6px;}
+  .quiz-opt{text-align:left; font-size:13px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-panel); cursor:pointer; transition:.15s; color:var(--text-primary);}
+  .quiz-opt:hover:not(.answered .quiz-opt){border-color:var(--text-dim);}
+  .quiz-opt.correct{background:var(--fe-dim); border-color:var(--fe); color:var(--fe); font-weight:600;}
+  .quiz-opt.incorrect{background:var(--coral-dim); border-color:var(--coral); color:var(--coral); font-weight:600;}
+  .quiz-explain{margin-top:8px; font-size:12.5px; color:var(--text-muted); line-height:1.5; padding-top:8px; border-top:1px dashed var(--border);}
+
   .section{border:1px solid var(--border); border-radius:12px; background:var(--bg-panel); overflow:hidden; margin-bottom:20px;}
   .section-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--bg-elevated); border-bottom:1px solid var(--border);}
   .track-tag{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:.04em; background:var(--track-dim, var(--algo-dim)); color:var(--track-color, var(--algo));}
@@ -180,7 +199,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v9</footer>
+<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v10</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -350,16 +369,88 @@ const toeicWeeks = [
 {label:'Thứ 6', title:'Lập thời gian biểu học tập 4 tháng', content:'Với 1-2 tiếng/ngày, phân chia hợp lý: phần lớn thời gian dành cho 2 Part yếu nhất đã xác định ở Thứ 5, nhưng vẫn duy trì ôn tập các Part khác để không bị tụt lại. Lịch học cụ thể, viết ra giấy hoặc ứng dụng nhắc việc, giúp duy trì đều đặn tốt hơn nhiều so với chỉ "định học".', exercises:["Viết ra lịch học cụ thể cho 4 tháng tới: mỗi ngày trong tuần dành bao nhiêu phút cho Listening, bao nhiêu cho Reading, cố định khung giờ học nếu có thể.","In ra hoặc lưu lịch học này ở nơi dễ thấy mỗi ngày để nhắc nhở duy trì.","Đặt 1 mốc kiểm tra giữa tháng để tự đánh giá xem có bám sát lịch học đã đặt ra không."]},
 ]},
 {title:"Ngữ pháp nền tảng: thì động từ & cấu trúc câu", points:["TOEIC Part 5-6 kiểm tra ngữ pháp qua câu đơn lẻ và đoạn văn ngắn.","Ôn lại các thì cơ bản: hiện tại đơn, quá khứ đơn, hiện tại hoàn thành — nhóm câu hỏi xuất hiện thường xuyên.","Nắm vững cấu trúc câu cơ bản: chủ ngữ - động từ - tân ngữ, vị trí tính từ/trạng từ trong câu.","Phân biệt danh động từ (V-ing) và động từ nguyên mẫu có \"to\" sau các động từ phổ biến.","Học ngữ pháp qua ví dụ câu thực tế thay vì học thuộc lý thuyết suông."], practice:"Làm 25 câu Part 5 tập trung chủ điểm thì động từ, ghi lại các câu sai và lý do sai vào sổ tay lỗi.", case:"Part 5 chiếm 30/100 câu Reading — chỉ riêng nắm chắc ngữ pháp cơ bản đã đảm bảo được một lượng điểm ổn định.", task:"Làm 25 câu Part 5 tập trung chủ điểm thì động từ, ghi lại các câu sai và lý do sai.", days:[
-{label:'Thứ 2', title:'Ôn thì hiện tại đơn & hiện tại tiếp diễn', content:'Thì hiện tại đơn diễn tả thói quen, sự thật hiển nhiên, lịch trình cố định (dấu hiệu: always, usually, every day). Thì hiện tại tiếp diễn diễn tả hành động đang xảy ra tại thời điểm nói (dấu hiệu: now, at the moment). Trong Part 5, nhận diện đúng dấu hiệu thời gian giúp chọn đúng dạng động từ.', exercises:["Viết 5 câu ví dụ dùng thì hiện tại đơn và 5 câu dùng hiện tại tiếp diễn liên quan chủ đề công sở (họp hành, báo cáo...).","Tìm và gạch chân thì động từ trong 5 câu tiếng Anh bất kỳ bạn gặp hàng ngày để luyện nhận diện thực tế.","Tự đặt 3 câu hỏi kiểu Part 5 (có chỗ trống) rồi tự trả lời để luyện tư duy ra đề."]},
-{label:'Thứ 3', title:'Ôn thì quá khứ đơn & hiện tại hoàn thành', content:'Quá khứ đơn diễn tả hành động đã kết thúc tại 1 thời điểm xác định trong quá khứ. Hiện tại hoàn thành diễn tả hành động xảy ra trong quá khứ nhưng còn liên quan/ảnh hưởng đến hiện tại, hoặc chưa xác định rõ thời điểm (already, just, since, for) — 2 thì hay bị nhầm lẫn nhất của người học tiếng Việt.', exercises:["Viết 5 cặp câu minh họa sự khác biệt giữa quá khứ đơn và hiện tại hoàn thành cho cùng 1 tình huống.","Viết 1 đoạn văn ngắn kể lại 1 việc bạn đã làm xong hôm nay, cố tình dùng cả 2 thì đã học.","Tìm 3 câu có since/for trong tài liệu tiếng Anh bất kỳ, xác định since đi với mốc thời gian còn for đi với khoảng thời gian."]},
-{label:'Thứ 4', title:'Luyện Part 5 chủ điểm thì động từ', content:'Áp dụng kiến thức 2 ngày trước vào luyện đề thật — tìm dấu hiệu thời gian trong câu (từ khóa như yesterday, since, now) trước khi chọn đáp án, đừng chỉ dựa vào cảm giác quen mắt.', exercises:["Làm 15 câu Part 5 tập trung chủ điểm thì động từ, đối chiếu đáp án và ghi lại câu sai kèm lý do.","Với mỗi câu sai, thử tự đặt lại câu hỏi tương tự (đổi chủ ngữ/tình huống) để luyện thêm dạng đó.","Phân loại 15 câu vừa làm theo mức độ tự tin: chắc chắn đúng / không chắc / đoán mò."]},
-{label:'Thứ 5', title:'Cấu trúc câu cơ bản & vị trí từ loại', content:'Cấu trúc câu tiếng Anh cơ bản: Chủ ngữ - Động từ - Tân ngữ (S-V-O). Tính từ thường đứng trước danh từ hoặc sau động từ to be; trạng từ thường đứng sau động từ chính hoặc đầu/cuối câu. Nắm vững vị trí này giúp làm nhanh các câu Part 5 hỏi về từ loại.', exercises:["Viết 5 câu, mỗi câu xác định rõ đâu là S-V-O và vị trí của tính từ/trạng từ (nếu có).","Viết thêm 3 câu có trạng từ ở các vị trí khác nhau trong câu.","Tìm 1 đoạn văn tiếng Anh ngắn, gạch chân toàn bộ tính từ và trạng từ xuất hiện trong đó."]},
-{label:'Thứ 6', title:'Luyện thêm Part 5 & tổng kết tuần', content:'Ôn lại tất cả câu sai đã note trong tuần, phân loại xem lỗi chủ yếu do chưa nắm vững thì động từ hay do nhầm vị trí từ loại — điều này quyết định trọng tâm ôn tập của tuần sau.', exercises:["Làm thêm 15 câu Part 5 tổng hợp, tổng kết lại toàn bộ lỗi sai của tuần vào sổ tay theo 2 nhóm: lỗi thì động từ và lỗi cấu trúc câu.","Làm lại đúng 5 câu đã sai trong tuần (không xem đáp án cũ) để kiểm tra đã sửa được lỗi chưa.","Viết 1 câu tóm tắt: chủ điểm ngữ pháp nào tuần này bạn thấy khó nhất, cần ôn thêm."]},
+{label:'Thứ 2', title:'Ôn thì hiện tại đơn & hiện tại tiếp diễn', content:'Thì hiện tại đơn diễn tả thói quen, sự thật hiển nhiên, lịch trình cố định (dấu hiệu: always, usually, every day). Thì hiện tại tiếp diễn diễn tả hành động đang xảy ra tại thời điểm nói (dấu hiệu: now, at the moment). Trong Part 5, nhận diện đúng dấu hiệu thời gian giúp chọn đúng dạng động từ.', exercises:["Viết 5 câu ví dụ dùng thì hiện tại đơn và 5 câu dùng hiện tại tiếp diễn liên quan chủ đề công sở (họp hành, báo cáo...).","Tìm và gạch chân thì động từ trong 5 câu tiếng Anh bất kỳ bạn gặp hàng ngày để luyện nhận diện thực tế.","Tự đặt 3 câu hỏi kiểu Part 5 (có chỗ trống) rồi tự trả lời để luyện tư duy ra đề."], quiz:[
+{q:"The manager ___ the reports every Monday morning.", opts:["review","reviews","is reviewing","reviewed"], correct:1, explain:"\"every Monday morning\" là dấu hiệu thói quen lặp lại → hiện tại đơn; chủ ngữ số ít \"the manager\" nên động từ thêm -s."},
+{q:"Please be quiet. The director ___ a presentation right now.", opts:["gives","give","is giving","has given"], correct:2, explain:"\"right now\" là dấu hiệu điển hình của hiện tại tiếp diễn — hành động đang xảy ra tại thời điểm nói."},
+{q:"Our company ___ its products to over 30 countries.", opts:["export","exports","is exporting","exported"], correct:1, explain:"Sự thật/thói quen kinh doanh lâu dài → hiện tại đơn, chủ ngữ số ít nên thêm -s."},
+{q:"Look! The new employees ___ into the meeting room.", opts:["walk","walks","are walking","walked"], correct:2, explain:"\"Look!\" là dấu hiệu điển hình của hiện tại tiếp diễn — mời người nghe chú ý vào hành động đang diễn ra."},
+{q:"The train usually ___ on time.", opts:["arrive","arrives","is arriving","arrived"], correct:1, explain:"\"usually\" là trạng từ tần suất của hiện tại đơn; chủ ngữ số ít \"the train\" nên động từ thêm -s."},
+]},
+{label:'Thứ 3', title:'Ôn thì quá khứ đơn & hiện tại hoàn thành', content:'Quá khứ đơn diễn tả hành động đã kết thúc tại 1 thời điểm xác định trong quá khứ. Hiện tại hoàn thành diễn tả hành động xảy ra trong quá khứ nhưng còn liên quan/ảnh hưởng đến hiện tại, hoặc chưa xác định rõ thời điểm (already, just, since, for) — 2 thì hay bị nhầm lẫn nhất của người học tiếng Việt.', exercises:["Viết 5 cặp câu minh họa sự khác biệt giữa quá khứ đơn và hiện tại hoàn thành cho cùng 1 tình huống.","Viết 1 đoạn văn ngắn kể lại 1 việc bạn đã làm xong hôm nay, cố tình dùng cả 2 thì đã học.","Tìm 3 câu có since/for trong tài liệu tiếng Anh bất kỳ, xác định since đi với mốc thời gian còn for đi với khoảng thời gian."], quiz:[
+{q:"She ___ the report yesterday afternoon.", opts:["has finished","finished","finishes","is finishing"], correct:1, explain:"\"yesterday afternoon\" là mốc thời gian xác định trong quá khứ → dùng quá khứ đơn."},
+{q:"I have ___ visited Japan three times.", opts:["already","yesterday","ago","last year"], correct:0, explain:"\"already\" đi kèm hiện tại hoàn thành; \"yesterday/ago/last year\" chỉ đi với quá khứ đơn."},
+{q:"They ___ for this company since 2015.", opts:["worked","work","have worked","are working"], correct:2, explain:"\"since 2015\" (từ 1 mốc thời gian đến nay) là dấu hiệu của hiện tại hoàn thành."},
+{q:"He ___ his car last week.", opts:["has sold","sold","sells","is selling"], correct:1, explain:"\"last week\" là mốc thời gian xác định đã qua → quá khứ đơn."},
+{q:"She just ___ the project.", opts:["finish","finished","has finished","is finishing"], correct:2, explain:"\"just\" là dấu hiệu điển hình của hiện tại hoàn thành, diễn tả việc vừa mới hoàn thành."},
+]},
+{label:'Thứ 4', title:'Luyện Part 5 chủ điểm thì động từ', content:'Áp dụng kiến thức 2 ngày trước vào luyện đề thật — tìm dấu hiệu thời gian trong câu (từ khóa như yesterday, since, now) trước khi chọn đáp án, đừng chỉ dựa vào cảm giác quen mắt.', exercises:["Làm 15 câu Part 5 tập trung chủ điểm thì động từ, đối chiếu đáp án và ghi lại câu sai kèm lý do.","Với mỗi câu sai, thử tự đặt lại câu hỏi tương tự (đổi chủ ngữ/tình huống) để luyện thêm dạng đó.","Phân loại 15 câu vừa làm theo mức độ tự tin: chắc chắn đúng / không chắc / đoán mò."], quiz:[
+{q:"Every employee ___ a badge to enter the building.", opts:["need","needs","needed","is needing"], correct:1, explain:"Sự thật/quy định hiện tại, chủ ngữ số ít \"every employee\" → hiện tại đơn, thêm -s."},
+{q:"The CEO ___ to Tokyo next Monday for a conference.", opts:["travels","traveled","is traveling","travel"], correct:2, explain:"Kế hoạch tương lai đã sắp xếp trước (\"next Monday\") thường dùng hiện tại tiếp diễn trong tiếng Anh giao tiếp/công sở."},
+{q:"She ___ in this department for five years.", opts:["works","worked","has worked","is working"], correct:2, explain:"\"for five years\" (khoảng thời gian kéo dài đến hiện tại) → hiện tại hoàn thành."},
+{q:"Currently, the technicians ___ the new equipment.", opts:["install","installs","are installing","installed"], correct:2, explain:"\"Currently\" là dấu hiệu của hiện tại tiếp diễn."},
+{q:"The company ___ its policy last year.", opts:["changes","changed","has changed","is changing"], correct:1, explain:"\"last year\" là mốc thời gian xác định trong quá khứ → quá khứ đơn."},
+{q:"Our team ___ the deadline every single time.", opts:["meet","meets","is meeting","met"], correct:1, explain:"\"every single time\" chỉ thói quen lặp lại → hiện tại đơn."},
+{q:"I ___ this issue several times, but it keeps happening.", opts:["reported","report","have reported","am reporting"], correct:2, explain:"\"several times\" (không rõ mốc thời gian cụ thể, còn ảnh hưởng đến hiện tại) → hiện tại hoàn thành."},
+{q:"Right now, Mr. Kim ___ with a client.", opts:["speaks","spoke","is speaking","has spoken"], correct:2, explain:"\"Right now\" là dấu hiệu của hiện tại tiếp diễn."},
+{q:"The factory ___ 500 units per day on average.", opts:["produce","produces","is producing","produced"], correct:1, explain:"\"on average\" chỉ số liệu thường xuyên/thói quen sản xuất → hiện tại đơn."},
+{q:"They ___ the contract yet.", opts:["haven't signed","didn't sign","don't sign","aren't signing"], correct:0, explain:"\"yet\" trong câu phủ định là dấu hiệu của hiện tại hoàn thành."},
+]},
+{label:'Thứ 5', title:'Cấu trúc câu cơ bản & vị trí từ loại', content:'Cấu trúc câu tiếng Anh cơ bản: Chủ ngữ - Động từ - Tân ngữ (S-V-O). Tính từ thường đứng trước danh từ hoặc sau động từ to be; trạng từ thường đứng sau động từ chính hoặc đầu/cuối câu. Nắm vững vị trí này giúp làm nhanh các câu Part 5 hỏi về từ loại.', exercises:["Viết 5 câu, mỗi câu xác định rõ đâu là S-V-O và vị trí của tính từ/trạng từ (nếu có).","Viết thêm 3 câu có trạng từ ở các vị trí khác nhau trong câu.","Tìm 1 đoạn văn tiếng Anh ngắn, gạch chân toàn bộ tính từ và trạng từ xuất hiện trong đó."], quiz:[
+{q:"The manager gave a ___ presentation.", opts:["clear","clearly","clarity","clarify"], correct:0, explain:"Cần tính từ đứng trước danh từ \"presentation\" → clear."},
+{q:"She explained the process ___.", opts:["clear","clearly","clarity","clarify"], correct:1, explain:"Cần trạng từ bổ nghĩa cho động từ \"explained\", đứng cuối câu → clearly."},
+{q:"This is a very ___ solution.", opts:["practical","practically","practice","practicality"], correct:0, explain:"Sau \"very\" và trước danh từ \"solution\" cần tính từ → practical."},
+{q:"He ___ completed the assignment.", opts:["success","successful","successfully","succeed"], correct:2, explain:"Cần trạng từ đứng trước động từ \"completed\" → successfully."},
+{q:"The company values ___ in all its employees.", opts:["honest","honestly","honesty","honestic"], correct:2, explain:"Sau động từ \"values\" cần danh từ làm tân ngữ → honesty."},
+]},
+{label:'Thứ 6', title:'Luyện thêm Part 5 & tổng kết tuần', content:'Ôn lại tất cả câu sai đã note trong tuần, phân loại xem lỗi chủ yếu do chưa nắm vững thì động từ hay do nhầm vị trí từ loại — điều này quyết định trọng tâm ôn tập của tuần sau.', exercises:["Làm thêm 15 câu Part 5 tổng hợp, tổng kết lại toàn bộ lỗi sai của tuần vào sổ tay theo 2 nhóm: lỗi thì động từ và lỗi cấu trúc câu.","Làm lại đúng 5 câu đã sai trong tuần (không xem đáp án cũ) để kiểm tra đã sửa được lỗi chưa.","Viết 1 câu tóm tắt: chủ điểm ngữ pháp nào tuần này bạn thấy khó nhất, cần ôn thêm."], quiz:[
+{q:"Employees ___ attend the training session next week.", opts:["must","musts","musting","musted"], correct:0, explain:"Động từ khuyết thiếu (modal verb) \"must\" luôn theo sau bởi động từ nguyên mẫu, không chia."},
+{q:"The new policy takes effect ___ January 1st.", opts:["on","in","at","by"], correct:0, explain:"Giới từ \"on\" dùng với ngày cụ thể (on + ngày tháng)."},
+{q:"She is responsible ___ managing the budget.", opts:["of","for","with","at"], correct:1, explain:"Cụm cố định \"responsible for\" (chịu trách nhiệm về)."},
+{q:"The team worked ___ to meet the deadline.", opts:["hard","hardly","harder","hardness"], correct:0, explain:"\"hard\" vừa là tính từ vừa là trạng từ chỉ cách thức (làm việc chăm chỉ); \"hardly\" nghĩa là hầu như không, khác nghĩa hoàn toàn."},
+{q:"He arrived ___ the meeting on time.", opts:["at","in","on","to"], correct:0, explain:"Cụm cố định \"arrive at\" + địa điểm/sự kiện cụ thể."},
+{q:"The manager will ___ the results tomorrow.", opts:["announce","announces","announced","announcing"], correct:0, explain:"Sau \"will\" (modal verb) luôn là động từ nguyên mẫu."},
+{q:"This department is in charge ___ customer service.", opts:["of","for","with","on"], correct:0, explain:"Cụm cố định \"in charge of\" (phụ trách)."},
+{q:"The invoice must be paid ___ 30 days.", opts:["within","while","during","between"], correct:0, explain:"\"within\" dùng để chỉ giới hạn thời gian (trong vòng bao lâu)."},
+{q:"We look forward ___ hearing from you.", opts:["to","for","at","on"], correct:0, explain:"Cụm cố định \"look forward to\" + V-ing (mong chờ)."},
+{q:"The results were ___ than expected.", opts:["good","better","best","well"], correct:1, explain:"Sau \"than\" cần dạng so sánh hơn → better."},
+]},
 ]},
 {title:"Từ vựng công sở & Listening Part 1-2", points:["Part 1 (mô tả tranh) cần từ vựng miêu tả hành động, vị trí đồ vật (in front of, next to...).","Part 2 (hỏi-đáp ngắn) cần phản xạ nhanh với các dạng câu hỏi Wh-, Yes/No, câu hỏi lựa chọn.","Nghe kỹ từ để hỏi đầu câu (What, Where, When, Who) vì nó quyết định loại câu trả lời cần tìm.","Cảnh giác với \"bẫy\" từ đồng âm thường xuất hiện ở đáp án gây nhiễu.","Luyện nghe chép chính tả (dictation) giúp cải thiện khả năng bắt âm rõ rệt."], practice:"Nghe và làm thử 10 câu Part 1 + 10 câu Part 2, sau đó nghe lại transcript để đối chiếu từ nghe sai, ghi lại từ mới vào sổ từ vựng.", case:"Part 1-2 tuy dễ nhưng chiếm 30/100 câu Listening — làm chắc phần này là nền tảng để đạt điểm Listening cao.", task:"Nghe và làm thử 10 câu Part 1 + 10 câu Part 2, sau đó nghe lại transcript để đối chiếu từ nghe sai.", days:[
-{label:'Thứ 2', title:'Từ vựng miêu tả hành động & vị trí (Part 1)', content:'Part 1 yêu cầu chọn câu mô tả đúng nhất bức tranh — từ vựng cần tập trung vào động từ miêu tả hành động (standing, holding, pointing...) và giới từ chỉ vị trí (in front of, next to, between, across from).', exercises:["Học 20 từ/cụm từ miêu tả hành động và vị trí thường gặp trong Part 1, viết mỗi từ kèm 1 câu ví dụ.","Tìm 3 bức tranh bất kỳ, tự mô tả bằng tiếng Anh dùng từ vựng vừa học.","Ghép các từ vừa học thành 5 câu hoàn chỉnh mô tả hành động con người trong văn phòng."]},
+{label:'Thứ 2', title:'Từ vựng miêu tả hành động & vị trí (Part 1)', content:'Part 1 yêu cầu chọn câu mô tả đúng nhất bức tranh — từ vựng cần tập trung vào động từ miêu tả hành động (standing, holding, pointing...) và giới từ chỉ vị trí (in front of, next to, between, across from).', exercises:["Tự mô tả 3 bức tranh/tình huống bất kỳ bằng tiếng Anh, cố dùng ít nhất 5 từ trong danh sách bên dưới.","Ghép các từ vừa học thành 5 câu hoàn chỉnh mô tả hành động con người trong văn phòng.","Che phần nghĩa tiếng Việt, tự đoán nghĩa từng từ trước rồi mới đối chiếu lại."], vocab:[
+{term:"stand", meaning:"đứng", example:"A man is standing near the window."},
+{term:"hold", meaning:"cầm, giữ", example:"She is holding a cup of coffee."},
+{term:"point", meaning:"chỉ (tay/vật)", example:"He is pointing at the screen."},
+{term:"carry", meaning:"mang, vác", example:"The worker is carrying a box."},
+{term:"lean", meaning:"tựa, nghiêng", example:"A bicycle is leaning against the wall."},
+{term:"reach", meaning:"với tới", example:"She is reaching for a file on the shelf."},
+{term:"wear", meaning:"mặc, đeo", example:"The man is wearing a helmet."},
+{term:"push", meaning:"đẩy", example:"He is pushing a cart."},
+{term:"pull", meaning:"kéo", example:"They are pulling a rope."},
+{term:"examine", meaning:"kiểm tra, xem xét", example:"The technician is examining the machine."},
+{term:"in front of", meaning:"phía trước", example:"The car is parked in front of the building."},
+{term:"next to", meaning:"bên cạnh", example:"The chair is next to the desk."},
+{term:"between", meaning:"ở giữa", example:"The printer is between the two desks."},
+{term:"across from", meaning:"đối diện", example:"The bank is across from the park."},
+{term:"on top of", meaning:"trên đỉnh, trên cùng", example:"Books are stacked on top of each other."},
+{term:"underneath", meaning:"bên dưới", example:"The cat is sleeping underneath the table."},
+{term:"behind", meaning:"phía sau", example:"The garden is behind the house."},
+{term:"along", meaning:"dọc theo", example:"People are walking along the river."},
+{term:"arrange", meaning:"sắp xếp", example:"The items are arranged on the shelf."},
+{term:"gather", meaning:"tụ tập", example:"A crowd has gathered near the entrance."},
+]},
 {label:'Thứ 3', title:'Luyện Part 1 có tính giờ', content:'Part 1 chỉ có 6 câu nhưng cần phản xạ rất nhanh — mỗi câu chỉ có khoảng vài giây suy nghĩ trước khi nghe đáp án. Luyện nghe kèm tính giờ giúp làm quen với tốc độ này thay vì chỉ luyện không giới hạn thời gian.', exercises:["Luyện 10 câu Part 1 có tính giờ nghiêm ngặt, nghe lại transcript đối chiếu những câu nghe chưa rõ.","Nghe lại 3 câu bạn làm sai, chỉ ra chính xác từ/cụm từ nào khiến bạn chọn nhầm đáp án.","Nghe 1 câu Part 1 lại 2 lần, ghi lại xem lần 2 có nghe rõ hơn lần 1 không."]},
-{label:'Thứ 4', title:'Các dạng câu hỏi Part 2', content:'Part 2 có 3 dạng chính: câu hỏi Wh- (What, Where, When, Who, Why, How), câu hỏi Yes/No, và câu hỏi lựa chọn (A or B). Mẹo quan trọng: chỉ cần nghe rõ 2-3 từ ĐẦU câu hỏi là đã có thể loại được nhiều đáp án sai — không cần nghe hiểu 100% cả câu.', exercises:["Nghe 10 câu hỏi Part 2 (không cần đáp án), chỉ ghi lại từ để hỏi đầu câu (What/Where/When...) để luyện phản xạ nghe từ đầu câu.","Với mỗi dạng câu hỏi Wh-, viết thêm 1 ví dụ câu trả lời phù hợp mà không cần nghe audio.","Tự viết 3 câu hỏi Part 2 kiểu Yes/No và tự viết 2 cách trả lời khác nhau cho mỗi câu."]},
+{label:'Thứ 4', title:'Các dạng câu hỏi Part 2', content:'Part 2 có 3 dạng chính: câu hỏi Wh- (What, Where, When, Who, Why, How), câu hỏi Yes/No, và câu hỏi lựa chọn (A or B). Mẹo quan trọng: chỉ cần nghe rõ 2-3 từ ĐẦU câu hỏi là đã có thể loại được nhiều đáp án sai — không cần nghe hiểu 100% cả câu.', exercises:["Với mỗi dạng câu hỏi bên dưới, tự viết thêm 1 ví dụ câu hỏi + câu trả lời khác của riêng bạn.","Che phần trả lời mẫu, tự nghĩ ra 1 câu trả lời hợp lý cho từng câu hỏi trước khi xem đáp án.","Tự viết 3 câu hỏi Part 2 kiểu Yes/No và tự viết 2 cách trả lời khác nhau (Yes và No) cho mỗi câu."], vocab:[
+{term:"What...?", meaning:"hỏi sự việc/vật → trả lời bằng thông tin cụ thể", example:"What time does the store open? → At 9 a.m."},
+{term:"Where...?", meaning:"hỏi địa điểm → trả lời bằng nơi chốn", example:"Where is the conference room? → On the third floor."},
+{term:"Who...?", meaning:"hỏi người → trả lời bằng tên/chức danh", example:"Who signed this contract? → Mr. Tanaka did."},
+{term:"Why...?", meaning:"hỏi lý do → trả lời bằng \"Because...\" hoặc lý do trực tiếp", example:"Why was the meeting canceled? → Because the manager is sick."},
+{term:"How...?", meaning:"hỏi cách thức/mức độ → trả lời bằng phương thức hoặc số lượng", example:"How do I get to the airport? → Take the shuttle bus."},
+{term:"Yes/No question", meaning:"trả lời bắt đầu bằng Yes/No hoặc ý tương đương", example:"Did you send the email? → Not yet."},
+{term:"Or question (lựa chọn)", meaning:"trả lời chọn 1 trong 2, hoặc \"either/neither\"", example:"Should I call or email you? → Either is fine."},
+{term:"Tag question", meaning:"trả lời xác nhận đồng ý/không đồng ý", example:"The report is ready, isn't it? → Yes, it is."},
+{term:"Suggestion", meaning:"trả lời chấp nhận hoặc từ chối đề nghị", example:"Why don't we take a break? → Sure, good idea."},
+{term:"Statement (không phải câu hỏi)", meaning:"trả lời phản hồi phù hợp với câu nói", example:"I think the deadline is too tight. → I agree, let's ask for more time."},
+]},
 {label:'Thứ 5', title:'Luyện Part 2 có tính giờ', content:'Khoảng cách giữa các câu hỏi trong Part 2 khá ngắn — nếu bị phân tâm suy nghĩ về câu trước, rất dễ bỏ lỡ câu sau. Luyện tập theo nhịp độ thật giúp xây dựng phản xạ "buông câu cũ, tập trung câu mới" ngay lập tức.', exercises:["Luyện 15 câu Part 2 có tính giờ liên tục không dừng, chấm điểm và ghi chú dạng câu hỏi nào hay sai nhất.","Ghi lại tổng thời gian làm 15 câu Part 2, tính trung bình mỗi câu mất bao nhiêu giây.","Đánh dấu những câu bạn bị \"bẫy\" bởi từ đồng âm, ghi chú riêng loại lỗi này để cảnh giác về sau."]},
 {label:'Thứ 6', title:'Nghe lại transcript & tổng kết tuần', content:'Nghe lại toàn bộ audio đã luyện trong tuần kèm xem transcript giúp phát hiện những từ/cụm từ bạn nghe sai do chưa quen phát âm, dù có thể bạn đã biết nghĩa của từ đó khi đọc.', exercises:["Nghe lại toàn bộ Part 1-2 đã luyện trong tuần, đối chiếu transcript, ghi ra sổ từ vựng những từ nghe chưa quen dù đã biết nghĩa.","Tổng hợp toàn bộ từ mới của tuần vào 1 danh sách, sắp xếp theo chủ đề.","Tự đọc to lại toàn bộ transcript đã nghe trong tuần để luyện phát âm và làm quen nhịp điệu câu."]},
 ]},
@@ -501,6 +592,27 @@ function dayPlanHTML(isAlgo){
 function dayTabsHTML(days){
   const tabs = days.map((d,i) => `<button class="day-tab${i===currentDay?' active':''}" data-day="${i}">${d.label}</button>`).join('');
   const d = days[currentDay] || days[0];
+
+  const vocabHTML = d.vocab ? `
+    <div class="vocab-table">
+      <div class="vocab-row head"><span>Từ / Mẫu câu</span><span>Nghĩa / Gợi ý</span><span>Ví dụ</span></div>
+      ${d.vocab.map(v => `<div class="vocab-row"><span class="term">${v.term}</span><span class="meaning">${v.meaning}</span><span class="example">${v.example}</span></div>`).join('')}
+    </div>` : '';
+
+  const quizHTML = d.quiz ? `
+    <div class="quiz-block">
+      <div class="quiz-title">Luyện tập có đáp án (${d.quiz.length} câu)</div>
+      ${d.quiz.map((item,qi) => `
+        <div class="quiz-item" data-qi="${qi}">
+          <div class="quiz-q">${qi+1}. ${item.q}</div>
+          <div class="quiz-opts">
+            ${item.opts.map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${String.fromCharCode(65+oi)}. ${opt}</button>`).join('')}
+          </div>
+          <div class="quiz-explain" style="display:none"></div>
+        </div>
+      `).join('')}
+    </div>` : '';
+
   return `
     <div class="day-tabs">${tabs}</div>
     <div class="day-detail">
@@ -508,16 +620,38 @@ function dayTabsHTML(days){
       <div class="content">${d.content}</div>
       ${d.example ? `<div class="code-example">${d.example.replace(/</g,'&lt;')}</div>` : ''}
       <div class="exercise-box"><b>Bài tập ngày hôm nay (${d.exercises.length} bài)</b><ol class="exercise-list">${d.exercises.map(ex => `<li>${ex}</li>`).join('')}</ol></div>
+      ${vocabHTML}
+      ${quizHTML}
     </div>
   `;
 }
-function bindDayTabs(){
+function bindDayTabs(days){
   document.querySelectorAll('.day-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       currentDay = parseInt(btn.dataset.day, 10);
       renderMain();
     });
   });
+  const d = (days && days[currentDay]) || (days && days[0]);
+  if (d && d.quiz) {
+    document.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.qi, 10);
+        const item = d.quiz[qi];
+        const container = btn.closest('.quiz-item');
+        if (container.classList.contains('answered')) return;
+        container.classList.add('answered');
+        const oi = parseInt(btn.dataset.oi, 10);
+        container.querySelectorAll('.quiz-opt').forEach((optBtn,idx) => {
+          if (idx === item.correct) optBtn.classList.add('correct');
+          else if (idx === oi) optBtn.classList.add('incorrect');
+        });
+        const explainEl = container.querySelector('.quiz-explain');
+        explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
+        explainEl.style.display = 'block';
+      });
+    });
+  }
 }
 
 /* ============ NOTES PANEL (right side, wide screens) ============ */
@@ -660,7 +794,7 @@ function renderMain(){
   document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; renderAll(); window.scrollTo(0,0);} });
   document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; renderAll(); window.scrollTo(0,0);} });
 
-  bindDayTabs();
+  bindDayTabs(t.isAlgo ? problems[w.problemId].days : w.days);
 }
 
 function runTests(problemId, problem){
