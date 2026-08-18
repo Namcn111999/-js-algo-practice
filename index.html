@@ -53,7 +53,7 @@
 
   .app{flex:1; display:grid; grid-template-columns:250px 1fr; min-height:0;}
   @media (max-width:860px){ .app{grid-template-columns:1fr;} .sidebar{border-right:none; border-bottom:1px solid var(--border); max-height:220px;} }
-  @media (min-width:1280px){ .app{grid-template-columns:250px 1fr 340px;} #notesPanel.notes-panel{display:flex;} }
+  @media (min-width:1650px){ #notesPanel.notes-panel{display:flex;} }
 
   .sidebar{border-right:1px solid var(--border); overflow-y:auto; padding:14px 0; background:var(--bg-panel);}
   .month-label{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--text-dim); padding:12px 20px 6px; text-transform:uppercase;}
@@ -68,7 +68,7 @@
 
   main{padding:26px 32px 60px; overflow-y:auto; max-width:920px;}
 
-  .notes-panel{display:none; flex-direction:column; border-left:1px solid var(--border); background:var(--bg-panel); min-height:0; overflow-y:auto;}
+  .notes-panel{display:none; position:fixed; right:0; width:340px; flex-direction:column; border-left:1px solid var(--border); background:var(--bg-panel); overflow-y:auto; z-index:5;}
   .notes-header{padding:16px 18px 12px; border-bottom:1px solid var(--border);}
   .notes-header .title{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px; font-weight:700;}
   .notes-tabs{display:flex; flex-wrap:wrap; gap:5px;}
@@ -575,24 +575,11 @@ function fitNotesTextarea(){
   const header = document.querySelector('header');
   const footer = document.querySelector('footer');
   const panel = document.getElementById('notesPanel');
-  const area = document.getElementById('notesArea');
-  if (!panel || !area || getComputedStyle(panel).display === 'none') return;
+  if (!panel) return;
+  if (getComputedStyle(panel).display === 'none') return;
 
-  const panelHeight = window.innerHeight - header.offsetHeight - footer.offsetHeight;
-  panel.style.height = panelHeight + 'px';
-
-  const notesHeader = panel.querySelector('.notes-header');
-  const hint = panel.querySelector('.notes-hint');
-  const saved = panel.querySelector('.notes-saved');
-  const body = panel.querySelector('.notes-body');
-  const bodyStyle = getComputedStyle(body);
-
-  const reserved = notesHeader.offsetHeight +
-    parseFloat(bodyStyle.paddingTop) + parseFloat(bodyStyle.paddingBottom) +
-    saved.offsetHeight + hint.offsetHeight +
-    parseFloat(getComputedStyle(saved).marginTop) + parseFloat(getComputedStyle(hint).marginTop);
-
-  area.style.height = Math.max(120, panelHeight - reserved) + 'px';
+  panel.style.top = header.offsetHeight + 'px';
+  panel.style.bottom = footer.offsetHeight + 'px';
 }
 window.addEventListener('resize', fitNotesTextarea);
 
