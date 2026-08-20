@@ -240,7 +240,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v14</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v15</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -610,15 +610,19 @@ const koreanWeeks = [
 ];
 
 /* ============ TRACK REGISTRY ============ */
-const algoExtraSets = {
-  0: ['count-chars','bubble-sort','binary-search','valid-parentheses'],
-  1: ['merge-sorted-arrays','remove-duplicates','factorial','fibonacci'],
-  2: ['missing-number','group-anagrams','flatten','longest-substring'],
-  3: ['climbing-stairs','merge-intervals','queue-two-stacks','max-subarray'],
+const algoWeekdaySets = {
+  0: ['two-sum','count-chars','bubble-sort','binary-search','valid-parentheses'],
+  1: ['fizzbuzz','merge-sorted-arrays','remove-duplicates','factorial','fibonacci'],
+  2: ['reverse-string','missing-number','group-anagrams','flatten','longest-substring'],
+  3: ['valid-palindrome','climbing-stairs','merge-intervals','queue-two-stacks','max-subarray'],
 };
-const algoUsedInMonth1 = new Set([...algoOrder.slice(0,4), ...Object.values(algoExtraSets).flat()]);
-const algoWeeksData = algoOrder.slice(0,4).map((id,i) => ({problemId:id, extra:algoExtraSets[i]}))
-  .concat(algoOrder.slice(4).filter(id => !algoUsedInMonth1.has(id)).map(id => ({problemId:id})));
+const dayLabels5 = ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6'];
+const algoUsedInMonth1 = new Set(Object.values(algoWeekdaySets).flat());
+const algoWeeksData = [0,1,2,3].map(i => ({
+  problemId: algoWeekdaySets[i][0],
+  weekdayProblems: algoWeekdaySets[i].map((id, di) => ({label: dayLabels5[di], problemId: id})),
+})).concat(algoOrder.filter(id => !algoUsedInMonth1.has(id)).map(id => ({problemId:id})));
+
 
 const tracks = {
   fe:{label:'Frontend', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false},
@@ -1055,93 +1059,121 @@ function renderMain(){
       renderAll();
     });
   } else {
-    const problem = problems[w.problemId];
-    main.innerHTML = `
-      <div class="week-title">Tuần ${currentWeek+1} — Tháng ${month}: ${problem.name}</div>
-      <div class="week-subtitle">Thuật toán · độ khó: ${problem.difficulty}</div>
-      ${problem.days ? dayTabsHTML(problem.days) : dayPlanHTML(true)}
-      <div class="section">
-        <div class="section-head">
-          <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">THUẬT TOÁN</span></div>
-          <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${problem.difficulty}</span>
+    if (w.weekdayProblems) {
+      if (currentDay >= w.weekdayProblems.length) currentDay = 0;
+      const activeEntry = w.weekdayProblems[currentDay];
+      const problem = problems[activeEntry.problemId];
+      const dayTabsBar = `<div class="day-tabs">${w.weekdayProblems.map((e,i) => `<button class="day-tab${i===currentDay?' active':''}" data-day="${i}">${e.label} · ${problems[e.problemId].name}</button>`).join('')}</div>`;
+      main.innerHTML = `
+        <div class="week-title">Tuần ${currentWeek+1} — Tháng ${month}: 5 bài luyện tập (${dayLabels5[0]}–${dayLabels5[4]})</div>
+        <div class="week-subtitle">Thuật toán · mỗi ngày trong tuần là 1 bài khác nhau, độ khó tăng dần</div>
+        ${dayTabsBar}
+        ${algoProblemCardHTML(problem, activeEntry.problemId)}
+        <div class="week-nav">
+          <button class="nav-btn" id="btn-prev" ${currentWeek === 0 ? 'disabled' : ''}>← Tuần trước</button>
+          <button class="nav-btn" id="btn-next" ${currentWeek === t.weeks.length-1 ? 'disabled' : ''}>Tuần tiếp →</button>
         </div>
-        <div class="section-body">
-          <p class="algo-desc">${problem.desc}</p>
-          <div class="algo-example">${problem.example}</div>
-          <div class="info-box practice"><b>Gợi ý cách tiếp cận</b>${problem.approach}</div>
-          <div class="editor-wrap">
-            <div class="editor-topbar">
-              <span class="fname">${problem.signature}</span>
-              <div class="btn-row">
-                <button class="action btn-reset" id="btn-reset">Đặt lại</button>
-                <button class="action btn-run" id="btn-run">▶ Chạy test</button>
-              </div>
-            </div>
-            <textarea class="editor" id="editor" spellcheck="false">${(savedCode[w.problemId] || problem.starter).replace(/</g,'&lt;')}</textarea>
-          </div>
-          <div class="console">
-            <div class="console-topbar">console</div>
-            <div class="console-body" id="console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
-          </div>
-          <div class="info-box case"><b>Ứng dụng thực tế</b>${problem.caseReal}</div>
-          ${problem.quiz ? `
-          <div class="quiz-block">
-            <div class="quiz-title">Câu hỏi khái niệm (${problem.quiz.length} câu)</div>
-            ${problem.quiz.map((item,qi) => `
-              <div class="quiz-item" data-qi="${qi}">
-                <div class="quiz-q">${qi+1}. ${item.q}</div>
-                <div class="quiz-opts">
-                  ${item.opts.map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${String.fromCharCode(65+oi)}. ${opt}</button>`).join('')}
-                </div>
-                <div class="quiz-explain" style="display:none"></div>
-              </div>
-            `).join('')}
-          </div>` : ''}
-        </div>
-      </div>
-      ${w.extra ? extraSetHTML(w.extra) : ''}
-      <div class="week-nav">
-        <button class="nav-btn" id="btn-prev" ${currentWeek === 0 ? 'disabled' : ''}>← Tuần trước</button>
-        <button class="nav-btn" id="btn-next" ${currentWeek === t.weeks.length-1 ? 'disabled' : ''}>Tuần tiếp →</button>
-      </div>
-    `;
-    document.getElementById('btn-reset').addEventListener('click', () => {
-      document.getElementById('editor').value = problem.starter;
-      delete savedCode[w.problemId];
-      saveCode();
-      document.getElementById('console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
-    });
-    document.getElementById('editor').addEventListener('input', (e) => {
-      savedCode[w.problemId] = e.target.value;
-      saveCode();
-    });
-    if (problem.quiz) {
-      document.querySelectorAll('#main .quiz-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const qi = parseInt(btn.dataset.qi, 10);
-          const item = problem.quiz[qi];
-          const container = btn.closest('.quiz-item');
-          if (container.classList.contains('answered')) return;
-          container.classList.add('answered');
-          const oi = parseInt(btn.dataset.oi, 10);
-          container.querySelectorAll('.quiz-opt').forEach((optBtn,idx) => {
-            if (idx === item.correct) optBtn.classList.add('correct');
-            else if (idx === oi) optBtn.classList.add('incorrect');
-          });
-          const explainEl = container.querySelector('.quiz-explain');
-          explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
-          explainEl.style.display = 'block';
-        });
+      `;
+      bindAlgoProblemCard(problem, activeEntry.problemId);
+      document.querySelectorAll('.day-tab').forEach(btn => {
+        btn.addEventListener('click', () => { currentDay = parseInt(btn.dataset.day, 10); renderMain(); });
       });
+    } else {
+      const problem = problems[w.problemId];
+      main.innerHTML = `
+        <div class="week-title">Tuần ${currentWeek+1} — Tháng ${month}: ${problem.name}</div>
+        <div class="week-subtitle">Thuật toán · độ khó: ${problem.difficulty}</div>
+        ${algoProblemCardHTML(problem, w.problemId)}
+        <div class="week-nav">
+          <button class="nav-btn" id="btn-prev" ${currentWeek === 0 ? 'disabled' : ''}>← Tuần trước</button>
+          <button class="nav-btn" id="btn-next" ${currentWeek === t.weeks.length-1 ? 'disabled' : ''}>Tuần tiếp →</button>
+        </div>
+      `;
+      bindAlgoProblemCard(problem, w.problemId);
     }
-    document.getElementById('btn-run').addEventListener('click', () => runTests(w.problemId, problem));
-    if (w.extra) bindExtraSet(w.extra);
   }
 
   document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; currentExtraProblem=0; renderAll(); window.scrollTo(0,0);} });
   document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; currentExtraProblem=0; renderAll(); window.scrollTo(0,0);} });
 
-  bindDayTabs(t.isAlgo ? problems[w.problemId].days : w.days);
+  if (!t.isAlgo) bindDayTabs(w.days);
+}
+
+/* ============ ALGO PROBLEM CARD (reused for both single-problem weeks and weekday sets) ============ */
+function algoProblemCardHTML(problem, problemId){
+  return `
+    <div class="section">
+      <div class="section-head">
+        <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${problem.name}</span></div>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${problem.difficulty}</span>
+      </div>
+      <div class="section-body">
+        <p class="algo-desc">${problem.desc}</p>
+        <div class="algo-example">${problem.example}</div>
+        <div class="info-box practice"><b>Gợi ý cách tiếp cận</b>${problem.approach}</div>
+        <div class="editor-wrap">
+          <div class="editor-topbar">
+            <span class="fname">${problem.signature}</span>
+            <div class="btn-row">
+              <button class="action btn-reset" id="btn-reset">Đặt lại</button>
+              <button class="action btn-run" id="btn-run">▶ Chạy test</button>
+            </div>
+          </div>
+          <textarea class="editor" id="editor" spellcheck="false">${(savedCode[problemId] || problem.starter).replace(/</g,'&lt;')}</textarea>
+        </div>
+        <div class="console">
+          <div class="console-topbar">console</div>
+          <div class="console-body" id="console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
+        </div>
+        <div class="info-box case"><b>Ứng dụng thực tế</b>${problem.caseReal}</div>
+        ${problem.quiz ? `
+        <div class="quiz-block">
+          <div class="quiz-title">Câu hỏi khái niệm (${problem.quiz.length} câu)</div>
+          ${problem.quiz.map((item,qi) => `
+            <div class="quiz-item" data-qi="${qi}">
+              <div class="quiz-q">${qi+1}. ${item.q}</div>
+              <div class="quiz-opts">
+                ${item.opts.map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${String.fromCharCode(65+oi)}. ${opt}</button>`).join('')}
+              </div>
+              <div class="quiz-explain" style="display:none"></div>
+            </div>
+          `).join('')}
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+}
+function bindAlgoProblemCard(problem, problemId){
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('editor').value = problem.starter;
+    delete savedCode[problemId];
+    saveCode();
+    document.getElementById('console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
+  });
+  document.getElementById('editor').addEventListener('input', (e) => {
+    savedCode[problemId] = e.target.value;
+    saveCode();
+  });
+  if (problem.quiz) {
+    document.querySelectorAll('#main .quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.qi, 10);
+        const item = problem.quiz[qi];
+        const container = btn.closest('.quiz-item');
+        if (container.classList.contains('answered')) return;
+        container.classList.add('answered');
+        const oi = parseInt(btn.dataset.oi, 10);
+        container.querySelectorAll('.quiz-opt').forEach((optBtn,idx) => {
+          if (idx === item.correct) optBtn.classList.add('correct');
+          else if (idx === oi) optBtn.classList.add('incorrect');
+        });
+        const explainEl = container.querySelector('.quiz-explain');
+        explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
+        explainEl.style.display = 'block';
+      });
+    });
+  }
+  document.getElementById('btn-run').addEventListener('click', () => runTests(problemId, problem));
 }
 
 /* ============ EXTRA PROBLEM SET (4 more problems per week, easy-to-hard) ============ */
