@@ -199,7 +199,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v11</footer>
+<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v12</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -210,6 +210,19 @@ const problems = {
 {label:'Thứ 4', title:'Code trong editor & chạy test', content:'Áp dụng giải pháp HashMap vào ô code chính thức của bài, chạy test để xác nhận đúng với mọi trường hợp (bao gồm trường hợp 2 phần tử giống nhau như [3,3]).', exercises:["Hoàn thành function solve() trong editor của bài Two Sum, chạy \"Chạy test\" đến khi pass hết.","Test thêm với mảng có số âm, xác nhận giải pháp vẫn hoạt động đúng.","Thử cố tình viết sai (ví dụ gán map trước khi kiểm tra need in map) để thấy lỗi logic xảy ra như thế nào."]},
 {label:'Thứ 5', title:'Biến thể: mảng đã sắp xếp (Two Pointers)', content:'Nếu đề bài cho mảng ĐÃ SẮP XẾP, có thể giải bằng 2 con trỏ (left, right) thay vì HashMap: tổng 2 đầu quá lớn thì giảm right, quá nhỏ thì tăng left — tiết kiệm bộ nhớ hơn (O(1) thay vì O(n) cho map).', example:'let left = 0, right = nums.length - 1;\nwhile (left < right) {\n  const sum = nums[left] + nums[right];\n  if (sum === target) return [left, right];\n  sum < target ? left++ : right--;\n}', exercises:["Giả sử input luôn là mảng đã sắp xếp, viết thêm 1 phiên bản giải bằng two-pointer, so sánh với bản HashMap.","Test phiên bản two-pointer với input có nhiều cặp thỏa mãn, xác nhận nó trả về đúng 1 cặp hợp lệ.","So sánh độ phức tạp không gian (space complexity) giữa 2 cách: HashMap O(n) vs two-pointer O(1)."]},
 {label:'Thứ 6', title:'Tự giải lại & review', content:'Cách tốt nhất để kiểm tra đã thực sự hiểu bài hay chỉ nhớ code là thử giải lại từ đầu mà KHÔNG xem lại lời giải cũ. Nếu vẫn giải được trong thời gian hợp lý, nghĩa là kiến thức đã thực sự nội hóa.', exercises:["Đóng hết code cũ lại, tự giải lại bài Two Sum từ đầu, đo thời gian bạn mất bao lâu để hoàn thành.","Sau khi tự giải lại, so sánh code mới viết với code cũ — có điểm nào bạn viết gọn/rõ hơn không?","Thử giải thích lời giải Two Sum cho 1 người khác (hoặc viết ra như đang giải thích) để kiểm tra hiểu sâu tới đâu."]},
+], quiz:[
+{q:"Độ phức tạp thời gian của cách giải Two Sum bằng 2 vòng lặp lồng nhau là gì?", opts:["O(n)","O(n log n)","O(n²)","O(1)"], correct:2, explain:"Duyệt mọi cặp (i,j) cần khoảng n×n phép so sánh trong trường hợp xấu nhất → O(n²)."},
+{q:"Độ phức tạp thời gian của cách giải Two Sum bằng HashMap là gì?", opts:["O(n²)","O(n)","O(log n)","O(n² log n)"], correct:1, explain:"Chỉ cần duyệt mảng 1 lần, mỗi lần tra cứu HashMap gần như tức thời O(1) → tổng O(n)."},
+{q:"Với input nums=[3,3], target=6, kết quả đúng là gì?", opts:["[0,0]","[0,1]","[1,1]","Không có đáp án"], correct:1, explain:"Hai phần tử tại chỉ số 0 và 1 (cả hai đều là 3) cộng lại bằng 6 → [0,1]."},
+{q:"HashMap trong giải pháp Two Sum dùng để lưu gì?", opts:["Chỉ số của target","Giá trị đã duyệt qua và chỉ số tương ứng","Tổng các phần tử","Số lượng phần tử"], correct:1, explain:"Map lưu cặp (giá trị → chỉ số) để tra cứu nhanh xem \"số cần tìm\" đã xuất hiện chưa."},
+{q:"Nếu mảng đã được sắp xếp sẵn, kỹ thuật nào có thể thay HashMap mà vẫn giữ O(n)?", opts:["Binary search","Two pointers","Bubble sort","Recursion"], correct:1, explain:"Two-pointer trên mảng đã sắp xếp đạt O(n) thời gian và chỉ tốn O(1) bộ nhớ, không cần map."},
+{q:"Độ phức tạp không gian (space complexity) của giải pháp dùng HashMap là gì?", opts:["O(1)","O(n)","O(n²)","O(log n)"], correct:1, explain:"Trong trường hợp xấu nhất, map phải lưu gần như toàn bộ n phần tử → O(n)."},
+{q:"Tại sao giải pháp brute-force chạy chậm với mảng lớn?", opts:["Vì dùng HashMap","Vì phải so sánh mọi cặp phần tử, số phép tính tăng theo bình phương n","Vì dùng đệ quy","Vì không sort mảng trước"], correct:1, explain:"2 vòng lặp lồng nhau khiến số phép so sánh tăng theo n² — rất chậm khi n lớn."},
+{q:"Trong đoạn code `if (need in map) return [map[need], i];`, biến `need` đại diện cho gì?", opts:["target - nums[i]","nums[i] + target","chỉ số hiện tại","giá trị lớn nhất trong mảng"], correct:0, explain:"`need` là phần còn thiếu để đạt target: need = target - nums[i]."},
+{q:"Nếu không tìm thấy cặp nào thỏa mãn, hàm nên trả về gì?", opts:["Ném lỗi hoặc trả về mảng rỗng/null tùy yêu cầu đề bài","Luôn trả về [0,0]","Trả về -1","Lặp vô hạn"], correct:0, explain:"Cách xử lý phụ thuộc vào yêu cầu cụ thể, nhưng không nên trả về kết quả giả như [0,0] gây hiểu nhầm."},
+{q:"Kỹ thuật nào KHÔNG phù hợp để tối ưu Two Sum trên mảng CHƯA sắp xếp?", opts:["HashMap","Binary search trực tiếp trên mảng chưa sort","Brute-force","Cả A và C đều phù hợp (dù không tối ưu)"], correct:1, explain:"Binary search yêu cầu dữ liệu đã sắp xếp mới hoạt động đúng; áp dụng trên mảng chưa sort sẽ cho kết quả sai."},
+{q:"Nếu cần tìm TẤT CẢ các cặp thỏa mãn (không chỉ 1 cặp), độ phức tạp tối thiểu thường là bao nhiêu?", opts:["Vẫn có thể O(n)","Ít nhất O(n) vì phải duyệt hết mảng, có thể nhiều hơn nếu số cặp kết quả lớn","O(1)","O(n³)"], correct:1, explain:"Phải duyệt hết mảng để không bỏ sót cặp nào, tối thiểu O(n), thực tế còn phụ thuộc số lượng kết quả."},
+{q:"Dùng object `{}` trong JavaScript làm HashMap có đặc điểm gì cần lưu ý khi key là số?", opts:["JS tự động chuyển key thành chuỗi (string), thường không ảnh hưởng logic nhưng cần biết bản chất","Không thể dùng số làm key","Object luôn chạy chậm hơn Map","Không có đặc điểm nào cần lưu ý"], correct:0, explain:"Object trong JS luôn lưu key dưới dạng chuỗi — điều này thường không gây vấn đề với Two Sum nhưng là kiến thức nền cần biết."},
 ], tests:[{args:[[2,7,11,15],9], expected:[0,1]},{args:[[3,2,4],6], expected:[1,2]},{args:[[3,3],6], expected:[0,1]}]},
 'fizzbuzz':{name:'FizzBuzz', difficulty:'Dễ', signature:'function solve(n)', desc:'Trả về mảng từ 1 đến n, số chia hết cho 3 thành "Fizz", cho 5 thành "Buzz", cho cả hai thành "FizzBuzz".', example:'<b>Input:</b> 5\n<b>Output:</b> ["1","2","Fizz","4","Buzz"]', starter:'function solve(n) {\n  // viết code tại đây\n}', approach:'Duyệt từ 1 đến n, dùng toán tử modulo (%) kiểm tra chia hết cho 3 và 5, chú ý kiểm tra điều kiện chia hết cho cả hai trước.', caseReal:'FizzBuzz nổi tiếng vì được dùng làm câu hỏi sàng lọc nhanh trong phỏng vấn — không phải vì độ khó mà để kiểm tra khả năng suy luận logic cơ bản.', days:[
 {label:'Thứ 2', title:'Phân tích đề & modulo operator', content:'Phép modulo (%) trả về số dư của phép chia — n % 3 === 0 nghĩa là n chia hết cho 3. Điểm dễ sai nhất: phải kiểm tra điều kiện chia hết cho CẢ 3 VÀ 5 trước, nếu không sẽ chỉ in ra "Fizz" mà quên trường hợp "FizzBuzz".', exercises:["Viết ra giấy (không code) thứ tự các điều kiện if cần kiểm tra và giải thích tại sao thứ tự đó quan trọng.","Tự tay tính n%3 và n%5 cho vài số từ 1-20 trên giấy để chắc chắn hiểu rõ modulo trước khi code.","Liệt kê trước 5 số đầu tiên sẽ in ra gì (1,2,Fizz,4,Buzz) để có đáp án đối chiếu khi code."]},
@@ -217,6 +230,19 @@ const problems = {
 {label:'Thứ 4', title:'Biến thể: thêm điều kiện thứ 3', content:'Thử mở rộng bài toán: thêm điều kiện chia hết cho 7 thì in "Bang" (và các tổ hợp: cả 3&7 thành "FizzBang", cả 5&7 thành "BuzzBang", cả 3&5&7 thành "FizzBuzzBang"). Đây là cách luyện tư duy tổng quát hóa 1 bài toán quen thuộc.', exercises:["Viết lại FizzBuzz có thêm điều kiện chia hết cho 7 → \"Bang\", xử lý đúng các tổ hợp.","Test kỹ tổ hợp chia hết cả 3 số (3,5,7) — ví dụ n=105 phải ra đúng \"FizzBuzzBang\".","Thử thêm điều kiện thứ 4 (chia hết cho 11) theo đúng pattern đã học, tự đặt tên riêng cho nó."]},
 {label:'Thứ 5', title:'Refactor cho dễ đọc hơn', content:'Với nhiều điều kiện, code if-else lồng nhau dễ khó đọc. Cách refactor phổ biến: nối string theo từng điều kiện độc lập (chia hết 3 thì cộng "Fizz", chia hết 5 thì cộng "Buzz"), cuối cùng nếu chuỗi rỗng thì dùng số gốc.', example:'let result = "";\nif (n % 3 === 0) result += "Fizz";\nif (n % 5 === 0) result += "Buzz";\nreturn result || String(n);', exercises:["Refactor lại giải pháp theo cách nối chuỗi này, so sánh độ dễ đọc với cách if-else lồng nhau ban đầu.","Áp dụng cách refactor nối chuỗi cho cả phiên bản mở rộng (3 điều kiện) ở Thứ 4.","Đo thử xem code sau refactor có ngắn hơn bao nhiêu dòng so với bản if-else lồng nhau."]},
 {label:'Thứ 6', title:'Tự giải lại & review', content:'FizzBuzz tuy đơn giản nhưng là bài kiểm tra tốt về khả năng viết code sạch, dễ mở rộng — kỹ năng này quan trọng hơn nhiều so với việc chỉ giải đúng bài toán.', exercises:["Tự giải lại FizzBuzz (bản gốc và bản mở rộng chia hết cho 7) từ đầu không xem code cũ.","Thử giải FizzBuzz theo 1 cách hoàn toàn khác (ví dụ dùng mảng điều kiện thay vì if/nối chuỗi) để luyện tư duy đa dạng.","Ghi chú lại: nếu được hỏi FizzBuzz trong phỏng vấn, bạn sẽ giải thích cách tiếp cận trong bao nhiêu câu."]},
+], quiz:[
+{q:"Phép toán nào dùng để kiểm tra 1 số có chia hết cho số khác không?", opts:["/","%","*","**"], correct:1, explain:"Toán tử modulo (%) trả về số dư của phép chia — số dư bằng 0 nghĩa là chia hết."},
+{q:"Với n=15, kết quả đúng ở vị trí thứ 15 là gì?", opts:["\"Fizz\"","\"Buzz\"","\"FizzBuzz\"","\"15\""], correct:2, explain:"15 chia hết cho cả 3 và 5 → \"FizzBuzz\"."},
+{q:"Tại sao phải kiểm tra điều kiện chia hết cho CẢ 3 và 5 trước khi kiểm tra riêng từng điều kiện?", opts:["Không quan trọng thứ tự","Nếu kiểm tra chia hết cho 3 trước và return ngay, sẽ bỏ lỡ trường hợp cũng chia hết cho 5","Để code chạy nhanh hơn","Vì JavaScript yêu cầu vậy"], correct:1, explain:"Cách nối chuỗi (Fizz+Buzz) hoặc kiểm tra tổ hợp trước tránh được lỗi logic khi return quá sớm."},
+{q:"Độ phức tạp thời gian của thuật toán FizzBuzz với n số là gì?", opts:["O(1)","O(n)","O(n²)","O(log n)"], correct:1, explain:"Chỉ cần 1 vòng lặp duyệt từ 1 đến n → O(n)."},
+{q:"Kết quả mong đợi của hàm solve(n) là kiểu dữ liệu gì?", opts:["1 số duy nhất","1 chuỗi duy nhất","Mảng các chuỗi","Mảng các số"], correct:2, explain:"Hàm trả về 1 mảng chứa n phần tử, mỗi phần tử là 1 chuỗi (kể cả số thường cũng phải convert thành chuỗi)."},
+{q:"Với n=1, kết quả đúng là gì?", opts:["[]","[\"1\"]","[\"Fizz\"]","[1]"], correct:1, explain:"1 không chia hết cho 3 hay 5 nên giữ nguyên dạng chuỗi số \"1\"."},
+{q:"Cách refactor nối chuỗi (result += \"Fizz\"...) có ưu điểm gì so với if-else lồng nhau?", opts:["Chạy nhanh hơn đáng kể","Dễ mở rộng thêm điều kiện mới mà không cần lồng thêm nhánh if","Không có ưu điểm gì","Bắt buộc phải dùng cách này"], correct:1, explain:"Mỗi điều kiện độc lập, thêm điều kiện mới chỉ cần thêm 1 dòng if, không cần lồng sâu thêm."},
+{q:"Nếu thêm điều kiện chia hết cho 7 → \"Bang\", số nào cho kết quả \"FizzBuzzBang\"?", opts:["35","21","105","15"], correct:2, explain:"105 = 3×5×7, là số nhỏ nhất chia hết cho cả 3, 5 và 7."},
+{q:"String(n) và n.toString() trong JavaScript khác nhau thế nào với số nguyên dương?", opts:["Kết quả khác nhau hoàn toàn","Kết quả giống nhau, chỉ khác cú pháp gọi","String(n) chỉ dùng được với chuỗi","n.toString() không tồn tại"], correct:1, explain:"Cả 2 cách đều chuyển số thành chuỗi, chỉ khác cách viết."},
+{q:"Việc dùng object/mảng điều kiện thay vì if-else để giải FizzBuzz thể hiện nguyên tắc nào?", opts:["Tối ưu tốc độ tuyệt đối","Data-driven design — dùng dữ liệu để điều khiển logic thay vì code cứng","Đệ quy","Không có nguyên tắc nào cả"], correct:1, explain:"Đây là cách tiếp cận phổ biến trong lập trình: tách dữ liệu (điều kiện, nhãn) ra khỏi logic xử lý."},
+{q:"FizzBuzz thường được dùng trong phỏng vấn với mục đích gì?", opts:["Kiểm tra kiến thức thuật toán nâng cao","Sàng lọc nhanh khả năng viết logic cơ bản đúng đắn","Kiểm tra tốc độ gõ phím","Kiểm tra khả năng tối ưu hiệu năng"], correct:1, explain:"FizzBuzz không khó về thuật toán, mục đích chính là kiểm tra khả năng suy luận logic cơ bản của ứng viên."},
+{q:"Nếu n=0, chương trình nên xử lý thế nào theo logic thông thường?", opts:["Trả về mảng rỗng vì không có số nào từ 1 đến 0","Lỗi chương trình","Trả về [\"FizzBuzz\"]","Trả về [\"0\"]"], correct:0, explain:"Không có số nguyên nào trong khoảng 1 đến 0, nên kết quả hợp lý là mảng rỗng."},
 ], tests:[{args:[5], expected:["1","2","Fizz","4","Buzz"]},{args:[15], expected:["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]}]},
 'reverse-string':{name:'Đảo ngược chuỗi', difficulty:'Dễ', signature:'function solve(str)', desc:'Đảo ngược một chuỗi ký tự, không dùng .reverse() có sẵn của Array.', example:'<b>Input:</b> "hello"\n<b>Output:</b> "olleh"', starter:'function solve(str) {\n  // viết code tại đây\n}', approach:'Dùng 2 con trỏ (two pointers) từ đầu và cuối chuỗi, hoán đổi ký tự và di chuyển vào giữa — độ phức tạp O(n).', caseReal:'Two-pointer là kỹ thuật nền tảng dùng lại trong rất nhiều bài toán mảng/chuỗi khác, không chỉ riêng đảo ngược.', days:[
 {label:'Thứ 2', title:'Two-pointer technique', content:'Ý tưởng cốt lõi: dùng 2 con trỏ, 1 từ đầu chuỗi (left=0), 1 từ cuối chuỗi (right=length-1), hoán đổi ký tự tại 2 vị trí rồi di chuyển left++ và right-- cho đến khi 2 con trỏ gặp nhau ở giữa. Kỹ thuật nền tảng dùng lại trong rất nhiều bài toán mảng/chuỗi khác.', exercises:["Vẽ ra giấy quá trình đảo ngược chuỗi \"hello\" bằng two-pointer, đánh dấu vị trí left/right sau mỗi bước.","Thử với chuỗi có số ký tự lẻ (ví dụ \"abcde\") và chẵn (ví dụ \"abcd\"), xác nhận cách xử lý điểm giữa đúng cho cả 2.","Vẽ lại trên giấy vị trí left/right sau mỗi bước với chuỗi \"code\"."]},
@@ -224,6 +250,19 @@ const problems = {
 {label:'Thứ 4', title:'Biến thể: đảo ngược từng từ trong câu', content:'Bài toán mở rộng: đảo ngược THỨ TỰ CHỮ trong mỗi từ nhưng vẫn giữ nguyên thứ tự các từ trong câu (ví dụ "hello world" → "olleh dlrow"). Cách làm: tách câu thành mảng từ, áp dụng đảo ngược two-pointer cho từng từ, rồi join lại.', exercises:["Viết hàm đảo ngược từng từ trong 1 câu (giữ nguyên thứ tự từ), test với câu \"hello world\" phải ra \"olleh dlrow\".","Test với câu có nhiều khoảng trắng liên tiếp, xử lý xem kết quả có hợp lý không.","Thử kết hợp: vừa đảo từng từ vừa đảo cả thứ tự câu, so sánh với yêu cầu ban đầu để không nhầm 2 bài toán."]},
 {label:'Thứ 5', title:'So sánh cách lặp thủ công vs đệ quy', content:'Ngoài two-pointer, có thể đảo ngược chuỗi bằng đệ quy: solve(str) = solve(phần còn lại) + ký tự đầu. Cách đệ quy dễ hiểu về khái niệm nhưng tốn nhiều bộ nhớ hơn (mỗi lời gọi tạo 1 stack frame) — với chuỗi rất dài có thể gây stack overflow.', example:'function reverseRecursive(str) {\n  if (str === "") return "";\n  return reverseRecursive(str.slice(1)) + str[0];\n}', exercises:["Viết thêm 1 phiên bản đảo ngược chuỗi bằng đệ quy, so sánh ưu nhược điểm với two-pointer.","Test bản đệ quy với chuỗi dài hơn nếu môi trường cho phép, quan sát có lỗi stack overflow không.","Viết 1 bản đệ quy tối ưu hơn (đệ quy đuôi) nếu có thể, so sánh với bản đệ quy thường."]},
 {label:'Thứ 6', title:'Tự giải lại & review', content:'Two-pointer là 1 trong những kỹ thuật xuất hiện nhiều nhất trong các bài toán mảng/chuỗi cơ bản đến trung bình — luyện thành thạo kỹ thuật này giúp giải nhanh rất nhiều bài toán tương tự sau này.', exercises:["Tự giải lại bài đảo ngược chuỗi (cả bản gốc và bản đảo từng từ) từ đầu không xem code cũ.","Tự giải lại cả 2 bài (đảo chuỗi + đảo từng từ) và đo thời gian hoàn thành, so với lần đầu làm.","Viết ra 2-3 bài toán khác mà bạn nghĩ có thể áp dụng được two-pointer."]},
+], quiz:[
+{q:"Độ phức tạp thời gian của kỹ thuật two-pointer khi đảo ngược chuỗi độ dài n là gì?", opts:["O(n²)","O(n)","O(log n)","O(1)"], correct:1, explain:"Mỗi con trỏ chỉ duyệt qua khoảng n/2 bước, tổng vẫn tuyến tính → O(n)."},
+{q:"Tại sao không thể sửa trực tiếp từng ký tự của 1 string trong JavaScript (ví dụ str[0] = 'x')?", opts:["Vì string là kiểu dữ liệu immutable (bất biến)","Vì JavaScript không hỗ trợ string","Vì cần dùng con trỏ","Không có lý do, vẫn sửa được bình thường"], correct:0, explain:"String trong JS không thể thay đổi trực tiếp từng ký tự — mọi \"chỉnh sửa\" thực chất tạo ra string mới."},
+{q:"Trong two-pointer, khi nào vòng lặp dừng lại?", opts:["Khi left > right hoặc left >= right (2 con trỏ gặp/vượt nhau)","Khi left = 0","Khi right = length","Không bao giờ dừng"], correct:0, explain:"Khi 2 con trỏ gặp hoặc vượt qua nhau, toàn bộ chuỗi đã được xử lý xong."},
+{q:"Với chuỗi có độ dài lẻ (ví dụ 'abc'), ký tự ở giữa cần xử lý thế nào?", opts:["Phải hoán đổi 2 lần","Không cần hoán đổi vì nó đứng yên tại vị trí trung tâm","Phải xóa đi","Gây lỗi chương trình"], correct:1, explain:"Ký tự chính giữa của chuỗi lẻ tự động giữ nguyên vị trí, vòng lặp dừng trước khi chạm tới nó."},
+{q:"str.split('') trong JavaScript dùng để làm gì?", opts:["Nối các ký tự lại","Tách chuỗi thành mảng các ký tự riêng lẻ","Đảo ngược chuỗi","Xóa khoảng trắng"], correct:1, explain:"split('') tách chuỗi thành mảng, mỗi phần tử là 1 ký tự — cần thiết vì string không sửa trực tiếp được."},
+{q:"Cách giải bằng đệ quy có nhược điểm gì so với two-pointer khi xử lý chuỗi rất dài?", opts:["Không có nhược điểm","Tốn nhiều bộ nhớ hơn do mỗi lời gọi tạo 1 stack frame, có thể gây stack overflow","Chạy nhanh hơn hẳn","Không thể áp dụng được"], correct:1, explain:"Đệ quy tích lũy stack frame theo độ sâu gọi hàm, với chuỗi rất dài có thể vượt giới hạn bộ nhớ stack."},
+{q:"Độ phức tạp không gian của cách dùng split+reverse+join thường là gì?", opts:["O(1)","O(n) vì tạo thêm mảng mới chứa các ký tự","O(n²)","O(log n)"], correct:1, explain:"split() tạo ra 1 mảng mới có kích thước tỉ lệ với độ dài chuỗi gốc → O(n) bộ nhớ."},
+{q:"Bài toán 'đảo ngược từng từ trong câu nhưng giữ thứ tự từ' khác gì với 'đảo ngược cả câu'?", opts:["Giống hệt nhau","Đảo từng từ chỉ đảo ký tự bên trong mỗi từ, còn thứ tự các từ không đổi; đảo cả câu thì đảo cả thứ tự từ","Không thể phân biệt được","Chỉ khác về tốc độ xử lý"], correct:1, explain:"Đây là 2 bài toán khác nhau về bản chất dù cùng dùng kỹ thuật two-pointer cho từng từ."},
+{q:"Kỹ thuật two-pointer thường được áp dụng tốt nhất cho loại cấu trúc dữ liệu nào?", opts:["Cây (tree)","Mảng hoặc chuỗi (dữ liệu tuyến tính)","Đồ thị (graph)","HashMap"], correct:1, explain:"Two-pointer khai thác tính chất tuyến tính, có thứ tự của mảng/chuỗi để duyệt từ 2 đầu vào giữa."},
+{q:"arr.join('') sau khi đã hoán đổi các phần tử trong mảng ký tự dùng để làm gì?", opts:["Tách mảng thành nhiều chuỗi","Ghép các phần tử mảng lại thành 1 chuỗi hoàn chỉnh","Sắp xếp mảng","Đảo ngược mảng"], correct:1, explain:"join('') nối tất cả phần tử mảng thành 1 chuỗi liên tục, không có ký tự phân cách."},
+{q:"Nếu duyệt từ cuối chuỗi về đầu và nối từng ký tự vào kết quả (không dùng two-pointer), độ phức tạp thời gian về khái niệm là gì?", opts:["Vẫn duyệt n lần nên về khái niệm là O(n) (dù cách nối chuỗi cụ thể tùy ngôn ngữ có thể ảnh hưởng hằng số)","O(1)","O(log n)","Không thể tính được"], correct:0, explain:"Về bản chất thuật toán vẫn cần duyệt qua n ký tự, nên độ phức tạp thời gian ở mức khái niệm là O(n)."},
+{q:"Kỹ thuật two-pointer trong bài đảo ngược chuỗi có thể tái sử dụng cho bài toán nào đã học trong tháng?", opts:["FizzBuzz","Kiểm tra Palindrome","Không bài nào cả","Chỉ dùng riêng cho đảo chuỗi"], correct:1, explain:"Kiểm tra Palindrome cũng dùng 2 con trỏ từ 2 đầu vào giữa, chỉ khác là để SO SÁNH thay vì HOÁN ĐỔI."},
 ], tests:[{args:['hello'], expected:'olleh'},{args:['JavaScript'], expected:'tpircSavaJ'},{args:[''], expected:''}]},
 'valid-palindrome':{name:'Kiểm tra Palindrome', difficulty:'Dễ', signature:'function solve(str)', desc:'Kiểm tra chuỗi có phải palindrome không, bỏ qua khoảng trắng và không phân biệt hoa thường.', example:'<b>Input:</b> "A man a plan a canal Panama"\n<b>Output:</b> true', starter:'function solve(str) {\n  // viết code tại đây\n}', approach:'Chuẩn hóa chuỗi (bỏ khoảng trắng, viết thường) rồi dùng two-pointer so sánh từ 2 đầu vào giữa.', caseReal:'Kiểm tra tính đối xứng của dữ liệu xuất hiện trong xử lý văn bản, kiểm tra mã checksum, hoặc bài toán chuỗi DNA trong sinh học tính toán.', days:[
 {label:'Thứ 2', title:'Chuẩn hóa dữ liệu đầu vào', content:'Trước khi kiểm tra palindrome, cần chuẩn hóa chuỗi: chuyển về chữ thường và loại bỏ khoảng trắng/ký tự đặc biệt. Bước chuẩn hóa dữ liệu đầu vào là thói quen quan trọng — rất nhiều bug thực tế đến từ việc bỏ qua bước này.', example:'const clean = str.toLowerCase().replace(/[^a-z0-9]/g, "");', exercises:["Viết đoạn code chuẩn hóa chuỗi (lowercase + bỏ ký tự không phải chữ/số), test với \"A man, a plan, a canal: Panama\".","Test hàm chuẩn hóa với chuỗi có số (ví dụ \"12321\"), xác nhận số vẫn được giữ lại đúng.","Liệt kê 3 loại ký tự đặc biệt khác nhau (dấu câu, emoji, chữ có dấu) và suy nghĩ cách chuẩn hóa xử lý chúng."]},
@@ -231,6 +270,19 @@ const problems = {
 {label:'Thứ 4', title:'Biến thể: Palindrome cho phép bỏ qua 1 ký tự', content:'Bài toán khó hơn: chuỗi được coi là "gần palindrome" nếu chỉ cần xóa TỐI ĐA 1 ký tự là thành palindrome thật sự. Ý tưởng: khi gặp cặp ký tự không khớp, thử bỏ qua ký tự bên trái HOẶC bên phải, kiểm tra phần còn lại có phải palindrome không.', exercises:["Thử tự nghĩ hướng giải cho bài toán \"Palindrome cho phép xóa tối đa 1 ký tự\" (chỉ cần viết ý tưởng ra giấy, không cần code hoàn chỉnh).","Thử tự tay lần qua ví dụ \"abca\" để xác nhận ý tưởng đúng trước khi code thật.","Nếu có thời gian, thử code thử bài toán mở rộng này (không bắt buộc phải hoàn thiện)."]},
 {label:'Thứ 5', title:'Tổng quát hóa pattern Two-Pointer', content:'Sau 4 tuần, bạn đã dùng two-pointer cho Two Sum (mảng sắp xếp), Reverse String, và Valid Palindrome. Điểm chung: cả 3 bài đều xử lý dữ liệu tuyến tính (mảng/chuỗi) và cần so sánh/xử lý từ 2 đầu vào giữa — nhận diện pattern này giúp nhận ra ngay khi gặp bài toán tương tự.', exercises:["Viết ra 1 câu tóm tắt (bằng ngôn ngữ của bạn) về \"khi nào nên nghĩ đến two-pointer\" để tự nhắc lại sau này.","Viết ra bằng lời sự khác biệt giữa two-pointer để SO SÁNH (palindrome) và two-pointer để HOÁN ĐỔI (reverse string).","Thử áp dụng two-pointer cho 1 bài toán mới bạn tự nghĩ ra (ví dụ kiểm tra mảng có đối xứng không)."]},
 {label:'Thứ 6', title:'Tự giải lại & review toàn bộ tháng 1', content:'Đây là ngày tổng kết tháng 1 của track Thuật toán — nhìn lại 4 bài đã học (Two Sum, FizzBuzz, Reverse String, Valid Palindrome) và pattern chung giữa chúng, chuẩn bị tinh thần cho tháng 2 với độ khó tăng dần.', exercises:["Tự giải lại cả 4 bài của tháng 1 (không xem code cũ), ghi lại bài nào bạn còn chưa tự tin, ưu tiên ôn lại bài đó trước khi sang tháng 2.","Tự đặt ra 3 bài toán ngẫu nhiên trong 4 bài đã học, giải lại không xem đáp án, tự chấm điểm.","Viết ra kế hoạch ôn tập riêng cho các bài bạn còn yếu trước khi bắt đầu tháng 2."]},
+], quiz:[
+{q:"Bước đầu tiên quan trọng nhất trước khi kiểm tra palindrome là gì?", opts:["Sắp xếp chuỗi","Chuẩn hóa dữ liệu (lowercase, bỏ ký tự đặc biệt)","Đảo ngược chuỗi","Đếm số ký tự"], correct:1, explain:"Nếu không chuẩn hóa, chuỗi có hoa/thường khác nhau hoặc dấu câu sẽ bị so sánh sai."},
+{q:"Regex /[^a-z0-9]/g dùng để làm gì trong bước chuẩn hóa?", opts:["Tìm và giữ lại chữ/số","Tìm và loại bỏ mọi ký tự KHÔNG phải chữ thường hoặc số","Chuyển chữ hoa thành chữ thường","Đảo ngược chuỗi"], correct:1, explain:"Dấu ^ trong [^...] nghĩa là \"không thuộc tập này\" — match mọi ký tự không phải a-z hoặc 0-9 để loại bỏ."},
+{q:"Với chuỗi rỗng '', kết quả kiểm tra palindrome nên là gì theo quy ước thông thường?", opts:["true (chuỗi rỗng được coi là palindrome hợp lệ)","false","Lỗi","Không xác định"], correct:0, explain:"Chuỗi rỗng đọc xuôi và ngược đều giống nhau (đều là rỗng) nên quy ước là true."},
+{q:"Two-pointer trong bài Palindrome dừng sớm (return false ngay) khi nào?", opts:["Chỉ khi duyệt hết toàn bộ chuỗi","Ngay khi phát hiện 1 cặp ký tự ở 2 đầu không khớp nhau","Không bao giờ dừng sớm","Khi gặp khoảng trắng"], correct:1, explain:"Chỉ cần 1 cặp không khớp là đủ kết luận không phải palindrome, không cần kiểm tra tiếp."},
+{q:"Độ phức tạp thời gian của kiểm tra palindrome bằng two-pointer là gì?", opts:["O(n²)","O(n)","O(1)","O(n log n)"], correct:1, explain:"Duyệt tối đa n/2 cặp ký tự, độ phức tạp tuyến tính O(n)."},
+{q:"Cách nào KHÁC để kiểm tra palindrome mà không dùng two-pointer thủ công?", opts:["So sánh chuỗi gốc (đã chuẩn hóa) với chính nó sau khi đảo ngược (str === str.split('').reverse().join(''))","Không có cách nào khác","Chỉ có 1 cách duy nhất","Dùng vòng lặp for-in"], correct:0, explain:"Đây là cách ngắn gọn thường dùng, dù tốn thêm bộ nhớ O(n) để tạo chuỗi đảo ngược."},
+{q:"Bài toán 'palindrome cho phép xóa tối đa 1 ký tự' khó hơn bài gốc ở điểm nào?", opts:["Cần thử nhiều nhánh khả năng khi gặp cặp ký tự không khớp (bỏ trái hoặc bỏ phải) thay vì chỉ return false ngay","Không khó hơn","Chỉ cần đảo ngược chuỗi 2 lần","Không thể giải được"], correct:0, explain:"Khi gặp cặp không khớp, phải thử cả 2 khả năng (bỏ ký tự trái hoặc phải) rồi kiểm tra phần còn lại."},
+{q:"toLowerCase() trong JavaScript dùng để làm gì?", opts:["Xóa khoảng trắng","Chuyển toàn bộ chữ cái trong chuỗi thành chữ thường","Đảo ngược chuỗi","Đếm ký tự"], correct:1, explain:"toLowerCase() chuẩn hóa chữ hoa về chữ thường để so sánh không phân biệt hoa/thường."},
+{q:"Nếu KHÔNG chuẩn hóa chuỗi trước, chuỗi 'Level' có được coi là palindrome khi so sánh trực tiếp?", opts:["Có","Không, vì 'L' viết hoa khác 'l' viết thường khi so sánh ký tự trực tiếp","Tùy ngôn ngữ lập trình","Luôn luôn có"], correct:1, explain:"So sánh ký tự trong lập trình phân biệt hoa/thường theo mặc định, nên 'L' ≠ 'l'."},
+{q:"Kỹ thuật two-pointer trong bài này có điểm gì GIỐNG với bài Two Sum (mảng đã sắp xếp)?", opts:["Không có điểm gì giống","Cả 2 đều dùng 2 con trỏ tại 2 đầu cấu trúc dữ liệu và di chuyển vào giữa dựa trên điều kiện so sánh","Cả 2 đều dùng HashMap","Cả 2 đều là bài toán về chuỗi"], correct:1, explain:"Đây chính là pattern chung của kỹ thuật two-pointer: xử lý từ 2 đầu vào giữa."},
+{q:"Với chuỗi 'A man a plan a canal Panama', sau bước chuẩn hóa, chuỗi kết quả có đặc điểm gì?", opts:["'amanaplanacanalpanama' — chỉ còn chữ thường, không khoảng trắng, và đây thực sự là 1 palindrome","Chuỗi rỗng","Giữ nguyên như ban đầu","Chỉ còn số"], correct:0, explain:"Sau khi bỏ khoảng trắng và viết thường, chuỗi này đọc xuôi và ngược giống hệt nhau."},
+{q:"Việc luyện nhận diện 'khi nào nên dùng two-pointer' sau 4 bài của tháng 1 giúp ích gì nhất cho việc học thuật toán về sau?", opts:["Không giúp ích gì","Giúp nhận ra pattern chung để áp dụng nhanh cho các bài toán mảng/chuỗi tương tự trong tương lai","Chỉ giúp giải đúng 4 bài này","Không liên quan đến các bài toán khác"], correct:1, explain:"Nhận diện pattern là kỹ năng quan trọng nhất khi học thuật toán — giúp giải nhanh các bài toán mới có cấu trúc tương tự."},
 ], tests:[{args:['A man a plan a canal Panama'], expected:true},{args:['race a car'], expected:false},{args:['level'], expected:true}]},
 'count-chars':{name:'Đếm tần suất ký tự', difficulty:'Dễ', signature:'function solve(str)', desc:'Đếm số lần xuất hiện của mỗi ký tự trong chuỗi, trả về object {ký_tự: số_lần}.', example:'<b>Input:</b> "aabbc"\n<b>Output:</b> {a:2, b:2, c:1}', starter:'function solve(str) {\n  // viết code tại đây\n}', approach:'Dùng object/HashMap làm bộ đếm, duyệt qua từng ký tự và tăng giá trị đếm tương ứng — O(n).', caseReal:'Đếm tần suất là bước đầu tiên của rất nhiều bài toán phân tích dữ liệu, ví dụ đếm số lần xuất hiện từ khóa trong log hệ thống.', tests:[{args:['aabbc'], expected:{a:2,b:2,c:1}},{args:['xyz'], expected:{x:1,y:1,z:1}}]},
 'bubble-sort':{name:'Bubble Sort', difficulty:'Dễ', signature:'function solve(arr)', desc:'Tự cài đặt Bubble Sort để sắp xếp mảng số tăng dần (không dùng .sort() có sẵn).', example:'<b>Input:</b> [5,3,8,1]\n<b>Output:</b> [1,3,5,8]', starter:'function solve(arr) {\n  // viết code tại đây\n}', approach:'So sánh từng cặp phần tử liền kề, hoán đổi nếu sai thứ tự, lặp lại nhiều vòng cho đến khi không còn hoán đổi nào — độ phức tạp O(n²).', caseReal:'Bubble Sort ít dùng trong thực tế vì chậm, nhưng là bài học nền tảng để hiểu độ phức tạp thuật toán trước khi học QuickSort/MergeSort.', tests:[{args:[[5,3,8,1]], expected:[1,3,5,8]},{args:[[1]], expected:[1]},{args:[[4,2,2,1]], expected:[1,2,2,4]}]},
@@ -369,65 +421,14 @@ const toeicWeeks = [
 {label:'Thứ 6', title:'Lập thời gian biểu học tập 4 tháng', content:'Với 1-2 tiếng/ngày, phân chia hợp lý: phần lớn thời gian dành cho 2 Part yếu nhất đã xác định ở Thứ 5, nhưng vẫn duy trì ôn tập các Part khác để không bị tụt lại. Lịch học cụ thể, viết ra giấy hoặc ứng dụng nhắc việc, giúp duy trì đều đặn tốt hơn nhiều so với chỉ "định học".', exercises:["Viết ra lịch học cụ thể cho 4 tháng tới: mỗi ngày trong tuần dành bao nhiêu phút cho Listening, bao nhiêu cho Reading, cố định khung giờ học nếu có thể.","In ra hoặc lưu lịch học này ở nơi dễ thấy mỗi ngày để nhắc nhở duy trì.","Đặt 1 mốc kiểm tra giữa tháng để tự đánh giá xem có bám sát lịch học đã đặt ra không."]},
 ]},
 {title:"Ngữ pháp nền tảng: thì động từ & cấu trúc câu", points:["TOEIC Part 5-6 kiểm tra ngữ pháp qua câu đơn lẻ và đoạn văn ngắn.","Ôn lại các thì cơ bản: hiện tại đơn, quá khứ đơn, hiện tại hoàn thành — nhóm câu hỏi xuất hiện thường xuyên.","Nắm vững cấu trúc câu cơ bản: chủ ngữ - động từ - tân ngữ, vị trí tính từ/trạng từ trong câu.","Phân biệt danh động từ (V-ing) và động từ nguyên mẫu có \"to\" sau các động từ phổ biến.","Học ngữ pháp qua ví dụ câu thực tế thay vì học thuộc lý thuyết suông."], practice:"Làm 25 câu Part 5 tập trung chủ điểm thì động từ, ghi lại các câu sai và lý do sai vào sổ tay lỗi.", case:"Part 5 chiếm 30/100 câu Reading — chỉ riêng nắm chắc ngữ pháp cơ bản đã đảm bảo được một lượng điểm ổn định.", task:"Làm 25 câu Part 5 tập trung chủ điểm thì động từ, ghi lại các câu sai và lý do sai.", days:[
-{label:'Thứ 2', title:'Ôn thì hiện tại đơn & hiện tại tiếp diễn', content:'Thì hiện tại đơn diễn tả thói quen, sự thật hiển nhiên, lịch trình cố định (dấu hiệu: always, usually, every day). Thì hiện tại tiếp diễn diễn tả hành động đang xảy ra tại thời điểm nói (dấu hiệu: now, at the moment). Trong Part 5, nhận diện đúng dấu hiệu thời gian giúp chọn đúng dạng động từ.', exercises:["Viết 5 câu ví dụ dùng thì hiện tại đơn và 5 câu dùng hiện tại tiếp diễn liên quan chủ đề công sở (họp hành, báo cáo...).","Tìm và gạch chân thì động từ trong 5 câu tiếng Anh bất kỳ bạn gặp hàng ngày để luyện nhận diện thực tế.","Tự đặt 3 câu hỏi kiểu Part 5 (có chỗ trống) rồi tự trả lời để luyện tư duy ra đề."], quiz:[
-{q:"The manager ___ the reports every Monday morning.", opts:["review","reviews","is reviewing","reviewed"], correct:1, explain:"\"every Monday morning\" là dấu hiệu thói quen lặp lại → hiện tại đơn; chủ ngữ số ít \"the manager\" nên động từ thêm -s."},
-{q:"Please be quiet. The director ___ a presentation right now.", opts:["gives","give","is giving","has given"], correct:2, explain:"\"right now\" là dấu hiệu điển hình của hiện tại tiếp diễn — hành động đang xảy ra tại thời điểm nói."},
-{q:"Our company ___ its products to over 30 countries.", opts:["export","exports","is exporting","exported"], correct:1, explain:"Sự thật/thói quen kinh doanh lâu dài → hiện tại đơn, chủ ngữ số ít nên thêm -s."},
-{q:"Look! The new employees ___ into the meeting room.", opts:["walk","walks","are walking","walked"], correct:2, explain:"\"Look!\" là dấu hiệu điển hình của hiện tại tiếp diễn — mời người nghe chú ý vào hành động đang diễn ra."},
-{q:"The train usually ___ on time.", opts:["arrive","arrives","is arriving","arrived"], correct:1, explain:"\"usually\" là trạng từ tần suất của hiện tại đơn; chủ ngữ số ít \"the train\" nên động từ thêm -s."},
-{q:"The bank ___ at 9 a.m. every weekday.", opts:["open","opens","is opening","opened"], correct:1, explain:"\"every weekday\" chỉ lịch trình cố định lặp lại → hiện tại đơn."},
-{q:"At the moment, the accountants ___ the annual report.", opts:["prepare","prepares","are preparing","prepared"], correct:2, explain:"\"At the moment\" là dấu hiệu của hiện tại tiếp diễn."},
-{q:"Water ___ at 100 degrees Celsius.", opts:["boil","boils","is boiling","boiled"], correct:1, explain:"Sự thật khoa học luôn đúng → hiện tại đơn."},
-{q:"She ___ to the office by bus most days.", opts:["travel","travels","is traveling","traveled"], correct:1, explain:"\"most days\" chỉ thói quen lặp lại → hiện tại đơn."},
-{q:"Right now, the printer ___ out of paper.", opts:["runs","run","is running","ran"], correct:2, explain:"\"Right now\" là dấu hiệu của hiện tại tiếp diễn."},
-{q:"The store ___ closed on public holidays.", opts:["remain","remains","is remaining","remained"], correct:1, explain:"Quy định/thói quen thường xuyên → hiện tại đơn, chủ ngữ số ít thêm -s."},
-{q:"They ___ a new product this quarter, and the launch event is this Friday.", opts:["launch","launches","are launching","launched"], correct:2, explain:"Dự án đang trong quá trình thực hiện (có sự kiện cụ thể sắp tới) → hiện tại tiếp diễn."},
-]},
-{label:'Thứ 3', title:'Ôn thì quá khứ đơn & hiện tại hoàn thành', content:'Quá khứ đơn diễn tả hành động đã kết thúc tại 1 thời điểm xác định trong quá khứ. Hiện tại hoàn thành diễn tả hành động xảy ra trong quá khứ nhưng còn liên quan/ảnh hưởng đến hiện tại, hoặc chưa xác định rõ thời điểm (already, just, since, for) — 2 thì hay bị nhầm lẫn nhất của người học tiếng Việt.', exercises:["Viết 5 cặp câu minh họa sự khác biệt giữa quá khứ đơn và hiện tại hoàn thành cho cùng 1 tình huống.","Viết 1 đoạn văn ngắn kể lại 1 việc bạn đã làm xong hôm nay, cố tình dùng cả 2 thì đã học.","Tìm 3 câu có since/for trong tài liệu tiếng Anh bất kỳ, xác định since đi với mốc thời gian còn for đi với khoảng thời gian."], quiz:[
-{q:"She ___ the report yesterday afternoon.", opts:["has finished","finished","finishes","is finishing"], correct:1, explain:"\"yesterday afternoon\" là mốc thời gian xác định trong quá khứ → dùng quá khứ đơn."},
-{q:"I have ___ visited Japan three times.", opts:["already","yesterday","ago","last year"], correct:0, explain:"\"already\" đi kèm hiện tại hoàn thành; \"yesterday/ago/last year\" chỉ đi với quá khứ đơn."},
-{q:"They ___ for this company since 2015.", opts:["worked","work","have worked","are working"], correct:2, explain:"\"since 2015\" (từ 1 mốc thời gian đến nay) là dấu hiệu của hiện tại hoàn thành."},
-{q:"He ___ his car last week.", opts:["has sold","sold","sells","is selling"], correct:1, explain:"\"last week\" là mốc thời gian xác định đã qua → quá khứ đơn."},
-{q:"She just ___ the project.", opts:["finish","finished","has finished","is finishing"], correct:2, explain:"\"just\" là dấu hiệu điển hình của hiện tại hoàn thành, diễn tả việc vừa mới hoàn thành."},
-{q:"We ___ the contract two days ago.", opts:["have signed","signed","sign","are signing"], correct:1, explain:"\"two days ago\" là mốc thời gian xác định trong quá khứ → quá khứ đơn."},
-{q:"He hasn't ___ his password since he changed it.", opts:["forget","forgot","forgotten","forgetting"], correct:2, explain:"Sau \"has/hasn't\" trong hiện tại hoàn thành cần động từ ở dạng phân từ hai (past participle) → forgotten."},
-{q:"By the way, did you ___ my email?", opts:["receive","received","have received","receives"], correct:0, explain:"Sau trợ động từ \"did\" trong câu hỏi, động từ chính luôn ở dạng nguyên mẫu."},
-{q:"The company has ___ three new branches this year.", opts:["open","opened","opens","opening"], correct:1, explain:"\"this year\" (khoảng thời gian chưa kết thúc, tính đến hiện tại) → hiện tại hoàn thành, cần past participle."},
-{q:"I ___ him at the conference last month.", opts:["meet","met","have met","am meeting"], correct:1, explain:"\"last month\" là mốc thời gian xác định trong quá khứ → quá khứ đơn."},
-{q:"She has worked here ___ she graduated.", opts:["for","since","ago","during"], correct:1, explain:"\"since\" đi với mốc thời gian bắt đầu (since she graduated); \"for\" mới đi với khoảng thời gian."},
-{q:"He ___ the machine before it broke down.", opts:["has repaired","repaired","repairs","repairing"], correct:1, explain:"Hành động xảy ra trong quá khứ, liên quan đến 1 sự việc quá khứ khác (broke down) → quá khứ đơn."},
-]},
-{label:'Thứ 4', title:'Luyện Part 5 chủ điểm thì động từ', content:'Áp dụng kiến thức 2 ngày trước vào luyện đề thật — tìm dấu hiệu thời gian trong câu (từ khóa như yesterday, since, now) trước khi chọn đáp án, đừng chỉ dựa vào cảm giác quen mắt.', exercises:["Làm 15 câu Part 5 tập trung chủ điểm thì động từ, đối chiếu đáp án và ghi lại câu sai kèm lý do.","Với mỗi câu sai, thử tự đặt lại câu hỏi tương tự (đổi chủ ngữ/tình huống) để luyện thêm dạng đó.","Phân loại 15 câu vừa làm theo mức độ tự tin: chắc chắn đúng / không chắc / đoán mò."], quiz:[
-{q:"Every employee ___ a badge to enter the building.", opts:["need","needs","needed","is needing"], correct:1, explain:"Sự thật/quy định hiện tại, chủ ngữ số ít \"every employee\" → hiện tại đơn, thêm -s."},
-{q:"The CEO ___ to Tokyo next Monday for a conference.", opts:["travels","traveled","is traveling","travel"], correct:2, explain:"Kế hoạch tương lai đã sắp xếp trước (\"next Monday\") thường dùng hiện tại tiếp diễn trong tiếng Anh giao tiếp/công sở."},
-{q:"She ___ in this department for five years.", opts:["works","worked","has worked","is working"], correct:2, explain:"\"for five years\" (khoảng thời gian kéo dài đến hiện tại) → hiện tại hoàn thành."},
-{q:"Currently, the technicians ___ the new equipment.", opts:["install","installs","are installing","installed"], correct:2, explain:"\"Currently\" là dấu hiệu của hiện tại tiếp diễn."},
-{q:"The company ___ its policy last year.", opts:["changes","changed","has changed","is changing"], correct:1, explain:"\"last year\" là mốc thời gian xác định trong quá khứ → quá khứ đơn."},
-{q:"Our team ___ the deadline every single time.", opts:["meet","meets","is meeting","met"], correct:1, explain:"\"every single time\" chỉ thói quen lặp lại → hiện tại đơn."},
-{q:"I ___ this issue several times, but it keeps happening.", opts:["reported","report","have reported","am reporting"], correct:2, explain:"\"several times\" (không rõ mốc thời gian cụ thể, còn ảnh hưởng đến hiện tại) → hiện tại hoàn thành."},
-{q:"Right now, Mr. Kim ___ with a client.", opts:["speaks","spoke","is speaking","has spoken"], correct:2, explain:"\"Right now\" là dấu hiệu của hiện tại tiếp diễn."},
-{q:"The factory ___ 500 units per day on average.", opts:["produce","produces","is producing","produced"], correct:1, explain:"\"on average\" chỉ số liệu thường xuyên/thói quen sản xuất → hiện tại đơn."},
-{q:"They ___ the contract yet.", opts:["haven't signed","didn't sign","don't sign","aren't signing"], correct:0, explain:"\"yet\" trong câu phủ định là dấu hiệu của hiện tại hoàn thành."},
-{q:"The warehouse ___ shipments twice a day.", opts:["receive","receives","is receiving","received"], correct:1, explain:"\"twice a day\" chỉ tần suất lặp lại thường xuyên → hiện tại đơn."},
-{q:"At present, the department ___ short-staffed.", opts:["is","are","was","were"], correct:0, explain:"\"At present\" chỉ tình trạng hiện tại; chủ ngữ số ít \"the department\" → is."},
-{q:"He ___ the same mistake again yesterday.", opts:["makes","made","has made","is making"], correct:1, explain:"\"yesterday\" là mốc thời gian xác định trong quá khứ → quá khứ đơn."},
-{q:"We ___ our supplier for over a decade.", opts:["use","used","have used","are using"], correct:2, explain:"\"for over a decade\" (khoảng thời gian kéo dài đến hiện tại) → hiện tại hoàn thành."},
-{q:"The system ___ automatically at midnight every day.", opts:["update","updates","is updating","updated"], correct:1, explain:"\"every day\" chỉ lịch trình lặp lại cố định → hiện tại đơn."},
-]},
-{label:'Thứ 5', title:'Cấu trúc câu cơ bản & vị trí từ loại', content:'Cấu trúc câu tiếng Anh cơ bản: Chủ ngữ - Động từ - Tân ngữ (S-V-O). Tính từ thường đứng trước danh từ hoặc sau động từ to be; trạng từ thường đứng sau động từ chính hoặc đầu/cuối câu. Nắm vững vị trí này giúp làm nhanh các câu Part 5 hỏi về từ loại.', exercises:["Viết 5 câu, mỗi câu xác định rõ đâu là S-V-O và vị trí của tính từ/trạng từ (nếu có).","Viết thêm 3 câu có trạng từ ở các vị trí khác nhau trong câu.","Tìm 1 đoạn văn tiếng Anh ngắn, gạch chân toàn bộ tính từ và trạng từ xuất hiện trong đó."], quiz:[
-{q:"The manager gave a ___ presentation.", opts:["clear","clearly","clarity","clarify"], correct:0, explain:"Cần tính từ đứng trước danh từ \"presentation\" → clear."},
-{q:"She explained the process ___.", opts:["clear","clearly","clarity","clarify"], correct:1, explain:"Cần trạng từ bổ nghĩa cho động từ \"explained\", đứng cuối câu → clearly."},
-{q:"This is a very ___ solution.", opts:["practical","practically","practice","practicality"], correct:0, explain:"Sau \"very\" và trước danh từ \"solution\" cần tính từ → practical."},
-{q:"He ___ completed the assignment.", opts:["success","successful","successfully","succeed"], correct:2, explain:"Cần trạng từ đứng trước động từ \"completed\" → successfully."},
-{q:"The company values ___ in all its employees.", opts:["honest","honestly","honesty","honestic"], correct:2, explain:"Sau động từ \"values\" cần danh từ làm tân ngữ → honesty."},
-{q:"The team showed great ___ during the crisis.", opts:["resilient","resiliently","resilience","resilate"], correct:2, explain:"Sau tính từ sở hữu \"great\" cần danh từ → resilience."},
-{q:"This is an ___ opportunity for growth.", opts:["excellent","excellently","excellence","excel"], correct:0, explain:"Cần tính từ đứng trước danh từ \"opportunity\" → excellent."},
-{q:"He answered the question ___.", opts:["confident","confidently","confidence","confide"], correct:1, explain:"Cần trạng từ bổ nghĩa cho động từ \"answered\", đứng cuối câu → confidently."},
-{q:"The proposal requires further ___.", opts:["discuss","discussion","discussed","discussing"], correct:1, explain:"Sau tính từ \"further\" cần danh từ → discussion."},
-{q:"Their approach is highly ___.", opts:["effective","effectively","effect","effecting"], correct:0, explain:"Sau động từ to be \"is\" cần tính từ → effective."},
-{q:"She reacted ___ to the news.", opts:["calm","calmly","calmness","calming"], correct:1, explain:"Cần trạng từ bổ nghĩa cho động từ \"reacted\" → calmly."},
-{q:"The manager praised her ___ to detail.", opts:["attentive","attentively","attention","attend"], correct:2, explain:"Cụm cố định \"attention to detail\" (sự chú ý đến chi tiết) cần danh từ."},
-]},
+{label:'Thứ 2', title:'Ôn thì hiện tại đơn & hiện tại tiếp diễn', content:'Thì hiện tại đơn diễn tả thói quen, sự thật hiển nhiên, lịch trình cố định (dấu hiệu: always, usually, every day). Thì hiện tại tiếp diễn diễn tả hành động đang xảy ra tại thời điểm nói (dấu hiệu: now, at the moment). Trong Part 5, nhận diện đúng dấu hiệu thời gian giúp chọn đúng dạng động từ.', exercises:["Viết 5 câu ví dụ dùng thì hiện tại đơn và 5 câu dùng hiện tại tiếp diễn liên quan chủ đề công sở (họp hành, báo cáo...).","Tìm và gạch chân thì động từ trong 5 câu tiếng Anh bất kỳ bạn gặp hàng ngày để luyện nhận diện thực tế.","Tự đặt 3 câu hỏi kiểu Part 5 (có chỗ trống) rồi tự trả lời để luyện tư duy ra đề."], quizGen:'present', quizCount:60,
+},
+{label:'Thứ 3', title:'Ôn thì quá khứ đơn & hiện tại hoàn thành', content:'Quá khứ đơn diễn tả hành động đã kết thúc tại 1 thời điểm xác định trong quá khứ. Hiện tại hoàn thành diễn tả hành động xảy ra trong quá khứ nhưng còn liên quan/ảnh hưởng đến hiện tại, hoặc chưa xác định rõ thời điểm (already, just, since, for) — 2 thì hay bị nhầm lẫn nhất của người học tiếng Việt.', exercises:["Viết 5 cặp câu minh họa sự khác biệt giữa quá khứ đơn và hiện tại hoàn thành cho cùng 1 tình huống.","Viết 1 đoạn văn ngắn kể lại 1 việc bạn đã làm xong hôm nay, cố tình dùng cả 2 thì đã học.","Tìm 3 câu có since/for trong tài liệu tiếng Anh bất kỳ, xác định since đi với mốc thời gian còn for đi với khoảng thời gian."], quizGen:'pastperfect', quizCount:60,
+},
+{label:'Thứ 4', title:'Luyện Part 5 chủ điểm thì động từ', content:'Áp dụng kiến thức 2 ngày trước vào luyện đề thật — tìm dấu hiệu thời gian trong câu (từ khóa như yesterday, since, now) trước khi chọn đáp án, đừng chỉ dựa vào cảm giác quen mắt.', exercises:["Làm 15 câu Part 5 tập trung chủ điểm thì động từ, đối chiếu đáp án và ghi lại câu sai kèm lý do.","Với mỗi câu sai, thử tự đặt lại câu hỏi tương tự (đổi chủ ngữ/tình huống) để luyện thêm dạng đó.","Phân loại 15 câu vừa làm theo mức độ tự tin: chắc chắn đúng / không chắc / đoán mò."], quizGen:'mixedtense', quizCount:60,
+},
+{label:'Thứ 5', title:'Cấu trúc câu cơ bản & vị trí từ loại', content:'Cấu trúc câu tiếng Anh cơ bản: Chủ ngữ - Động từ - Tân ngữ (S-V-O). Tính từ thường đứng trước danh từ hoặc sau động từ to be; trạng từ thường đứng sau động từ chính hoặc đầu/cuối câu. Nắm vững vị trí này giúp làm nhanh các câu Part 5 hỏi về từ loại.', exercises:["Viết 5 câu, mỗi câu xác định rõ đâu là S-V-O và vị trí của tính từ/trạng từ (nếu có).","Viết thêm 3 câu có trạng từ ở các vị trí khác nhau trong câu.","Tìm 1 đoạn văn tiếng Anh ngắn, gạch chân toàn bộ tính từ và trạng từ xuất hiện trong đó."], quizGen:'wordform', quizCount:60,
+},
 {label:'Thứ 6', title:'Luyện thêm Part 5 & tổng kết tuần', content:'Ôn lại tất cả câu sai đã note trong tuần, phân loại xem lỗi chủ yếu do chưa nắm vững thì động từ hay do nhầm vị trí từ loại — điều này quyết định trọng tâm ôn tập của tuần sau.', exercises:["Làm thêm 15 câu Part 5 tổng hợp, tổng kết lại toàn bộ lỗi sai của tuần vào sổ tay theo 2 nhóm: lỗi thì động từ và lỗi cấu trúc câu.","Làm lại đúng 5 câu đã sai trong tuần (không xem đáp án cũ) để kiểm tra đã sửa được lỗi chưa.","Viết 1 câu tóm tắt: chủ điểm ngữ pháp nào tuần này bạn thấy khó nhất, cần ôn thêm."], quiz:[
 {q:"Employees ___ attend the training session next week.", opts:["must","musts","musting","musted"], correct:0, explain:"Động từ khuyết thiếu (modal verb) \"must\" luôn theo sau bởi động từ nguyên mẫu, không chia."},
 {q:"The new policy takes effect ___ January 1st.", opts:["on","in","at","by"], correct:0, explain:"Giới từ \"on\" dùng với ngày cụ thể (on + ngày tháng)."},
@@ -444,6 +445,15 @@ const toeicWeeks = [
 {q:"The company plans to expand ___ Southeast Asia next year.", opts:["into","on","at","with"], correct:0, explain:"Cụm cố định \"expand into\" + thị trường/khu vực (mở rộng sang)."},
 {q:"Please refer ___ the attached document for details.", opts:["to","at","on","with"], correct:0, explain:"Cụm cố định \"refer to\" (tham khảo, đề cập đến)."},
 {q:"The new hires will report ___ the HR manager.", opts:["to","at","with","for"], correct:0, explain:"Cụm cố định \"report to\" (báo cáo cho, trực thuộc quản lý của)."},
+{q:"The proposal was rejected ___ several reasons.", opts:["due to","despite","although","because"], correct:0, explain:"\"due to\" + danh từ/cụm danh từ (do bởi); \"because\" cần theo sau là 1 mệnh đề đầy đủ."},
+{q:"The company is well known ___ its customer service.", opts:["for","of","with","about"], correct:0, explain:"Cụm cố định \"known for\" (nổi tiếng vì)."},
+{q:"He is capable ___ handling multiple projects at once.", opts:["of","for","with","at"], correct:0, explain:"Cụm cố định \"capable of\" (có khả năng)."},
+{q:"The invoice should be sent ___ the client directly.", opts:["to","at","for","with"], correct:0, explain:"\"send something to someone\" — gửi cho ai đó."},
+{q:"We are committed ___ providing excellent service.", opts:["to","for","with","of"], correct:0, explain:"Cụm cố định \"committed to\" + V-ing/danh từ (cam kết)."},
+{q:"The results depend largely ___ market conditions.", opts:["on","of","for","with"], correct:0, explain:"Cụm cố định \"depend on\" (phụ thuộc vào)."},
+{q:"She was promoted ___ senior manager last month.", opts:["to","at","for","with"], correct:0, explain:"Cụm cố định \"promoted to\" + chức danh (được thăng chức lên)."},
+{q:"The team is working ___ a tight deadline.", opts:["under","below","on","at"], correct:0, explain:"Cụm cố định \"under a deadline/pressure\" (chịu áp lực thời hạn)."},
+{q:"This product complies ___ international safety standards.", opts:["with","to","of","for"], correct:0, explain:"Cụm cố định \"comply with\" (tuân thủ)."},
 ]},
 ]},
 {title:"Từ vựng công sở & Listening Part 1-2", points:["Part 1 (mô tả tranh) cần từ vựng miêu tả hành động, vị trí đồ vật (in front of, next to...).","Part 2 (hỏi-đáp ngắn) cần phản xạ nhanh với các dạng câu hỏi Wh-, Yes/No, câu hỏi lựa chọn.","Nghe kỹ từ để hỏi đầu câu (What, Where, When, Who) vì nó quyết định loại câu trả lời cần tìm.","Cảnh giác với \"bẫy\" từ đồng âm thường xuất hiện ở đáp án gây nhiễu.","Luyện nghe chép chính tả (dictation) giúp cải thiện khả năng bắt âm rõ rệt."], practice:"Nghe và làm thử 10 câu Part 1 + 10 câu Part 2, sau đó nghe lại transcript để đối chiếu từ nghe sai, ghi lại từ mới vào sổ từ vựng.", case:"Part 1-2 tuy dễ nhưng chiếm 30/100 câu Listening — làm chắc phần này là nền tảng để đạt điểm Listening cao.", task:"Nghe và làm thử 10 câu Part 1 + 10 câu Part 2, sau đó nghe lại transcript để đối chiếu từ nghe sai.", days:[
@@ -569,7 +579,7 @@ function renderMenu(){
     btn.className = 'menu-btn' + (key === currentTrack ? ' active' : '');
     btn.style.setProperty('--track-color', `var(${t.color})`);
     btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${countDone(key)}/${t.weeks.length} tuần</span>`;
-    btn.addEventListener('click', () => { currentTrack = key; currentWeek = 0; currentDay = 0; currentNoteTab = 0; renderAll(); });
+    btn.addEventListener('click', () => { currentTrack = key; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; renderAll(); });
     menu.appendChild(btn);
   });
 }
@@ -594,7 +604,7 @@ function renderSidebar(){
     item.className = 'week-item' + (i === currentWeek ? ' active' : '');
     const title = t.isAlgo ? problems[w.problemId].name : w.title;
     item.innerHTML = `<span class="num">T${i+1}</span><span class="title">${title}</span><span class="tick">${isDone(currentTrack,i) ? '✓' : ''}</span>`;
-    item.addEventListener('click', () => { currentWeek = i; currentDay = 0; currentNoteTab = 0; renderAll(); });
+    item.addEventListener('click', () => { currentWeek = i; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; renderAll(); });
     sidebar.appendChild(item);
   });
 }
@@ -635,7 +645,138 @@ function dayPlanHTML(isAlgo){
   return `<div class="day-plan"><b>Kế hoạch theo ngày (Thứ 2 – Thứ 6)</b>${rows.map(r => `<div class="row"><span class="d">${r[0]}</span><span class="t">${r[1]}</span></div>`).join('')}</div>`;
 }
 
-/* ============ DAY TABS (real daily content, when available) ============ */
+/* ============ GRAMMAR QUIZ GENERATORS (unlimited unique questions) ============ */
+function shuffleArr(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pickOne(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function lowerFirst(s){ return s.charAt(0).toLowerCase()+s.slice(1); }
+
+const gVerbs = [
+  {base:"open",s:"opens",ing:"opening",p:"opened"},{base:"review",s:"reviews",ing:"reviewing",p:"reviewed"},
+  {base:"prepare",s:"prepares",ing:"preparing",p:"prepared"},{base:"install",s:"installs",ing:"installing",p:"installed"},
+  {base:"arrive",s:"arrives",ing:"arriving",p:"arrived"},{base:"close",s:"closes",ing:"closing",p:"closed"},
+  {base:"update",s:"updates",ing:"updating",p:"updated"},{base:"check",s:"checks",ing:"checking",p:"checked"},
+  {base:"deliver",s:"delivers",ing:"delivering",p:"delivered"},{base:"produce",s:"produces",ing:"producing",p:"produced"},
+  {base:"repair",s:"repairs",ing:"repairing",p:"repaired"},{base:"announce",s:"announces",ing:"announcing",p:"announced"},
+  {base:"discuss",s:"discusses",ing:"discussing",p:"discussed"},{base:"process",s:"processes",ing:"processing",p:"processed"},
+  {base:"contact",s:"contacts",ing:"contacting",p:"contacted"},{base:"handle",s:"handles",ing:"handling",p:"handled"},
+  {base:"submit",s:"submits",ing:"submitting",p:"submitted"},{base:"approve",s:"approves",ing:"approving",p:"approved"},
+  {base:"complete",s:"completes",ing:"completing",p:"completed"},{base:"confirm",s:"confirms",ing:"confirming",p:"confirmed"},
+];
+const gSubjSg = ["The manager","The director","She","He","The company","The technician","The train","The store","Our team","The system","The printer","The department","The factory","The bank","The accountant","The supervisor","The client","The machine","The warehouse","The shipment","The engineer","The receptionist"];
+const gSubjPl = ["The employees","They","We","The clients","The engineers","The suppliers","The managers","The technicians","The staff members","The customers","The departments","The teams"];
+const gObjects = ["the task","the report","the invoice","the shipment","the order","the schedule","the document","the request","the payment","the inventory","the contract","the proposal","the budget","the presentation","the file"];
+const gSimpleSignals = ["every Monday","every day","usually","often","every week","on a regular basis","every quarter","typically","generally","every month","frequently","regularly"];
+const gContSignals = ["Right now","At the moment","Currently","Look","Listen"];
+const gPastSignals = ["yesterday","last week","last month","two days ago","last year","last Friday","three days ago","last quarter","in 2019","a week ago"];
+const gPerfectSignals = ["already","just recently","since 2020","since last year","for five years","for three months","for a decade","so far"];
+
+function genPresentQ(used){
+  for(let tries=0; tries<80; tries++){
+    const isCont = Math.random()<0.5;
+    const isPlural = Math.random()<0.35;
+    const subj = isPlural?pickOne(gSubjPl):pickOne(gSubjSg);
+    const verb = pickOne(gVerbs);
+    const key = 'pres|'+subj+'|'+verb.base+'|'+isCont;
+    if (used.has(key)) continue;
+    used.add(key);
+    const obj = pickOne(gObjects);
+    let sentence, correct, distractors, signal;
+    if (isCont){
+      signal = pickOne(gContSignals);
+      correct = (isPlural?"are ":"is ")+verb.ing;
+      sentence = `${signal}, ${lowerFirst(subj)} ___ ${obj}.`;
+      distractors = [isPlural?verb.base:verb.s, verb.p, (isPlural?"is ":"are ")+verb.ing];
+    } else {
+      signal = pickOne(gSimpleSignals);
+      correct = isPlural?verb.base:verb.s;
+      sentence = `${subj} ___ ${obj} ${signal}.`;
+      distractors = [(isPlural?"are ":"is ")+verb.ing, verb.p, isPlural?verb.s:verb.base];
+    }
+    const opts = shuffleArr([correct, ...distractors]);
+    const explain = `"${signal}" là dấu hiệu của thì hiện tại ${isCont?'tiếp diễn':'đơn'}; chủ ngữ "${subj}" số ${isPlural?'nhiều':'ít'} nên dùng "${correct}".`;
+    return {q:sentence, opts, correct:opts.indexOf(correct), explain};
+  }
+  return null;
+}
+function genPastPerfectQ(used){
+  for(let tries=0; tries<80; tries++){
+    const isPerfect = Math.random()<0.5;
+    const isPlural = Math.random()<0.35;
+    const subj = isPlural?pickOne(gSubjPl):pickOne(gSubjSg);
+    const verb = pickOne(gVerbs);
+    const key = 'pp|'+subj+'|'+verb.base+'|'+isPerfect;
+    if (used.has(key)) continue;
+    used.add(key);
+    const obj = pickOne(gObjects);
+    let sentence, correct, distractors, signal;
+    if (isPerfect){
+      signal = pickOne(gPerfectSignals);
+      correct = (isPlural?"have ":"has ")+verb.p;
+      sentence = `${subj} ___ ${obj} ${signal}.`;
+      distractors = [verb.p, isPlural?verb.base:verb.s, (isPlural?"has ":"have ")+verb.p];
+    } else {
+      signal = pickOne(gPastSignals);
+      correct = verb.p;
+      sentence = `${subj} ___ ${obj} ${signal}.`;
+      distractors = [isPlural?verb.base:verb.s, (isPlural?"are ":"is ")+verb.ing, (isPlural?"have ":"has ")+verb.p];
+    }
+    const opts = shuffleArr([correct, ...distractors]);
+    const explain = isPerfect
+      ? `"${signal}" là dấu hiệu của thì hiện tại hoàn thành; chủ ngữ "${subj}" số ${isPlural?'nhiều':'ít'} nên dùng "${correct}".`
+      : `"${signal}" là mốc thời gian xác định trong quá khứ → dùng quá khứ đơn "${correct}" (quá khứ đơn không chia theo số ít/nhiều).`;
+    return {q:sentence, opts, correct:opts.indexOf(correct), explain};
+  }
+  return null;
+}
+
+const gWordFamilies = [
+  {noun:"success",adj:"successful",adv:"successfully",distractor:"succeed"},
+  {noun:"efficiency",adj:"efficient",adv:"efficiently",distractor:"efficacious"},
+  {noun:"confidence",adj:"confident",adv:"confidently",distractor:"confide"},
+  {noun:"honesty",adj:"honest",adv:"honestly",distractor:"honestic"},
+  {noun:"clarity",adj:"clear",adv:"clearly",distractor:"clarify"},
+  {noun:"accuracy",adj:"accurate",adv:"accurately",distractor:"accurize"},
+  {noun:"reliability",adj:"reliable",adv:"reliably",distractor:"rely"},
+  {noun:"creativity",adj:"creative",adv:"creatively",distractor:"create"},
+  {noun:"flexibility",adj:"flexible",adv:"flexibly",distractor:"flex"},
+  {noun:"professionalism",adj:"professional",adv:"professionally",distractor:"profession"},
+  {noun:"safety",adj:"safe",adv:"safely",distractor:"safen"},
+  {noun:"responsibility",adj:"responsible",adv:"responsibly",distractor:"respond"},
+  {noun:"attention",adj:"attentive",adv:"attentively",distractor:"attend"},
+  {noun:"patience",adj:"patient",adv:"patiently",distractor:"patienthood"},
+  {noun:"effectiveness",adj:"effective",adv:"effectively",distractor:"effect"},
+];
+const gNounTemplates = ["The team showed great ___.","This requires careful ___.","The manager values ___ above all.","Customers appreciate the ___ of our service."];
+const gAdjTemplates = ["This is a very ___ approach.","She gave a ___ answer.","The results were highly ___.","We need a more ___ solution."];
+const gAdvTemplates = ["He completed the task ___.","She responded ___ to the question.","They handled the situation ___.","The team worked ___ throughout the project."];
+
+function genWordFormQ(used){
+  for(let tries=0; tries<80; tries++){
+    const type = pickOne(['noun','adj','adv']);
+    const fam = pickOne(gWordFamilies);
+    const templates = type==='noun'?gNounTemplates:type==='adj'?gAdjTemplates:gAdvTemplates;
+    const template = pickOne(templates);
+    const key = type+'|'+fam.noun+'|'+template;
+    if (used.has(key)) continue;
+    used.add(key);
+    const correct = fam[type];
+    const opts = shuffleArr([fam.noun, fam.adj, fam.adv, fam.distractor]);
+    const label = type==='noun'?'danh từ':type==='adj'?'tính từ':'trạng từ';
+    const explain = `Vị trí chỗ trống trong câu này cần ${label} → "${correct}".`;
+    return {q:template.replace('___','___'), opts, correct:opts.indexOf(correct), explain};
+  }
+  return null;
+}
+
+const quizGenerators = {
+  present: (n) => { const used=new Set(); const out=[]; for(let i=0;i<n;i++){ const item=genPresentQ(used); if(item) out.push(item); } return out; },
+  pastperfect: (n) => { const used=new Set(); const out=[]; for(let i=0;i<n;i++){ const item=genPastPerfectQ(used); if(item) out.push(item); } return out; },
+  wordform: (n) => { const used=new Set(); const out=[]; for(let i=0;i<n;i++){ const item=genWordFormQ(used); if(item) out.push(item); } return out; },
+  mixedtense: (n) => { const used=new Set(); const out=[]; for(let i=0;i<n;i++){ const item = i%2===0 ? genPresentQ(used) : genPastPerfectQ(used); if(item) out.push(item); } return shuffleArr(out); },
+};
+let currentGeneratedQuiz = null;
+
+
 function dayTabsHTML(days){
   const tabs = days.map((d,i) => `<button class="day-tab${i===currentDay?' active':''}" data-day="${i}">${d.label}</button>`).join('');
   const d = days[currentDay] || days[0];
@@ -646,10 +787,23 @@ function dayTabsHTML(days){
       ${d.vocab.map(v => `<div class="vocab-row"><span class="term">${v.term}</span><span class="meaning">${v.meaning}</span><span class="example">${v.example}</span></div>`).join('')}
     </div>` : '';
 
-  const quizHTML = d.quiz ? `
+  let quizList = null;
+  let isGenerated = false;
+  if (d.quizGen) {
+    isGenerated = true;
+    if (!currentGeneratedQuiz) currentGeneratedQuiz = quizGenerators[d.quizGen](d.quizCount || 60);
+    quizList = currentGeneratedQuiz;
+  } else if (d.quiz) {
+    quizList = d.quiz;
+  }
+
+  const quizHTML = quizList ? `
     <div class="quiz-block">
-      <div class="quiz-title">Luyện tập có đáp án (${d.quiz.length} câu)</div>
-      ${d.quiz.map((item,qi) => `
+      <div class="quiz-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Luyện tập có đáp án (${quizList.length} câu)</span>
+        ${isGenerated ? `<button class="action btn-reset" id="btn-regen-quiz" style="text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:12px">🔄 Làm bộ câu mới</button>` : ''}
+      </div>
+      ${quizList.map((item,qi) => `
         <div class="quiz-item" data-qi="${qi}">
           <div class="quiz-q">${qi+1}. ${item.q}</div>
           <div class="quiz-opts">
@@ -676,15 +830,17 @@ function bindDayTabs(days){
   document.querySelectorAll('.day-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       currentDay = parseInt(btn.dataset.day, 10);
+      currentGeneratedQuiz = null;
       renderMain();
     });
   });
   const d = (days && days[currentDay]) || (days && days[0]);
-  if (d && d.quiz) {
+  const quizList = d ? (d.quizGen ? currentGeneratedQuiz : d.quiz) : null;
+  if (quizList) {
     document.querySelectorAll('.quiz-opt').forEach(btn => {
       btn.addEventListener('click', () => {
         const qi = parseInt(btn.dataset.qi, 10);
-        const item = d.quiz[qi];
+        const item = quizList[qi];
         const container = btn.closest('.quiz-item');
         if (container.classList.contains('answered')) return;
         container.classList.add('answered');
@@ -697,6 +853,13 @@ function bindDayTabs(days){
         explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
         explainEl.style.display = 'block';
       });
+    });
+  }
+  const regenBtn = document.getElementById('btn-regen-quiz');
+  if (regenBtn) {
+    regenBtn.addEventListener('click', () => {
+      currentGeneratedQuiz = null;
+      renderMain();
     });
   }
 }
@@ -818,6 +981,19 @@ function renderMain(){
             <div class="console-body" id="console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
           </div>
           <div class="info-box case"><b>Ứng dụng thực tế</b>${problem.caseReal}</div>
+          ${problem.quiz ? `
+          <div class="quiz-block">
+            <div class="quiz-title">Câu hỏi khái niệm (${problem.quiz.length} câu)</div>
+            ${problem.quiz.map((item,qi) => `
+              <div class="quiz-item" data-qi="${qi}">
+                <div class="quiz-q">${qi+1}. ${item.q}</div>
+                <div class="quiz-opts">
+                  ${item.opts.map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${String.fromCharCode(65+oi)}. ${opt}</button>`).join('')}
+                </div>
+                <div class="quiz-explain" style="display:none"></div>
+              </div>
+            `).join('')}
+          </div>` : ''}
         </div>
       </div>
       <div class="week-nav">
@@ -835,11 +1011,30 @@ function renderMain(){
       savedCode[w.problemId] = e.target.value;
       saveCode();
     });
+    if (problem.quiz) {
+      document.querySelectorAll('#main .quiz-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const qi = parseInt(btn.dataset.qi, 10);
+          const item = problem.quiz[qi];
+          const container = btn.closest('.quiz-item');
+          if (container.classList.contains('answered')) return;
+          container.classList.add('answered');
+          const oi = parseInt(btn.dataset.oi, 10);
+          container.querySelectorAll('.quiz-opt').forEach((optBtn,idx) => {
+            if (idx === item.correct) optBtn.classList.add('correct');
+            else if (idx === oi) optBtn.classList.add('incorrect');
+          });
+          const explainEl = container.querySelector('.quiz-explain');
+          explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
+          explainEl.style.display = 'block';
+        });
+      });
+    }
     document.getElementById('btn-run').addEventListener('click', () => runTests(w.problemId, problem));
   }
 
-  document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; renderAll(); window.scrollTo(0,0);} });
-  document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; renderAll(); window.scrollTo(0,0);} });
+  document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; renderAll(); window.scrollTo(0,0);} });
+  document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; renderAll(); window.scrollTo(0,0);} });
 
   bindDayTabs(t.isAlgo ? problems[w.problemId].days : w.days);
 }
