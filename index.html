@@ -23,6 +23,10 @@
     --algo-dim:rgba(124,58,237,0.09);
     --toeic:#2563EB;
     --toeic-dim:rgba(37,99,235,0.09);
+    --aws:#D97706;
+    --aws-dim:rgba(217,119,6,0.09);
+    --korean:#DB2777;
+    --korean-dim:rgba(219,39,119,0.09);
     --coral:#DC2626;
     --coral-dim:rgba(220,38,38,0.09);
     --amber2:#B45309;
@@ -192,22 +196,51 @@
   .nav-btn:disabled{opacity:.35; cursor:default;}
 
   footer{text-align:center; padding:16px; font-family:var(--mono); font-size:11px; color:var(--text-dim); border-top:1px solid var(--border); background:var(--bg-panel);}
+
+  .app-hidden{display:none !important;}
+  .profile-screen{min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px;}
+  .profile-screen .ps-brand{display:flex; align-items:center; gap:10px; margin-bottom:36px;}
+  .profile-screen .ps-brand .dot{width:9px; height:9px; border-radius:50%; background:var(--algo);}
+  .profile-screen .ps-brand h1{font-family:var(--mono); font-size:16px; font-weight:700;}
+  .profile-screen h2{font-size:22px; font-weight:700; margin-bottom:28px; color:var(--text-primary);}
+  .ps-grid{display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:800px; margin-bottom:20px;}
+  .ps-card{width:140px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer;}
+  .ps-avatar{width:100px; height:100px; border-radius:16px; background:var(--algo-dim); border:2px solid transparent; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:32px; font-weight:700; color:var(--algo); transition:.15s; position:relative;}
+  .ps-card:hover .ps-avatar{border-color:var(--algo); transform:scale(1.04);}
+  .ps-card .ps-name{font-size:13.5px; font-weight:600; color:var(--text-primary); text-align:center;}
+  .ps-card .ps-del{position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:var(--coral); color:#fff; border:none; font-size:13px; cursor:pointer; display:none; align-items:center; justify-content:center;}
+  .ps-card:hover .ps-del{display:flex;}
+  .ps-add .ps-avatar{background:var(--bg-elevated); border:2px dashed var(--border); color:var(--text-dim); font-size:36px;}
+  .ps-add:hover .ps-avatar{border-color:var(--text-dim); color:var(--text-primary);}
+  .ps-form{display:flex; gap:10px; margin-top:8px;}
+  .ps-form input{font-family:var(--sans); font-size:14px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-panel); color:var(--text-primary); outline:none; width:220px;}
+  .ps-form input:focus{border-color:var(--algo);}
+  .ps-form button{font-family:var(--mono); font-size:13px; font-weight:600; padding:10px 18px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer;}
+  .ps-hint{font-size:12px; color:var(--text-dim); margin-top:24px; text-align:center; max-width:420px; line-height:1.6;}
+
+  .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
+  .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path">6 tháng FE/BE/Thuật toán · 4 tháng TOEIC</span></div>
-  <nav class="menu" id="menu"></nav>
+<div id="profileScreen" class="profile-screen"></div>
+
+<header class="app-hidden" id="siteHeader">
+  <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <nav class="menu" id="menu" style="flex:1"></nav>
+    <button class="switch-profile-btn" id="switchProfileBtn">👤 Đổi hồ sơ</button>
+  </div>
 </header>
 
-<div class="app">
+<div class="app app-hidden" id="siteApp">
   <nav class="sidebar" id="sidebar"></nav>
   <main id="main"></main>
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v13</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v14</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -540,6 +573,42 @@ const toeicWeeks = [
 {title:"Tổng ôn & sẵn sàng cho ngày thi", points:["Rà soát lại toàn bộ lỗi sai đã note trong 4 tháng, tập trung vào các lỗi lặp lại nhiều lần.","Ôn lại nhanh danh sách từ vựng/collocation quan trọng, không học kiến thức hoàn toàn mới ở tuần cuối.","Chuẩn bị tâm lý và thể lực: ngủ đủ giấc, tránh luyện đề nặng sát ngày thi (nghỉ 1 ngày trước khi thi).","Kiểm tra lại giấy tờ, địa điểm, giờ thi để tránh sự cố phút chót gây mất tập trung không cần thiết.","Nhắc lại chiến thuật cốt lõi: đọc trước câu hỏi, không bỏ trống câu nào, quản lý thời gian theo mốc đã luyện."], practice:"Làm 1 đề full test cuối cùng nhẹ nhàng (không cần tính giờ quá căng thẳng) để giữ phong độ trước ngày thi thật.", case:"Tâm lý phòng thi (căng thẳng, thiếu ngủ) có thể khiến thí sinh mất 20-30 điểm so với lúc luyện tập ở nhà — chuẩn bị tâm lý là bước cuối cùng nhưng không kém quan trọng.", task:"Làm 1 đề full test cuối cùng nhẹ nhàng (không cần tính giờ quá căng thẳng) để giữ phong độ trước ngày thi thật."},
 ];
 
+/* ============ AWS SOLUTIONS ARCHITECT ASSOCIATE — 12 TUẦN / 3 THÁNG ============ */
+const awsWeeks = [
+{title:"Tổng quan AWS & IAM", points:["AWS là nền tảng điện toán đám mây lớn nhất thế giới, cung cấp hạ tầng (compute, storage, network) theo mô hình trả tiền theo nhu cầu sử dụng.","IAM quản lý người dùng, nhóm, vai trò (role) và quyền truy cập vào tài nguyên AWS.","Nguyên tắc \"least privilege\" (đặc quyền tối thiểu): chỉ cấp đúng quyền cần thiết, không cấp dư thừa.","Root account có toàn quyền — nên hạn chế dùng hàng ngày, tạo IAM user riêng cho công việc thường xuyên.","MFA (xác thực đa yếu tố) nên bật cho mọi tài khoản quan trọng, đặc biệt root account."], practice:"Tạo tài khoản AWS Free Tier, tạo 1 IAM user mới với quyền hạn chế (không phải admin), bật MFA cho root account.", case:"SAA-C03 luôn có câu hỏi về IAM best practice — hiểu đúng least privilege là kiến thức nền bắt buộc.", task:"Tạo 1 IAM policy tùy chỉnh chỉ cho phép đọc (read-only) 1 dịch vụ cụ thể (ví dụ S3), gán cho user vừa tạo và thử nghiệm quyền hạn."},
+{title:"EC2 — máy chủ ảo", points:["EC2 là dịch vụ máy chủ ảo cho phép thuê tài nguyên tính toán theo nhu cầu.","Instance type quyết định cấu hình CPU/RAM/network — ví dụ t2.micro (nhỏ, free tier) đến các loại lớn hơn cho khối lượng công việc nặng.","AMI (Amazon Machine Image) là bản snapshot hệ điều hành + phần mềm cài sẵn, dùng để khởi tạo instance nhanh chóng.","Security Group hoạt động như firewall ở cấp instance, kiểm soát traffic vào/ra theo port và IP.","Elastic IP là địa chỉ IP tĩnh có thể gán cố định cho instance, không đổi khi restart."], practice:"Khởi tạo 1 EC2 instance t2.micro (free tier), cấu hình Security Group chỉ mở port 22 và 80, SSH vào instance.", case:"Câu hỏi về Security Group vs Network ACL (khác biệt stateful/stateless) là chủ đề rất hay gặp trong đề thi SAA.", task:"Cài đặt 1 web server đơn giản (ví dụ Nginx) trên EC2 instance vừa tạo, truy cập được từ trình duyệt qua địa chỉ IP public."},
+{title:"S3 — lưu trữ đối tượng", points:["S3 là dịch vụ lưu trữ object storage có độ bền cao (99.999999999%), không giới hạn dung lượng.","Bucket là đơn vị chứa dữ liệu trong S3, tên bucket phải duy nhất toàn cầu.","Storage class (Standard, IA, Glacier...) tối ưu chi phí theo tần suất truy cập dữ liệu.","Versioning cho phép giữ lại nhiều phiên bản của 1 object, hữu ích để khôi phục khi bị ghi đè/xóa nhầm.","Bucket Policy và ACL kiểm soát quyền truy cập ở cấp bucket/object, cần cấu hình cẩn thận để tránh lộ dữ liệu công khai ngoài ý muốn."], practice:"Tạo 1 S3 bucket, upload vài file, bật Versioning, thử ghi đè 1 file và khôi phục phiên bản cũ.", case:"Rất nhiều sự cố bảo mật thực tế xảy ra do S3 bucket bị cấu hình public nhầm — đây là lỗi cấu hình phổ biến nhất trong thực tế vận hành AWS.", task:"Cấu hình 1 bucket S3 để host 1 trang web tĩnh đơn giản (Static Website Hosting), truy cập được qua URL S3 cung cấp."},
+{title:"VPC — mạng ảo & tổng kết tháng 1", points:["VPC là mạng ảo riêng biệt trong AWS, cho phép kiểm soát toàn bộ hạ tầng mạng.","Subnet chia VPC thành các vùng nhỏ hơn — public subnet có route ra internet, private subnet thì không.","Internet Gateway cho phép public subnet truy cập internet; NAT Gateway cho phép private subnet truy cập internet ra ngoài mà không bị truy cập ngược vào.","Route Table quyết định traffic từ subnet đi đâu — mỗi subnet phải gắn với 1 route table.","Hiểu rõ VPC là nền tảng bắt buộc để hiểu hầu hết các dịch vụ AWS khác (EC2, RDS... đều chạy trong VPC)."], practice:"Tạo 1 VPC mới với 1 public subnet và 1 private subnet, cấu hình Internet Gateway cho public subnet.", case:"Thiết kế VPC đúng cách (public/private subnet tách biệt) là yêu cầu bảo mật cơ bản cho hầu hết kiến trúc production trên AWS.", task:"Đặt 1 EC2 instance vào private subnet vừa tạo, xác nhận nó không truy cập được internet trực tiếp, sau đó thêm NAT Gateway để khắc phục."},
+{title:"RDS — cơ sở dữ liệu quản lý", points:["RDS là dịch vụ database quan hệ được AWS quản lý, tự động xử lý backup, patching, scaling.","Multi-AZ deployment tạo bản sao đồng bộ ở Availability Zone khác, tự động failover khi AZ chính gặp sự cố.","Read Replica tạo bản sao chỉ đọc để giảm tải cho instance chính, khác với Multi-AZ (dùng cho failover, không dùng để đọc).","RDS Automated Backup lưu trữ backup hàng ngày, cho phép khôi phục về bất kỳ thời điểm nào trong khoảng retention period.","So với tự cài database trên EC2, RDS giảm đáng kể công sức vận hành nhưng đánh đổi ít quyền kiểm soát hơn."], practice:"Tạo 1 RDS instance (MySQL, free tier), kết nối từ EC2 instance ở tuần trước tới database này.", case:"Phân biệt Multi-AZ (failover) và Read Replica (scale đọc) là câu hỏi kinh điển trong đề thi SAA.", task:"Bật Automated Backup cho RDS instance, thử tạo 1 snapshot thủ công và khôi phục database từ snapshot đó."},
+{title:"Load Balancer & Auto Scaling", points:["Elastic Load Balancer phân phối traffic đến nhiều EC2 instance, tăng độ sẵn sàng và khả năng chịu tải.","Application Load Balancer (ALB) hoạt động ở tầng 7 (HTTP/HTTPS); Network Load Balancer (NLB) hoạt động ở tầng 4, phù hợp traffic cực lớn cần độ trễ thấp.","Auto Scaling Group tự động tăng/giảm số lượng EC2 instance dựa trên metric, giúp tối ưu chi phí và đảm bảo hiệu năng.","Health Check giúp Load Balancer/ASG phát hiện instance bị lỗi và tự động thay thế.","Kết hợp ALB + ASG là kiến trúc chuẩn cho ứng dụng web có khả năng mở rộng trên AWS."], practice:"Tạo Auto Scaling Group với 2-3 EC2 instance chạy web server, gắn Application Load Balancer phía trước.", case:"Thiết kế high-availability kết hợp ALB + ASG là pattern kiến trúc xuất hiện trong phần lớn câu hỏi tình huống của đề thi SAA.", task:"Cấu hình Scaling Policy tự động thêm instance khi CPU trung bình vượt 70%, thử giả lập tải để quan sát Auto Scaling hoạt động."},
+{title:"Route 53 & CloudFront", points:["Route 53 là dịch vụ DNS của AWS, chuyển đổi tên miền thành địa chỉ IP, hỗ trợ nhiều routing policy.","CloudFront là dịch vụ CDN, cache nội dung tại các edge location gần người dùng để giảm độ trễ.","Kết hợp CloudFront + S3 là pattern phổ biến để host và phân phối nội dung tĩnh hiệu quả toàn cầu.","Origin trong CloudFront là nguồn dữ liệu gốc (S3 bucket, EC2, ALB...) mà CloudFront lấy nội dung để cache.","TTL quyết định thời gian CloudFront giữ cache trước khi lấy lại dữ liệu mới từ origin."], practice:"Tạo 1 CloudFront distribution trỏ đến S3 bucket static website đã tạo ở tuần 3, so sánh tốc độ tải trước/sau khi qua CDN.", case:"CloudFront giúp giảm đáng kể chi phí và độ trễ khi phục vụ người dùng ở nhiều khu vực địa lý khác nhau.", task:"Cấu hình Route 53 để trỏ 1 tên miền (hoặc subdomain miễn phí) tới CloudFront distribution vừa tạo."},
+{title:"Lambda & Serverless — tổng kết tháng 2", points:["Lambda cho phép chạy code mà không cần quản lý server, tự động scale theo số lượng request, tính phí theo thời gian thực thi thực tế.","Lambda function được kích hoạt bởi trigger — API Gateway, S3 event, EventBridge...","Cold start là độ trễ xảy ra khi Lambda function chưa được \"làm nóng\" — cần lưu ý khi thiết kế ứng dụng nhạy cảm về độ trễ.","API Gateway kết hợp với Lambda tạo thành kiến trúc REST API serverless phổ biến, không cần EC2.","Serverless giảm đáng kể công sức vận hành nhưng phù hợp nhất với workload có tính chất event-driven hơn là chạy liên tục 24/7."], practice:"Viết 1 Lambda function đơn giản (trả về \"Hello World\"), gắn với API Gateway để gọi được qua HTTP.", case:"Kiến trúc serverless (API Gateway + Lambda + DynamoDB) là 1 trong những pattern được hỏi nhiều nhất trong đề thi SAA.", task:"Viết 1 Lambda function được kích hoạt tự động khi có file mới upload vào S3 bucket, ví dụ tự động log tên file ra CloudWatch."},
+{title:"DynamoDB & các dịch vụ lưu trữ khác", points:["DynamoDB là NoSQL database được AWS quản lý hoàn toàn, có khả năng scale gần như vô hạn với độ trễ thấp ổn định.","Partition Key (và Sort Key nếu có) quyết định cách dữ liệu được phân bổ — thiết kế key tốt rất quan trọng để tránh \"hot partition\".","DynamoDB phù hợp cho ứng dụng cần đọc/ghi tốc độ cao, ít quan hệ phức tạp, khác với RDS phù hợp dữ liệu có quan hệ.","EFS là dịch vụ file storage dùng chung được cho nhiều EC2 instance, khác với EBS (chỉ gắn được 1 instance tại 1 thời điểm thông thường).","So sánh S3 vs EBS vs EFS: S3 là object storage, EBS là block storage gắn với 1 instance, EFS là file storage chia sẻ được nhiều instance."], practice:"Tạo 1 bảng DynamoDB đơn giản, thêm/sửa/xóa vài item qua AWS Console hoặc CLI.", case:"Phân biệt đúng khi nào dùng S3/EBS/EFS/RDS/DynamoDB là nhóm câu hỏi chiếm tỷ trọng lớn nhất trong đề thi SAA.", task:"Viết 1 bảng so sánh 5 dịch vụ lưu trữ đã học (S3, EBS, EFS, RDS, DynamoDB): dùng khi nào, ưu nhược điểm."},
+{title:"Bảo mật & giám sát", points:["CloudWatch thu thập metric, log, và cho phép đặt alarm khi tài nguyên vượt ngưỡng.","CloudTrail ghi lại lịch sử mọi API call trong tài khoản AWS — quan trọng cho việc audit và điều tra sự cố bảo mật.","KMS quản lý khóa mã hóa, dùng để mã hóa dữ liệu tại nghỉ (at rest) cho S3, RDS, EBS...","Shared Responsibility Model: AWS chịu trách nhiệm bảo mật \"của\" cloud, khách hàng chịu trách nhiệm bảo mật \"trong\" cloud.","WAF bảo vệ ứng dụng khỏi các cuộc tấn công web phổ biến (SQL injection, XSS...) ở tầng CloudFront/ALB."], practice:"Tạo 1 CloudWatch Alarm cảnh báo khi CPU của EC2 instance vượt 80%, thử test bằng cách giả lập tải cao.", case:"Shared Responsibility Model là khái niệm nền tảng gần như chắc chắn xuất hiện trong đề thi SAA, cả câu hỏi trực tiếp lẫn câu hỏi tình huống.", task:"Bật CloudTrail cho tài khoản AWS, xem log ghi lại các hành động bạn vừa thực hiện trong các tuần trước."},
+{title:"Kiến trúc High Availability & Disaster Recovery", points:["Availability Zone là các trung tâm dữ liệu độc lập trong 1 Region — thiết kế multi-AZ giúp ứng dụng chịu được sự cố ở 1 AZ.","Region là khu vực địa lý chứa nhiều AZ — chọn Region gần người dùng giúp giảm độ trễ.","Disaster Recovery có nhiều chiến lược: Backup & Restore, Pilot Light, Warm Standby, Multi-Site Active-Active — mỗi chiến lược đánh đổi giữa chi phí và RTO/RPO.","RTO là thời gian tối đa chấp nhận được để khôi phục hệ thống; RPO là lượng dữ liệu tối đa chấp nhận mất.","Thiết kế kiến trúc \"well-architected\" cần cân bằng 5 trụ cột: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization."], practice:"Vẽ sơ đồ kiến trúc 1 ứng dụng web đơn giản triển khai trên 2 AZ với ALB + ASG + RDS Multi-AZ.", case:"Câu hỏi tình huống về DR strategy (chọn đúng chiến lược theo yêu cầu RTO/RPO cụ thể) là dạng câu hỏi khó và hay gặp nhất trong đề thi SAA.", task:"Với sơ đồ đã vẽ, viết ra RTO/RPO ước lượng cho kiến trúc đó, và đề xuất 1 cải tiến để giảm RTO nếu cần."},
+{title:"Luyện đề tổng hợp & sẵn sàng thi", points:["Đề thi SAA-C03 gồm 65 câu hỏi, thời gian 130 phút, điểm đạt tối thiểu 720/1000.","Phần lớn câu hỏi là dạng tình huống (scenario-based) — mô tả 1 bài toán thực tế và yêu cầu chọn kiến trúc/dịch vụ phù hợp nhất.","Kỹ năng loại trừ đáp án sai quan trọng không kém việc biết đáp án đúng — thường có 2 đáp án rõ ràng sai, 2 đáp án còn lại cần phân tích kỹ.","Nên làm ít nhất 2-3 bộ đề thi thử đầy đủ trước khi thi thật để quen áp lực thời gian.","Ôn lại các dịch vụ hay bị nhầm lẫn nhất: SQS vs SNS, S3 vs EBS vs EFS, Security Group vs NACL, Multi-AZ vs Read Replica."], practice:"Làm 1 đề thi thử SAA-C03 đầy đủ (65 câu, tính giờ 130 phút), chấm điểm và phân tích lỗi sai.", case:"Tự tin đạt trên 750/1000 trong 2 lần luyện đề liên tiếp là dấu hiệu tốt cho thấy đã sẵn sàng đăng ký thi thật.", task:"Lập danh sách 10 khái niệm/dịch vụ bạn còn nhầm lẫn nhất qua các tuần học, dành riêng thời gian tuần này để ôn sâu từng cái."},
+];
+
+/* ============ TIẾNG HÀN — 16 TUẦN / 4 THÁNG ĐẦU (hướng tới TOPIK 6, sẽ mở rộng tiếp) ============ */
+const koreanWeeks = [
+{title:"Nguyên âm cơ bản (기본 모음)", points:["Hangul là bảng chữ cái tiếng Hàn, gồm nguyên âm và phụ âm, được thiết kế khoa học, học được trong thời gian ngắn.","10 nguyên âm cơ bản: ㅏ(a), ㅑ(ya), ㅓ(eo), ㅕ(yeo), ㅗ(o), ㅛ(yo), ㅜ(u), ㅠ(yu), ㅡ(eu), ㅣ(i).","Nguyên âm chia làm 2 nhóm: nét ngang (ㅡ,ㅗ,ㅛ,ㅜ,ㅠ) và nét dọc (ㅣ,ㅏ,ㅑ,ㅓ,ㅕ) — nhận biết nhóm giúp nhớ cách viết đúng thứ tự nét.","Mỗi nguyên âm khi đứng 1 mình cần ghép với phụ âm câm ㅇ ở vị trí đầu (ví dụ 아 = a).","Luyện viết đúng thứ tự nét ngay từ đầu quan trọng hơn viết nhanh — thói quen sai khó sửa về sau."], practice:"Luyện viết tay 10 nguyên âm cơ bản, mỗi nguyên âm 10 lần, đọc to khi viết.", case:"Hangul được vua Sejong sáng tạo năm 1443 để giúp người dân dễ học chữ viết — đây là lý do bảng chữ cái này rất logic và dễ tiếp cận hơn chữ Hán hay Nhật.", task:"Viết được và đọc đúng 10 nguyên âm cơ bản không cần nhìn bảng, tự kiểm tra bằng cách viết ngẫu nhiên."},
+{title:"Phụ âm cơ bản (기본 자음)", points:["14 phụ âm cơ bản: ㄱ(g/k), ㄴ(n), ㄷ(d/t), ㄹ(r/l), ㅁ(m), ㅂ(b/p), ㅅ(s), ㅇ(câm/ng), ㅈ(j), ㅊ(ch), ㅋ(k), ㅌ(t), ㅍ(p), ㅎ(h).","Một số phụ âm phát âm khác nhau tùy vị trí trong âm tiết.","Cấu trúc âm tiết tiếng Hàn: phụ âm đầu + nguyên âm + (phụ âm cuối, không bắt buộc) — ví dụ 한 = ㅎ+ㅏ+ㄴ.","Ghép phụ âm với nguyên âm tạo thành khối âm tiết vuông vắn, không viết rời như chữ Latin.","Luyện ghép các phụ âm đã học với 10 nguyên âm ở tuần 1 để tạo thành âm tiết hoàn chỉnh."], practice:"Luyện viết 14 phụ âm cơ bản, sau đó ghép thử ít nhất 20 âm tiết khác nhau và đọc to.", case:"Phát âm chuẩn ngay từ giai đoạn Hangul giúp tránh phải sửa lỗi phát âm về sau — đây là giai đoạn quan trọng nhất dù có vẻ đơn giản.", task:"Viết tên của bạn bằng tiếng Hàn (phiên âm gần đúng) bằng những phụ âm/nguyên âm đã học."},
+{title:"Nguyên âm đôi & phụ âm căng (이중모음, 쌍자음)", points:["Nguyên âm đôi là tổ hợp 2 nguyên âm đọc thành 1 âm: ㅐ(ae), ㅔ(e), ㅘ(wa), ㅝ(wo), ㅙ(wae), ㅞ(we), ㅚ(oe), ㅟ(wi), ㅢ(ui).","ㅐ và ㅔ phát âm khá giống nhau trong tiếng Hàn hiện đại, nhiều người bản xứ cũng không phân biệt rõ khi nói.","Phụ âm căng là phụ âm đôi, phát âm căng và dứt khoát hơn: ㄲ, ㄸ, ㅃ, ㅆ, ㅉ.","Phụ âm căng khác hoàn toàn về nghĩa so với phụ âm thường dù nhìn gần giống.","Luyện nghe phân biệt phụ âm thường/căng/bật hơi là kỹ năng khó nhất giai đoạn đầu, cần luyện tai nhiều."], practice:"Luyện viết toàn bộ nguyên âm đôi và phụ âm căng, ghép thử với các phụ âm/nguyên âm đã học ở 2 tuần trước.", case:"Bảng chữ cái Hangul hoàn chỉnh gồm 21 nguyên âm và 19 phụ âm — sau tuần này bạn đã học đủ toàn bộ Hangul cơ bản.", task:"Viết và đọc đúng bộ 3 phụ âm ㄱ/ㄲ/ㅋ, ㄷ/ㄸ/ㅌ, ㅂ/ㅃ/ㅍ, ㅅ/ㅆ, ㅈ/ㅉ/ㅊ để phân biệt độ căng/bật hơi."},
+{title:"Quy tắc đọc nối âm & tổng kết Hangul", points:["Batchim là phụ âm cuối của âm tiết, ảnh hưởng đến cách đọc nối với âm tiết tiếp theo.","Quy tắc nối âm (연음): khi âm tiết có batchim đứng trước âm tiết bắt đầu bằng ㅇ, batchim đó được đọc nối sang âm tiết sau.","Một số batchim có cách đọc đại diện khác với chữ viết khi đứng riêng.","Luyện đọc từ có batchim kép (2 phụ âm cuối) như 없다, 닭 — chỉ 1 trong 2 phụ âm được phát âm tùy trường hợp.","Nắm vững quy tắc đọc nối âm là nền tảng để nghe hiểu tiếng Hàn tự nhiên, vì người bản xứ luôn nói nối âm."], practice:"Luyện đọc to 15 từ tiếng Hàn có batchim đơn giản, ghi âm lại giọng đọc của mình để tự nghe lại.", case:"Đây là bước chuyển quan trọng từ \"biết mặt chữ\" sang \"đọc được tiếng Hàn thật\" — nhiều người bỏ qua bước này nên nghe/nói rất khó khăn về sau.", task:"Tự đọc to được đoạn văn tiếng Hàn ngắn (3-4 câu, có phiên âm hỗ trợ) không vấp, đúng quy tắc nối âm cơ bản."},
+{title:"Đại từ nhân xưng & câu chào hỏi cơ bản", points:["저 (jeo) là \"tôi\" thể trang trọng/khiêm nhường, 나 (na) là \"tôi\" thể thân mật — người mới nên dùng 저 trong hầu hết tình huống.","이것/그것/저것 (cái này/cái đó/cái kia) là hệ thống chỉ định theo khoảng cách, có 3 cấp thay vì 2 như tiếng Việt.","안녕하세요 (xin chào, thể trang trọng lịch sự) là câu chào phổ biến nhất, dùng được trong hầu hết tình huống giao tiếp hàng ngày.","감사합니다/고맙습니다 đều nghĩa \"cảm ơn\", 감사합니다 trang trọng hơn một chút, dùng phổ biến trong môi trường công việc.","Tiếng Hàn có hệ thống kính ngữ phức tạp theo tuổi tác/địa vị — người mới nên bắt đầu học và dùng thể trang trọng trước."], practice:"Học thuộc 10 câu giao tiếp cơ bản (chào hỏi, cảm ơn, xin lỗi, tạm biệt), luyện nói to từng câu 5 lần.", case:"Người Hàn Quốc coi trọng việc dùng đúng kính ngữ theo tuổi tác — bắt đầu bằng thể trang trọng luôn là lựa chọn an toàn khi giao tiếp với người lạ.", task:"Tự giới thiệu bản thân bằng tiếng Hàn (tên, quốc tịch, nghề nghiệp) trong 3-4 câu, dùng thể trang trọng đã học."},
+{title:"Trợ từ cơ bản (조사) — 은/는, 이/가, 을/를", points:["은/는 là trợ từ chủ đề, dùng để nhấn mạnh hoặc giới thiệu chủ đề của câu — 은 đi sau phụ âm, 는 đi sau nguyên âm.","이/가 là trợ từ chủ ngữ, thường dùng khi giới thiệu thông tin mới hoặc nhấn mạnh chủ thể hành động.","Phân biệt 은/는 và 이/가 là 1 trong những điểm ngữ pháp khó nhất cho người mới, vì tiếng Việt không có khái niệm tương đương rõ ràng.","을/를 là trợ từ tân ngữ, đánh dấu đối tượng chịu tác động của động từ — 을 đi sau phụ âm, 를 đi sau nguyên âm.","Trợ từ trong tiếng Hàn gắn liền vào sau danh từ, quyết định vai trò ngữ pháp — khác hẳn tiếng Việt dựa vào trật tự từ."], practice:"Viết 10 câu đơn giản (chủ ngữ - tân ngữ - động từ) áp dụng đúng trợ từ 은/는, 이/가, 을/를 tùy ngữ cảnh.", case:"Trợ từ là đặc điểm ngữ pháp cốt lõi phân biệt tiếng Hàn với tiếng Việt — nắm vững trợ từ là nền tảng bắt buộc trước khi học ngữ pháp phức tạp hơn.", task:"Tìm 5 câu tiếng Hàn đơn giản (từ sách/app học tiếng Hàn), xác định và giải thích tại sao mỗi trợ từ được dùng như vậy."},
+{title:"Động từ/tính từ thể 습니다/ㅂ니다 (thể trang trọng)", points:["Thể 습니다/ㅂ니다 là dạng chia trang trọng nhất, dùng trong tình huống công việc, thuyết trình, tin tức.","Quy tắc chia: động từ có batchim + 습니다; động từ không có batchim + ㅂ니다.","Ví dụ: 먹다 (ăn) → 먹습니다; 가다 (đi) → 갑니다.","Dạng câu hỏi thay 다 bằng 까: 습니까?/ㅂ니까?","Đây là 1 trong 2 thể trang trọng chính của tiếng Hàn (cùng với 해요체 sẽ học sau) — TOPIK 1 yêu cầu thành thạo cả 2 thể này."], practice:"Chia 15 động từ/tính từ cơ bản sang thể 습니다/ㅂ니다, cả câu khẳng định và câu hỏi.", case:"Thể 습니다 xuất hiện rất nhiều trong tin tức, bản tin thời tiết tiếng Hàn — nghe được thể này giúp bạn tiếp cận nguồn tài liệu nghe thực tế ngay từ trình độ sơ cấp.", task:"Viết 1 đoạn giới thiệu ngắn (5 câu) về công việc/sở thích của bạn, toàn bộ động từ chia ở thể 습니다/ㅂ니다."},
+{title:"Động từ/tính từ thể 해요 & tổng kết tháng 2", points:["Thể 해요 là thể lịch sự nhưng thân mật hơn 습니다, dùng phổ biến nhất trong giao tiếp hàng ngày.","Quy tắc chia dựa vào nguyên âm cuối của gốc động từ (ㅏ/ㅗ thêm 아요, các nguyên âm khác thêm 어요, một số trường hợp bất quy tắc).","Ví dụ: 가다 → 가요; 먹다 → 먹어요; 하다 → 해요 (bất quy tắc phổ biến nhất).","Trong hội thoại thực tế, người Hàn dùng 해요체 nhiều hơn 습니다체.","Cả 2 thể đều là thể lịch sự, khác với thể suồng sã (반말) dùng với bạn bè thân — TOPIK 1-2 tập trung vào 2 thể lịch sự trước."], practice:"Chia lại 15 động từ/tính từ đã học ở tuần 7 sang thể 해요, so sánh sắc thái với thể 습니다.", case:"Thể 해요 là thể bạn sẽ nghe nhiều nhất khi xem phim/nghe nhạc Hàn Quốc — luyện thành thạo giúp bạn hiểu phần lớn hội thoại đời thường.", task:"Viết lại đoạn giới thiệu bản thân đã viết ở tuần 7, chuyển toàn bộ sang thể 해요, cảm nhận sự khác biệt sắc thái."},
+{title:"Thì quá khứ (았/었어요, 았/었습니다)", points:["Thì quá khứ tạo bằng cách chèn 았/었 vào trước đuôi câu, quy tắc chọn tương tự cách chọn 아요/어요.","Ví dụ: 가다 → 갔어요 (đã đi); 먹다 → 먹었어요 (đã ăn); 하다 → 했어요 (đã làm).","Với thể 습니다, quá khứ trở thành 았/었습니다 — ví dụ 갔습니다, 먹었습니다.","Trạng từ chỉ thời gian quá khứ thường đi kèm: 어제 (hôm qua), 지난주 (tuần trước), 작년 (năm ngoái).","Luyện kết hợp thì quá khứ với cả 2 thể lịch sự đã học để linh hoạt trong nhiều ngữ cảnh."], practice:"Viết 10 câu kể lại việc bạn đã làm hôm qua, dùng đúng thì quá khứ ở cả 2 thể lịch sự.", case:"Kể chuyện quá khứ là kỹ năng giao tiếp cơ bản nhất — chủ đề này gần như chắc chắn xuất hiện trong phần thi nói/viết TOPIK dù ở cấp độ nào.", task:"Viết 1 đoạn nhật ký ngắn (5-6 câu) kể lại 1 ngày cụ thể trong tuần, toàn bộ dùng thì quá khứ."},
+{title:"Thì tương lai/dự định & liên từ cơ bản", points:["을/ㄹ 거예요 diễn tả dự định hoặc dự đoán trong tương lai — 을 거예요 sau gốc có batchim, ㄹ 거예요 sau gốc không batchim.","Ví dụ: 가다 → 갈 거예요 (sẽ đi); 먹다 → 먹을 거예요 (sẽ ăn).","그리고 (và) nối 2 câu/cụm từ liên tiếp; 그런데/하지만 (nhưng) diễn tả tương phản; 그래서 (vì vậy) diễn tả kết quả.","Liên từ trong tiếng Hàn thường đứng đầu câu sau, nối 2 câu hoàn chỉnh riêng biệt.","Kết hợp thì tương lai với liên từ giúp diễn đạt kế hoạch phức tạp hơn."], practice:"Viết 10 câu về kế hoạch cuối tuần của bạn, dùng thì tương lai kết hợp ít nhất 3 liên từ đã học.", case:"Diễn đạt kế hoạch tương lai kết hợp liên từ là nội dung thường gặp trong đề thi TOPIK 1 phần viết.", task:"Viết đoạn văn 5-6 câu mô tả kế hoạch của bạn cho tháng tới, dùng cả thì quá khứ và thì tương lai."},
+{title:"Từ vựng chủ đề gia đình & số đếm", points:["Tiếng Hàn có 2 hệ thống số đếm song song: số Hán-Hàn (일, 이, 삼...) dùng cho tiền, ngày tháng; số thuần Hàn (하나, 둘, 셋...) dùng để đếm đồ vật, tuổi.","Từ vựng gia đình có 2 cách gọi khác nhau tùy người nói là con trai hay con gái.","Đơn vị đếm đi kèm số thuần Hàn khi đếm đồ vật — ví dụ 사람 (người), 개 (cái), 마리 (con vật).","Tuổi tác trong văn hóa Hàn Quốc rất quan trọng để xác định cách xưng hô.","Ghi nhớ 2 hệ thống số song song là điểm gây nhầm lẫn phổ biến nhất cho người mới học."], practice:"Học thuộc số đếm Hán-Hàn và thuần Hàn từ 1-20, luyện đếm đồ vật xung quanh bằng số thuần Hàn kèm đơn vị đếm phù hợp.", case:"Nhầm lẫn giữa 2 hệ thống số là lỗi rất phổ biến — ví dụ nói tuổi phải dùng số thuần Hàn (스무 살 = 20 tuổi) chứ không phải số Hán-Hàn.", task:"Viết 1 đoạn giới thiệu về gia đình bạn (bao nhiêu người, mỗi người bao nhiêu tuổi), dùng đúng hệ thống số phù hợp."},
+{title:"Ôn tập ngữ pháp TOPIK 1 & làm đề thử", points:["TOPIK 1 gồm Nghe (30 câu, 40 phút) và Đọc (40 câu, 60 phút), tổng 200 điểm, chia Cấp 1 (80-139) và Cấp 2 (140-200).","Từ vựng TOPIK 1 tập trung chủ đề sinh hoạt hàng ngày: gia đình, thời gian, mua sắm, ăn uống, giao thông cơ bản.","Ngữ pháp trọng tâm đã học: trợ từ cơ bản, 2 thể lịch sự, các thì, liên từ cơ bản — nền tảng đủ để làm quen đề thi TOPIK 1.","Chiến thuật Đọc: đọc câu hỏi trước, gạch chân từ khóa, tìm thông tin tương ứng trong đoạn văn.","Chiến thuật Nghe: đọc trước đáp án khi có thể, chú ý từ khóa đầu câu hỏi trước khi nghe audio."], practice:"Làm 1 đề thi thử TOPIK 1, chấm điểm và xác định cấp độ hiện tại.", case:"Hoàn thành 3 tháng đầu với nền tảng Hangul vững và ngữ pháp sơ cấp là cột mốc quan trọng — nền tảng để tháng 4 học sâu hơn.", task:"Lập danh sách 15 từ vựng/ngữ pháp bạn còn yếu nhất qua đề thử, dành tuần đầu tháng 4 để ôn lại."},
+{title:"Bổ ngữ 고 싶다 (muốn), 을/ㄹ 수 있다/없다 (có thể/không thể)", points:["고 싶다 (muốn làm gì) gắn trực tiếp vào gốc động từ — ví dụ 먹고 싶어요 (muốn ăn).","을/ㄹ 수 있다 diễn tả khả năng làm được việc gì; 을/ㄹ 수 없다 diễn tả không thể làm được.","Ví dụ: 한국어를 할 수 있어요 (tôi có thể nói tiếng Hàn); 오늘 갈 수 없어요 (hôm nay tôi không thể đi).","고 싶다 chỉ dùng được với động từ, còn 을/ㄹ 수 있다/없다 diễn tả khả năng khách quan.","Đây là 2 cấu trúc cực kỳ thông dụng trong giao tiếp hàng ngày, xuất hiện sớm trong hầu hết giáo trình TOPIK 2."], practice:"Viết 10 câu diễn tả mong muốn (고 싶다) và khả năng (을/ㄹ 수 있다/없다) liên quan sở thích cá nhân của bạn.", case:"2 cấu trúc này thường xuất hiện cùng nhau trong hội thoại thực tế, ví dụ khi nói về ước mơ, dự định du học.", task:"Viết đoạn văn ngắn (5 câu) về 1 ước mơ hoặc mục tiêu của bạn, dùng cả 고 싶다 và 을/ㄹ 수 있다."},
+{title:"Bổ ngữ 아/어야 되다 (phải làm gì), 지 말다 (đừng làm gì)", points:["아/어야 되다/하다 diễn tả nghĩa vụ \"phải làm\" — quy tắc chọn 아/어 giống thì quá khứ đã học.","Ví dụ: 공부해야 돼요 (phải học bài); 가야 해요 (phải đi).","지 마세요 diễn tả \"đừng làm gì\", dùng để khuyên/yêu cầu ai đó không làm việc gì.","Ví dụ: 걱정하지 마세요 (đừng lo lắng); 늦지 마세요 (đừng đến muộn).","Đây là các cấu trúc diễn tả nghĩa vụ và lời khuyên/cấm đoán — rất hữu ích trong giao tiếp công sở và đời sống hàng ngày."], practice:"Viết 10 câu (5 câu nghĩa vụ với 아/어야 되다, 5 câu khuyên nhủ với 지 마세요) liên quan tình huống công việc/học tập.", case:"Cấu trúc này xuất hiện rất nhiều trong bảng chỉ dẫn, quy định nơi công cộng ở Hàn Quốc — nhận biết được giúp ích khi thực tế đến Hàn Quốc.", task:"Viết 1 bảng \"nội quy\" hài hước cho phòng của bạn (5 câu) dùng cả 2 cấu trúc đã học."},
+{title:"Định ngữ (관형사형) — tính từ/động từ bổ nghĩa danh từ", points:["Định ngữ biến động từ/tính từ thành dạng bổ nghĩa trực tiếp cho danh từ đứng sau, giống \"cái... mà\" trong tiếng Việt.","Tính từ + ㄴ/은 + danh từ (ví dụ 예쁜 사람 = người đẹp); động từ hiện tại + 는 + danh từ (ví dụ 먹는 사람 = người đang ăn).","Động từ quá khứ + ㄴ/은 + danh từ; động từ tương lai + ㄹ/을 + danh từ.","Đây là 1 trong những điểm ngữ pháp phức tạp nhất ở trình độ TOPIK 2 vì có nhiều dạng biến đổi tùy thì và loại từ.","Thành thạo định ngữ giúp câu văn tự nhiên và phong phú hơn nhiều, thay vì chỉ dùng câu đơn giản."], practice:"Viết 10 cụm danh từ có định ngữ (ví dụ \"cuốn sách tôi đang đọc\") bằng tiếng Hàn.", case:"Định ngữ là ranh giới rõ rệt giữa trình độ sơ cấp và trung cấp — thành thạo cấu trúc này là dấu hiệu bạn đã sẵn sàng cho TOPIK 2.", task:"Viết 1 đoạn văn ngắn (4-5 câu) mô tả về 1 người bạn thân, dùng ít nhất 3 cụm định ngữ khác nhau (hiện tại, quá khứ, tương lai)."},
+{title:"Ôn tập tháng 4 & làm đề thử TOPIK 2 sơ bộ", points:["TOPIK 2 gồm 3 kỹ năng: Nghe, Đọc, Viết, độ khó tăng đáng kể so với TOPIK 1, chia 4 cấp (Cấp 3-6).","Từ vựng TOPIK 2 mở rộng sang chủ đề trừu tượng hơn: cảm xúc, quan điểm, xã hội, công việc.","Phần Viết ở TOPIK 2 yêu cầu viết đoạn văn hoàn chỉnh có cấu trúc, khác hẳn TOPIK 1 chỉ có trắc nghiệm.","Ôn lại toàn bộ ngữ pháp 4 tháng qua: trợ từ, 2 thể lịch sự, các thì, định ngữ, các cấu trúc nghĩa vụ/mong muốn/khả năng.","Từ đây trở đi, lộ trình sẽ tiếp tục đi sâu vào TOPIK 2 (Cấp 3-4) rồi tiến dần lên TOPIK 3-6 với ngữ pháp và từ vựng phức tạp hơn."], practice:"Làm thử 1 phần đề TOPIK 2 (Đọc hoặc Nghe cấp độ dễ) để làm quen định dạng, không cần áp lực điểm số.", case:"Hoàn thành 4 tháng đầu (Hangul + toàn bộ ngữ pháp sơ cấp) là nền tảng quan trọng nhất trong hành trình học tiếng Hàn — từ đây tốc độ học phụ thuộc nhiều vào luyện tập đều đặn hàng ngày.", task:"Viết 1 đoạn nhật ký tổng kết 4 tháng học tiếng Hàn của bạn — bạn tự tin nhất ở điểm nào, còn yếu ở điểm nào."},
+];
+
 /* ============ TRACK REGISTRY ============ */
 const algoExtraSets = {
   0: ['count-chars','bubble-sort','binary-search','valid-parentheses'],
@@ -547,32 +616,48 @@ const algoExtraSets = {
   2: ['missing-number','group-anagrams','flatten','longest-substring'],
   3: ['climbing-stairs','merge-intervals','queue-two-stacks','max-subarray'],
 };
+const algoUsedInMonth1 = new Set([...algoOrder.slice(0,4), ...Object.values(algoExtraSets).flat()]);
 const algoWeeksData = algoOrder.slice(0,4).map((id,i) => ({problemId:id, extra:algoExtraSets[i]}))
-  .concat(algoOrder.slice(4).map(id => ({problemId:id})));
+  .concat(algoOrder.slice(4).filter(id => !algoUsedInMonth1.has(id)).map(id => ({problemId:id})));
 
 const tracks = {
   fe:{label:'Frontend', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false},
   be:{label:'Java Backend', color:'--be', dim:'--be-dim', weeks:beWeeks, isAlgo:false},
   algo:{label:'Thuật toán', color:'--algo', dim:'--algo-dim', weeks:algoWeeksData, isAlgo:true},
   toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false},
+  aws:{label:'AWS SAA', color:'--aws', dim:'--aws-dim', weeks:awsWeeks, isAlgo:false},
+  korean:{label:'Tiếng Hàn', color:'--korean', dim:'--korean-dim', weeks:koreanWeeks, isAlgo:false},
 };
 
-/* ============ STATE & PERSISTENCE ============ */
+/* ============ PROFILES ============ */
+let profiles = [];
+try { profiles = JSON.parse(localStorage.getItem('site-profiles') || '[]'); } catch(e){ profiles = []; }
+let activeProfileId = null;
+function saveProfiles(){ localStorage.setItem('site-profiles', JSON.stringify(profiles)); }
+function pKey(key){ return `profile:${activeProfileId}:${key}`; }
+
+/* ============ STATE & PERSISTENCE (loaded after profile chosen) ============ */
 let currentTrack = 'fe';
 let currentWeek = 0;
 let currentDay = 0;
 let currentNoteTab = 0;
 let notes = {};
-try { notes = JSON.parse(localStorage.getItem('roadmap-notes') || '{}'); } catch(e){ notes = {}; }
-function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
-function saveNotes(){ localStorage.setItem('roadmap-notes', JSON.stringify(notes)); }
 let progress = {};
-try { progress = JSON.parse(localStorage.getItem('roadmap-progress') || '{}'); } catch(e){ progress = {}; }
 const savedCode = {};
-try { Object.assign(savedCode, JSON.parse(localStorage.getItem('roadmap-code') || '{}')); } catch(e){}
 
-function saveProgress(){ localStorage.setItem('roadmap-progress', JSON.stringify(progress)); }
-function saveCode(){ localStorage.setItem('roadmap-code', JSON.stringify(savedCode)); }
+function loadProfileData(){
+  notes = {};
+  try { notes = JSON.parse(localStorage.getItem(pKey('roadmap-notes')) || '{}'); } catch(e){ notes = {}; }
+  progress = {};
+  try { progress = JSON.parse(localStorage.getItem(pKey('roadmap-progress')) || '{}'); } catch(e){ progress = {}; }
+  Object.keys(savedCode).forEach(k => delete savedCode[k]);
+  try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
+  currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
+}
+function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
+function saveNotes(){ localStorage.setItem(pKey('roadmap-notes'), JSON.stringify(notes)); }
+function saveProgress(){ localStorage.setItem(pKey('roadmap-progress'), JSON.stringify(progress)); }
+function saveCode(){ localStorage.setItem(pKey('roadmap-code'), JSON.stringify(savedCode)); }
 function isDone(trackKey, weekIdx){ return !!(progress[trackKey] && progress[trackKey][weekIdx]); }
 function setDone(trackKey, weekIdx, val){
   if(!progress[trackKey]) progress[trackKey] = {};
@@ -946,7 +1031,7 @@ function renderMain(){
   if (!t.isAlgo) {
     main.innerHTML = `
       <div class="week-title">Tuần ${currentWeek+1} — Tháng ${month}: ${w.title}</div>
-      <div class="week-subtitle">${t.label} · lộ trình ${t.weeks.length === 16 ? '4' : '6'} tháng</div>
+      <div class="week-subtitle">${t.label} · lộ trình ${Math.ceil(t.weeks.length/4)} tháng</div>
       ${w.days ? dayTabsHTML(w.days) : dayPlanHTML(false)}
       <div class="section">
         <div class="section-head">
@@ -1174,7 +1259,86 @@ function renderAll(){
   renderMain();
   renderNotesPanel();
 }
-renderAll();
+
+/* ============ PROFILE SCREEN ============ */
+function showProfileScreen(){
+  document.getElementById('siteHeader').classList.add('app-hidden');
+  document.getElementById('siteApp').classList.add('app-hidden');
+  document.getElementById('siteFooter').classList.add('app-hidden');
+  const screen = document.getElementById('profileScreen');
+  screen.classList.remove('app-hidden');
+  const cards = profiles.map(p => `
+    <div class="ps-card" data-id="${p.id}">
+      <div class="ps-avatar">${p.name.charAt(0).toUpperCase()}<button class="ps-del" data-id="${p.id}" title="Xóa hồ sơ">✕</button></div>
+      <div class="ps-name">${p.name}</div>
+    </div>
+  `).join('');
+  screen.innerHTML = `
+    <div class="ps-brand"><span class="dot"></span><h1 style="font-family:var(--mono);font-size:16px;font-weight:700">lộ trình học tập</h1></div>
+    <h2>Ai đang học vậy?</h2>
+    <div class="ps-grid">
+      ${cards}
+      <div class="ps-card ps-add" id="psAddCard">
+        <div class="ps-avatar">+</div>
+        <div class="ps-name">Thêm hồ sơ</div>
+      </div>
+    </div>
+    <div class="ps-form app-hidden" id="psForm">
+      <input type="text" id="psNameInput" placeholder="Tên hồ sơ (ví dụ: Nam)" maxlength="20">
+      <button id="psCreateBtn">Tạo</button>
+    </div>
+    <div class="ps-hint">Mỗi hồ sơ có tiến độ, ghi chú và bài đã lưu hoàn toàn riêng biệt trên trình duyệt này. Không đồng bộ được qua thiết bị khác.</div>
+  `;
+  document.querySelectorAll('.ps-card[data-id]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('ps-del')) return;
+      selectProfile(card.dataset.id);
+    });
+  });
+  document.querySelectorAll('.ps-del').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!confirm('Xóa hồ sơ này? Toàn bộ tiến độ, ghi chú sẽ mất vĩnh viễn.')) return;
+      const id = btn.dataset.id;
+      ['roadmap-notes','roadmap-progress','roadmap-code'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
+      profiles = profiles.filter(p => p.id !== id);
+      saveProfiles();
+      showProfileScreen();
+    });
+  });
+  document.getElementById('psAddCard').addEventListener('click', () => {
+    document.getElementById('psForm').classList.remove('app-hidden');
+    document.getElementById('psNameInput').focus();
+  });
+  document.getElementById('psCreateBtn').addEventListener('click', createProfile);
+  document.getElementById('psNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') createProfile(); });
+}
+function createProfile(){
+  const input = document.getElementById('psNameInput');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const id = 'p' + Date.now();
+  profiles.push({id, name});
+  saveProfiles();
+  selectProfile(id);
+}
+function selectProfile(id){
+  activeProfileId = id;
+  localStorage.setItem('active-profile-id', id);
+  document.getElementById('profileScreen').classList.add('app-hidden');
+  document.getElementById('siteHeader').classList.remove('app-hidden');
+  document.getElementById('siteApp').classList.remove('app-hidden');
+  document.getElementById('siteFooter').classList.remove('app-hidden');
+  loadProfileData();
+  const p = profiles.find(x => x.id === id);
+  document.getElementById('brandPath').textContent = `Hồ sơ: ${p ? p.name : ''} · 6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC`;
+  renderAll();
+}
+document.getElementById('switchProfileBtn').addEventListener('click', showProfileScreen);
+
+/* ============ BOOT ============ */
+showProfileScreen();
+
 </script>
 </body>
 </html>
