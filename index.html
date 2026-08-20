@@ -123,6 +123,14 @@
   .quiz-opt.incorrect{background:var(--coral-dim); border-color:var(--coral); color:var(--coral); font-weight:600;}
   .quiz-explain{margin-top:8px; font-size:12.5px; color:var(--text-muted); line-height:1.5; padding-top:8px; border-top:1px dashed var(--border);}
 
+  .extra-set{margin-top:24px; border-top:2px solid var(--border); padding-top:20px;}
+  .extra-set-title{font-family:var(--mono); font-size:13px; font-weight:700; margin-bottom:12px;}
+  .extra-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+  .extra-tab{font-family:var(--mono); font-size:11.5px; font-weight:600; padding:7px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s; display:flex; align-items:center; gap:6px;}
+  .extra-tab:hover{border-color:var(--text-dim); color:var(--text-primary);}
+  .extra-tab.active{background:var(--algo); border-color:var(--algo); color:#fff;}
+  .extra-tab .diff-dot{width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.6;}
+
   .section{border:1px solid var(--border); border-radius:12px; background:var(--bg-panel); overflow:hidden; margin-bottom:20px;}
   .section-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--bg-elevated); border-bottom:1px solid var(--border);}
   .track-tag{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:.04em; background:var(--track-dim, var(--algo-dim)); color:var(--track-color, var(--algo));}
@@ -199,7 +207,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v12</footer>
+<footer>tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v13</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -533,10 +541,19 @@ const toeicWeeks = [
 ];
 
 /* ============ TRACK REGISTRY ============ */
+const algoExtraSets = {
+  0: ['count-chars','bubble-sort','binary-search','valid-parentheses'],
+  1: ['merge-sorted-arrays','remove-duplicates','factorial','fibonacci'],
+  2: ['missing-number','group-anagrams','flatten','longest-substring'],
+  3: ['climbing-stairs','merge-intervals','queue-two-stacks','max-subarray'],
+};
+const algoWeeksData = algoOrder.slice(0,4).map((id,i) => ({problemId:id, extra:algoExtraSets[i]}))
+  .concat(algoOrder.slice(4).map(id => ({problemId:id})));
+
 const tracks = {
   fe:{label:'Frontend', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false},
   be:{label:'Java Backend', color:'--be', dim:'--be-dim', weeks:beWeeks, isAlgo:false},
-  algo:{label:'Thuật toán', color:'--algo', dim:'--algo-dim', weeks:algoOrder.map(id => ({problemId:id})), isAlgo:true},
+  algo:{label:'Thuật toán', color:'--algo', dim:'--algo-dim', weeks:algoWeeksData, isAlgo:true},
   toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false},
 };
 
@@ -579,7 +596,7 @@ function renderMenu(){
     btn.className = 'menu-btn' + (key === currentTrack ? ' active' : '');
     btn.style.setProperty('--track-color', `var(${t.color})`);
     btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${countDone(key)}/${t.weeks.length} tuần</span>`;
-    btn.addEventListener('click', () => { currentTrack = key; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; renderAll(); });
+    btn.addEventListener('click', () => { currentTrack = key; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0; renderAll(); });
     menu.appendChild(btn);
   });
 }
@@ -604,7 +621,7 @@ function renderSidebar(){
     item.className = 'week-item' + (i === currentWeek ? ' active' : '');
     const title = t.isAlgo ? problems[w.problemId].name : w.title;
     item.innerHTML = `<span class="num">T${i+1}</span><span class="title">${title}</span><span class="tick">${isDone(currentTrack,i) ? '✓' : ''}</span>`;
-    item.addEventListener('click', () => { currentWeek = i; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; renderAll(); });
+    item.addEventListener('click', () => { currentWeek = i; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0; renderAll(); });
     sidebar.appendChild(item);
   });
 }
@@ -775,6 +792,7 @@ const quizGenerators = {
   mixedtense: (n) => { const used=new Set(); const out=[]; for(let i=0;i<n;i++){ const item = i%2===0 ? genPresentQ(used) : genPastPerfectQ(used); if(item) out.push(item); } return shuffleArr(out); },
 };
 let currentGeneratedQuiz = null;
+let currentExtraProblem = 0;
 
 
 function dayTabsHTML(days){
@@ -996,6 +1014,7 @@ function renderMain(){
           </div>` : ''}
         </div>
       </div>
+      ${w.extra ? extraSetHTML(w.extra) : ''}
       <div class="week-nav">
         <button class="nav-btn" id="btn-prev" ${currentWeek === 0 ? 'disabled' : ''}>← Tuần trước</button>
         <button class="nav-btn" id="btn-next" ${currentWeek === t.weeks.length-1 ? 'disabled' : ''}>Tuần tiếp →</button>
@@ -1031,17 +1050,89 @@ function renderMain(){
       });
     }
     document.getElementById('btn-run').addEventListener('click', () => runTests(w.problemId, problem));
+    if (w.extra) bindExtraSet(w.extra);
   }
 
-  document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; renderAll(); window.scrollTo(0,0);} });
-  document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; renderAll(); window.scrollTo(0,0);} });
+  document.getElementById('btn-prev').addEventListener('click', () => { if(currentWeek>0){ currentWeek--; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; currentExtraProblem=0; renderAll(); window.scrollTo(0,0);} });
+  document.getElementById('btn-next').addEventListener('click', () => { if(currentWeek<t.weeks.length-1){ currentWeek++; currentDay=0; currentNoteTab=0; currentGeneratedQuiz=null; currentExtraProblem=0; renderAll(); window.scrollTo(0,0);} });
 
   bindDayTabs(t.isAlgo ? problems[w.problemId].days : w.days);
 }
 
-function runTests(problemId, problem){
-  const code = document.getElementById('editor').value;
-  const body = document.getElementById('console-body');
+/* ============ EXTRA PROBLEM SET (4 more problems per week, easy-to-hard) ============ */
+function extraSetHTML(extraIds){
+  if (currentExtraProblem >= extraIds.length) currentExtraProblem = 0;
+  const tabs = extraIds.map((id,i) => {
+    const p = problems[id];
+    return `<button class="extra-tab${i===currentExtraProblem?' active':''}" data-idx="${i}"><span class="diff-dot"></span>Bài ${i+2} · ${p.name}</button>`;
+  }).join('');
+  const curId = extraIds[currentExtraProblem];
+  const p = problems[curId];
+  return `
+    <div class="extra-set">
+      <div class="extra-set-title">Luyện thêm hôm nay — 4 bài dễ → khó (cùng với bài chính ở trên là đủ 5 bài)</div>
+      <div class="extra-tabs">${tabs}</div>
+      <div class="section">
+        <div class="section-head">
+          <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${p.name}</span></div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${p.difficulty}</span>
+        </div>
+        <div class="section-body">
+          <p class="algo-desc">${p.desc}</p>
+          <div class="algo-example">${p.example}</div>
+          <div class="info-box practice"><b>Gợi ý cách tiếp cận</b>${p.approach}</div>
+          <div class="editor-wrap">
+            <div class="editor-topbar">
+              <span class="fname">${p.signature}</span>
+              <div class="btn-row">
+                <button class="action btn-reset" id="btn-extra-reset">Đặt lại</button>
+                <button class="action btn-run" id="btn-extra-run">▶ Chạy test</button>
+              </div>
+            </div>
+            <textarea class="editor" id="extra-editor" spellcheck="false">${(savedCode[curId] || p.starter).replace(/</g,'&lt;')}</textarea>
+          </div>
+          <div class="console">
+            <div class="console-topbar">console</div>
+            <div class="console-body" id="extra-console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
+          </div>
+          <div class="info-box case"><b>Ứng dụng thực tế</b>${p.caseReal}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function bindExtraSet(extraIds){
+  document.querySelectorAll('.extra-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentExtraProblem = parseInt(btn.dataset.idx, 10);
+      renderMain();
+    });
+  });
+  const curId = extraIds[currentExtraProblem];
+  const p = problems[curId];
+  const resetBtn = document.getElementById('btn-extra-reset');
+  const runBtn = document.getElementById('btn-extra-run');
+  const editor = document.getElementById('extra-editor');
+  if (!resetBtn) return;
+  resetBtn.addEventListener('click', () => {
+    editor.value = p.starter;
+    delete savedCode[curId];
+    saveCode();
+    document.getElementById('extra-console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
+  });
+  editor.addEventListener('input', (e) => {
+    savedCode[curId] = e.target.value;
+    saveCode();
+  });
+  runBtn.addEventListener('click', () => runTests(curId, p, 'extra-editor', 'extra-console-body'));
+}
+
+
+function runTests(problemId, problem, editorId, consoleId){
+  editorId = editorId || 'editor';
+  consoleId = consoleId || 'console-body';
+  const code = document.getElementById(editorId).value;
+  const body = document.getElementById(consoleId);
   let userFn;
   try {
     const scope = new Function(code + '\nreturn solve;');
