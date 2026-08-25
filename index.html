@@ -218,13 +218,26 @@
   .ps-add .ps-avatar{background:var(--bg-elevated); border:2px dashed var(--border); color:var(--text-dim); font-size:36px;}
   .ps-add:hover .ps-avatar{border-color:var(--text-dim); color:var(--text-primary);}
   .ps-form{display:flex; gap:10px; margin-top:8px;}
-  .ps-form input{font-family:var(--sans); font-size:14px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-panel); color:var(--text-primary); outline:none; width:220px;}
+  .ps-form input{font-family:var(--sans); font-size:14px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-panel); color:var(--text-primary); outline:none; width:260px;}
+  .ps-lock{position:absolute; bottom:-6px; right:-6px; font-size:16px; background:var(--bg-panel); border-radius:50%; padding:2px; line-height:1;}
   .ps-form input:focus{border-color:var(--algo);}
   .ps-form button{font-family:var(--mono); font-size:13px; font-weight:600; padding:10px 18px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer;}
   .ps-hint{font-size:12px; color:var(--text-dim); margin-top:24px; text-align:center; max-width:420px; line-height:1.6;}
 
   .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
+
+  .streak-widget{display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated);}
+  .streak-widget .streak-count{font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--text-primary); white-space:nowrap;}
+  .streak-widget .streak-count.warn{color:var(--coral);}
+  .streak-cal{display:flex; gap:3px;}
+  .streak-day{width:14px; height:14px; border-radius:3px; background:var(--border);}
+  .streak-day.done{background:var(--fe);}
+  .streak-day.missed{background:var(--coral);}
+  .streak-day.today{background:var(--toeic); box-shadow:0 0 0 2px var(--toeic-dim);}
+  .streak-day.weekend{background:transparent; border:1px dashed var(--border);}
+  .start-streak-btn{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:8px 14px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer; white-space:nowrap;}
+  .start-streak-btn:hover{opacity:.88;}
 </style>
 </head>
 <body>
@@ -233,8 +246,9 @@
 
 <header class="app-hidden" id="siteHeader">
   <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
-  <div style="display:flex; align-items:center; gap:14px;">
+  <div style="display:flex; align-items:center; gap:14px; margin-bottom:10px;">
     <nav class="menu" id="menu" style="flex:1"></nav>
+    <div id="streakWidgetWrap"></div>
     <button class="switch-profile-btn" id="switchProfileBtn">👤 Đổi hồ sơ</button>
   </div>
 </header>
@@ -245,7 +259,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v18</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v19</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -828,6 +842,52 @@ let currentNoteTab = 0;
 let notes = {};
 let progress = {};
 const savedCode = {};
+let streakData = { startDate: null, activity: {} };
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function isWeekend(dateStr){
+  const day = new Date(dateStr+'T00:00:00').getDay();
+  return day === 0 || day === 6;
+}
+function saveStreak(){ localStorage.setItem(pKey('roadmap-streak'), JSON.stringify(streakData)); }
+function markTodayActive(){
+  const t = todayStr();
+  if (!streakData.activity[t]) {
+    streakData.activity[t] = true;
+    saveStreak();
+    renderStreakWidget();
+  }
+}
+function startStreakToday(){
+  streakData.startDate = todayStr();
+  markTodayActive();
+  renderStreakWidget();
+}
+function computeStreakInfo(){
+  if (!streakData.startDate) return null;
+  const start = new Date(streakData.startDate+'T00:00:00');
+  const today = new Date(todayStr()+'T00:00:00');
+  const days = [];
+  for (let d = new Date(start); d <= today; d.setDate(d.getDate()+1)) {
+    const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    let status;
+    if (isWeekend(ds)) status = 'weekend';
+    else if (ds === todayStr()) status = streakData.activity[ds] ? 'done' : 'today';
+    else status = streakData.activity[ds] ? 'done' : 'missed';
+    days.push({date: ds, status});
+  }
+  let streak = 0;
+  for (let i = days.length-1; i>=0; i--){
+    if (days[i].status === 'weekend') continue;
+    if (days[i].status === 'done' || days[i].status === 'today') { if (days[i].status==='done') streak++; continue; }
+    break;
+  }
+  const missedCount = days.filter(d => d.status === 'missed').length;
+  return { days: days.slice(-14), streak, missedCount };
+}
 
 function loadProfileData(){
   notes = {};
@@ -836,6 +896,8 @@ function loadProfileData(){
   try { progress = JSON.parse(localStorage.getItem(pKey('roadmap-progress')) || '{}'); } catch(e){ progress = {}; }
   Object.keys(savedCode).forEach(k => delete savedCode[k]);
   try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
+  streakData = { startDate: null, activity: {} };
+  try { streakData = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || '{"startDate":null,"activity":{}}'); } catch(e){}
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -847,6 +909,7 @@ function setDone(trackKey, weekIdx, val){
   if(!progress[trackKey]) progress[trackKey] = {};
   progress[trackKey][weekIdx] = val;
   saveProgress();
+  if (val) markTodayActive();
 }
 function countDone(trackKey){
   const t = tracks[trackKey];
@@ -1139,6 +1202,7 @@ function bindDayTabs(days){
         const explainEl = container.querySelector('.quiz-explain');
         explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
         explainEl.style.display = 'block';
+        markTodayActive();
       });
     });
   }
@@ -1360,6 +1424,7 @@ function bindAlgoProblemCard(problem, problemId){
         const explainEl = container.querySelector('.quiz-explain');
         explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
         explainEl.style.display = 'block';
+        markTodayActive();
       });
     });
   }
@@ -1480,6 +1545,30 @@ function renderAll(){
   renderSidebar();
   renderMain();
   renderNotesPanel();
+  renderStreakWidget();
+}
+
+/* ============ STREAK / DAILY CALENDAR WIDGET ============ */
+function renderStreakWidget(){
+  const wrap = document.getElementById('streakWidgetWrap');
+  if (!wrap) return;
+  if (!streakData.startDate) {
+    wrap.innerHTML = `<button class="start-streak-btn" id="startStreakBtn">🚀 Bắt đầu học từ hôm nay</button>`;
+    document.getElementById('startStreakBtn').addEventListener('click', () => {
+      startStreakToday();
+      renderAll();
+    });
+    return;
+  }
+  const info = computeStreakInfo();
+  const cal = info.days.map(d => `<span class="streak-day ${d.status}" title="${d.date}: ${d.status==='done'?'đã học':d.status==='missed'?'đã miss':d.status==='today'?'hôm nay':'cuối tuần'}"></span>`).join('');
+  const warn = info.missedCount > 0;
+  wrap.innerHTML = `
+    <div class="streak-widget">
+      <span class="streak-count ${warn?'warn':''}">${warn ? `⚠️ Miss ${info.missedCount} ngày` : `🔥 ${info.streak} ngày liên tiếp`}</span>
+      <div class="streak-cal">${cal}</div>
+    </div>
+  `;
 }
 
 /* ============ PROFILE SCREEN ============ */
@@ -1491,7 +1580,7 @@ function showProfileScreen(){
   screen.classList.remove('app-hidden');
   const cards = profiles.map(p => `
     <div class="ps-card" data-id="${p.id}">
-      <div class="ps-avatar">${p.name.charAt(0).toUpperCase()}<button class="ps-del" data-id="${p.id}" title="Xóa hồ sơ">✕</button></div>
+      <div class="ps-avatar">${p.name.charAt(0).toUpperCase()}${p.password ? '<span class="ps-lock">🔒</span>' : ''}<button class="ps-del" data-id="${p.id}" title="Xóa hồ sơ">✕</button></div>
       <div class="ps-name">${p.name}</div>
     </div>
   `).join('');
@@ -1505,16 +1594,17 @@ function showProfileScreen(){
         <div class="ps-name">Thêm hồ sơ</div>
       </div>
     </div>
-    <div class="ps-form app-hidden" id="psForm">
+    <div class="ps-form app-hidden" id="psForm" style="flex-direction:column; align-items:center; gap:10px;">
       <input type="text" id="psNameInput" placeholder="Tên hồ sơ (ví dụ: Nam)" maxlength="20">
-      <button id="psCreateBtn">Tạo</button>
+      <input type="password" id="psPassInput" placeholder="Mật khẩu (tùy chọn, để trống nếu không cần)" maxlength="30">
+      <button id="psCreateBtn">Tạo hồ sơ</button>
     </div>
-    <div class="ps-hint">Mỗi hồ sơ có tiến độ, ghi chú và bài đã lưu hoàn toàn riêng biệt trên trình duyệt này. Không đồng bộ được qua thiết bị khác.</div>
+    <div class="ps-hint">Mỗi hồ sơ có tiến độ, ghi chú và bài đã lưu hoàn toàn riêng biệt trên trình duyệt này. Không đồng bộ được qua thiết bị khác. Mật khẩu chỉ là lớp chặn nhẹ trên máy này, không phải bảo mật thật sự.</div>
   `;
   document.querySelectorAll('.ps-card[data-id]').forEach(card => {
     card.addEventListener('click', (e) => {
       if (e.target.classList.contains('ps-del')) return;
-      selectProfile(card.dataset.id);
+      tryOpenProfile(card.dataset.id);
     });
   });
   document.querySelectorAll('.ps-del').forEach(btn => {
@@ -1522,7 +1612,7 @@ function showProfileScreen(){
       e.stopPropagation();
       if (!confirm('Xóa hồ sơ này? Toàn bộ tiến độ, ghi chú sẽ mất vĩnh viễn.')) return;
       const id = btn.dataset.id;
-      ['roadmap-notes','roadmap-progress','roadmap-code'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
+      ['roadmap-notes','roadmap-progress','roadmap-code','roadmap-streak'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
       profiles = profiles.filter(p => p.id !== id);
       saveProfiles();
       showProfileScreen();
@@ -1533,14 +1623,26 @@ function showProfileScreen(){
     document.getElementById('psNameInput').focus();
   });
   document.getElementById('psCreateBtn').addEventListener('click', createProfile);
-  document.getElementById('psNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') createProfile(); });
+  document.getElementById('psNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('psPassInput').focus(); });
+  document.getElementById('psPassInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') createProfile(); });
+}
+function tryOpenProfile(id){
+  const p = profiles.find(x => x.id === id);
+  if (!p) return;
+  if (!p.password) { selectProfile(id); return; }
+  const input = prompt(`Hồ sơ "${p.name}" có mật khẩu — nhập mật khẩu để mở:`);
+  if (input === null) return;
+  if (input === p.password) { selectProfile(id); }
+  else { alert('Sai mật khẩu.'); }
 }
 function createProfile(){
   const input = document.getElementById('psNameInput');
+  const passInput = document.getElementById('psPassInput');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
+  const password = passInput.value.trim();
   const id = 'p' + Date.now();
-  profiles.push({id, name});
+  profiles.push({id, name, password: password || null});
   saveProfiles();
   selectProfile(id);
 }
