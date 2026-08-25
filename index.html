@@ -259,7 +259,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v24</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v25</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -2227,6 +2227,7 @@ function showProfileScreen(){
       if (!confirm('Xóa hồ sơ này? Toàn bộ tiến độ, ghi chú sẽ mất vĩnh viễn.')) return;
       const id = btn.dataset.id;
       ['roadmap-notes','roadmap-progress','roadmap-code','roadmap-streak'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
+      localStorage.removeItem(`unlocked-${id}`);
       profiles = profiles.filter(p => p.id !== id);
       saveProfiles();
       showProfileScreen();
@@ -2240,13 +2241,15 @@ function showProfileScreen(){
   document.getElementById('psNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('psPassInput').focus(); });
   document.getElementById('psPassInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') createProfile(); });
 }
+function isUnlocked(id){ return localStorage.getItem(`unlocked-${id}`) === '1'; }
+function markUnlocked(id){ localStorage.setItem(`unlocked-${id}`, '1'); }
 function tryOpenProfile(id){
   const p = profiles.find(x => x.id === id);
   if (!p) return;
-  if (!p.password) { selectProfile(id); return; }
-  const input = prompt(`Hồ sơ "${p.name}" có mật khẩu — nhập mật khẩu để mở:`);
+  if (!p.password || isUnlocked(id)) { markUnlocked(id); selectProfile(id); return; }
+  const input = prompt(`Hồ sơ "${p.name}" có mật khẩu — nhập mật khẩu để mở (chỉ hỏi 1 lần trên máy này):`);
   if (input === null) return;
-  if (input === p.password) { selectProfile(id); }
+  if (input === p.password) { markUnlocked(id); selectProfile(id); }
   else { alert('Sai mật khẩu.'); }
 }
 function createProfile(){
@@ -2258,6 +2261,7 @@ function createProfile(){
   const id = 'p' + Date.now();
   profiles.push({id, name, password: password || null});
   saveProfiles();
+  markUnlocked(id);
   selectProfile(id);
 }
 function selectProfile(id){
@@ -2275,7 +2279,15 @@ function selectProfile(id){
 document.getElementById('switchProfileBtn').addEventListener('click', showProfileScreen);
 
 /* ============ BOOT ============ */
-showProfileScreen();
+(function boot(){
+  const lastId = localStorage.getItem('active-profile-id');
+  const p = lastId && profiles.find(x => x.id === lastId);
+  if (p && (!p.password || isUnlocked(p.id))) {
+    selectProfile(p.id);
+  } else {
+    showProfileScreen();
+  }
+})();
 
 </script>
 </body>
