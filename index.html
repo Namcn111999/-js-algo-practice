@@ -224,6 +224,19 @@
   .ps-form button{font-family:var(--mono); font-size:13px; font-weight:600; padding:10px 18px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer;}
   .ps-hint{font-size:12px; color:var(--text-dim); margin-top:24px; text-align:center; max-width:420px; line-height:1.6;}
 
+  .cam-login-btn{font-family:var(--mono); font-size:12.5px; font-weight:700; padding:10px 18px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-primary); cursor:pointer; margin-top:18px; display:flex; align-items:center; gap:8px;}
+  .cam-login-btn:hover{border-color:var(--algo); color:var(--algo);}
+  .cam-register-btn{font-family:var(--mono); font-size:11.5px; font-weight:600; padding:8px 12px; border-radius:8px; border:1px dashed var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; margin-top:4px;}
+  .cam-register-btn.registered{border-style:solid; border-color:var(--fe); color:var(--fe);}
+  .camera-modal{position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:200;}
+  .camera-box{background:var(--bg-panel); border-radius:16px; padding:24px; width:360px; max-width:90vw; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+  .camera-title{font-size:15px; font-weight:700; margin-bottom:14px;}
+  .camera-box video{width:100%; border-radius:10px; background:#000; transform:scaleX(-1);}
+  .camera-status{font-size:12.5px; color:var(--text-muted); margin:12px 0; min-height:18px;}
+  .camera-status.err{color:var(--coral);}
+  .camera-status.ok{color:var(--fe);}
+  .camera-cancel{font-family:var(--mono); font-size:12px; font-weight:600; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-muted); cursor:pointer;}
+
   .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
 
@@ -239,10 +252,19 @@
   .start-streak-btn{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:8px 14px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer; white-space:nowrap;}
   .start-streak-btn:hover{opacity:.88;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js" defer></script>
 </head>
 <body>
 
 <div id="profileScreen" class="profile-screen"></div>
+<div id="cameraModal" class="camera-modal app-hidden">
+  <div class="camera-box">
+    <div class="camera-title" id="cameraModalTitle">Đăng nhập bằng camera</div>
+    <video id="cameraVideo" autoplay muted playsinline></video>
+    <div class="camera-status" id="cameraStatus">Đang mở camera...</div>
+    <button class="camera-cancel" id="cameraCancelBtn">Hủy</button>
+  </div>
+</div>
 
 <header class="app-hidden" id="siteHeader">
   <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
@@ -259,7 +281,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v25</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v26</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -2192,12 +2214,14 @@ function showProfileScreen(){
   document.getElementById('siteFooter').classList.add('app-hidden');
   const screen = document.getElementById('profileScreen');
   screen.classList.remove('app-hidden');
+  pendingFaceDescriptor = null;
   const cards = profiles.map(p => `
     <div class="ps-card" data-id="${p.id}">
       <div class="ps-avatar">${p.name.charAt(0).toUpperCase()}${p.password ? '<span class="ps-lock">🔒</span>' : ''}<button class="ps-del" data-id="${p.id}" title="Xóa hồ sơ">✕</button></div>
       <div class="ps-name">${p.name}</div>
     </div>
   `).join('');
+  const hasAnyFace = profiles.some(p => p.faceDescriptor);
   screen.innerHTML = `
     <div class="ps-brand"><span class="dot"></span><h1 style="font-family:var(--mono);font-size:16px;font-weight:700">lộ trình học tập</h1></div>
     <h2>Ai đang học vậy?</h2>
@@ -2208,12 +2232,14 @@ function showProfileScreen(){
         <div class="ps-name">Thêm hồ sơ</div>
       </div>
     </div>
+    <button class="cam-login-btn" id="camLoginBtn">🎥 Đăng nhập bằng camera</button>
     <div class="ps-form app-hidden" id="psForm" style="flex-direction:column; align-items:center; gap:10px;">
       <input type="text" id="psNameInput" placeholder="Tên hồ sơ (ví dụ: Nam)" maxlength="20">
       <input type="password" id="psPassInput" placeholder="Mật khẩu (tùy chọn, để trống nếu không cần)" maxlength="30">
+      <button class="cam-register-btn" id="psRegisterFaceBtn">📷 Đăng ký khuôn mặt (tùy chọn)</button>
       <button id="psCreateBtn">Tạo hồ sơ</button>
     </div>
-    <div class="ps-hint">Mỗi hồ sơ có tiến độ, ghi chú và bài đã lưu hoàn toàn riêng biệt trên trình duyệt này. Không đồng bộ được qua thiết bị khác. Mật khẩu chỉ là lớp chặn nhẹ trên máy này, không phải bảo mật thật sự.</div>
+    <div class="ps-hint">Mỗi hồ sơ có tiến độ, ghi chú và bài đã lưu hoàn toàn riêng biệt trên trình duyệt này. Không đồng bộ được qua thiết bị khác. Mật khẩu và nhận diện khuôn mặt chỉ là lớp chặn nhẹ trên máy này, không phải bảo mật thật sự.</div>
   `;
   document.querySelectorAll('.ps-card[data-id]').forEach(card => {
     card.addEventListener('click', (e) => {
@@ -2240,6 +2266,11 @@ function showProfileScreen(){
   document.getElementById('psCreateBtn').addEventListener('click', createProfile);
   document.getElementById('psNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('psPassInput').focus(); });
   document.getElementById('psPassInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') createProfile(); });
+  document.getElementById('psRegisterFaceBtn').addEventListener('click', openCameraForRegister);
+  document.getElementById('camLoginBtn').addEventListener('click', () => {
+    if (!hasAnyFace) { alert('Chưa có hồ sơ nào đăng ký khuôn mặt trên máy này. Hãy tạo hồ sơ mới và bấm "Đăng ký khuôn mặt" trước.'); return; }
+    openCameraForLogin();
+  });
 }
 function isUnlocked(id){ return localStorage.getItem(`unlocked-${id}`) === '1'; }
 function markUnlocked(id){ localStorage.setItem(`unlocked-${id}`, '1'); }
@@ -2259,7 +2290,7 @@ function createProfile(){
   if (!name) { input.focus(); return; }
   const password = passInput.value.trim();
   const id = 'p' + Date.now();
-  profiles.push({id, name, password: password || null});
+  profiles.push({id, name, password: password || null, faceDescriptor: pendingFaceDescriptor});
   saveProfiles();
   markUnlocked(id);
   selectProfile(id);
@@ -2277,6 +2308,120 @@ function selectProfile(id){
   renderAll();
 }
 document.getElementById('switchProfileBtn').addEventListener('click', showProfileScreen);
+
+/* ============ CAMERA FACE LOGIN ============ */
+const FACEAPI_MODEL_URL = 'https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/';
+let faceModelsLoaded = false;
+let pendingFaceDescriptor = null;
+let cameraStream = null;
+let cameraScanTimer = null;
+
+async function ensureFaceModelsLoaded(statusEl){
+  if (faceModelsLoaded) return true;
+  if (typeof faceapi === 'undefined') { if (statusEl) statusEl.textContent = 'Không tải được thư viện nhận diện khuôn mặt (kiểm tra kết nối mạng).'; return false; }
+  try {
+    if (statusEl) statusEl.textContent = 'Đang tải mô hình nhận diện (chỉ lần đầu)...';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(FACEAPI_MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(FACEAPI_MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(FACEAPI_MODEL_URL);
+    faceModelsLoaded = true;
+    return true;
+  } catch(e) {
+    if (statusEl) statusEl.textContent = 'Lỗi tải mô hình nhận diện: ' + e.message;
+    return false;
+  }
+}
+function euclideanDistance(a, b){
+  let sum = 0;
+  for (let i=0;i<a.length;i++) sum += (a[i]-b[i])*(a[i]-b[i]);
+  return Math.sqrt(sum);
+}
+async function stopCamera(){
+  if (cameraScanTimer) { clearInterval(cameraScanTimer); cameraScanTimer = null; }
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  document.getElementById('cameraModal').classList.add('app-hidden');
+}
+async function startCamera(video, statusEl){
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    video.srcObject = cameraStream;
+    return true;
+  } catch(e) {
+    statusEl.textContent = 'Không mở được camera (kiểm tra quyền truy cập camera của trình duyệt).';
+    statusEl.className = 'camera-status err';
+    return false;
+  }
+}
+function openCameraForRegister(){
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraVideo');
+  const status = document.getElementById('cameraStatus');
+  document.getElementById('cameraModalTitle').textContent = 'Đăng ký khuôn mặt';
+  status.textContent = 'Đang mở camera...';
+  status.className = 'camera-status';
+  modal.classList.remove('app-hidden');
+  document.getElementById('cameraCancelBtn').onclick = () => stopCamera();
+
+  (async () => {
+    const camOk = await startCamera(video, status);
+    if (!camOk) return;
+    const modelsOk = await ensureFaceModelsLoaded(status);
+    if (!modelsOk) { stopCamera(); return; }
+    status.textContent = 'Nhìn thẳng vào camera, giữ yên...';
+    cameraScanTimer = setInterval(async () => {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+      if (detection) {
+        clearInterval(cameraScanTimer);
+        cameraScanTimer = null;
+        pendingFaceDescriptor = Array.from(detection.descriptor);
+        status.textContent = '✓ Đã ghi nhận khuôn mặt!';
+        status.className = 'camera-status ok';
+        const btn = document.getElementById('psRegisterFaceBtn');
+        if (btn) { btn.textContent = '✓ Đã đăng ký khuôn mặt'; btn.classList.add('registered'); }
+        setTimeout(() => stopCamera(), 800);
+      }
+    }, 600);
+  })();
+}
+function openCameraForLogin(){
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraVideo');
+  const status = document.getElementById('cameraStatus');
+  document.getElementById('cameraModalTitle').textContent = 'Đăng nhập bằng camera';
+  status.textContent = 'Đang mở camera...';
+  status.className = 'camera-status';
+  modal.classList.remove('app-hidden');
+  document.getElementById('cameraCancelBtn').onclick = () => stopCamera();
+
+  (async () => {
+    const camOk = await startCamera(video, status);
+    if (!camOk) return;
+    const modelsOk = await ensureFaceModelsLoaded(status);
+    if (!modelsOk) { stopCamera(); return; }
+    status.textContent = 'Đang nhận diện khuôn mặt...';
+    cameraScanTimer = setInterval(async () => {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+      if (!detection) return;
+      const descriptor = Array.from(detection.descriptor);
+      let best = null, bestDist = Infinity;
+      for (const p of profiles) {
+        if (!p.faceDescriptor) continue;
+        const dist = euclideanDistance(descriptor, p.faceDescriptor);
+        if (dist < bestDist) { bestDist = dist; best = p; }
+      }
+      if (best && bestDist < 0.5) {
+        clearInterval(cameraScanTimer);
+        cameraScanTimer = null;
+        status.textContent = `✓ Nhận diện: ${best.name}`;
+        status.className = 'camera-status ok';
+        markUnlocked(best.id);
+        setTimeout(() => { stopCamera(); selectProfile(best.id); }, 500);
+      } else if (best) {
+        status.textContent = 'Không khớp với hồ sơ nào, thử lại...';
+      }
+    }, 700);
+  })();
+}
 
 /* ============ BOOT ============ */
 (function boot(){
