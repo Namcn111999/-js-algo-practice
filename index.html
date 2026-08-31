@@ -262,14 +262,14 @@
   .streak-widget{display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated);}
   .streak-widget .streak-count{font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--text-primary); white-space:nowrap;}
   .streak-widget .streak-count.warn{color:var(--coral);}
+  .streak-widget .streak-count.neutral{color:var(--text-muted);}
+  .streak-widget .streak-count.ok{color:var(--fe);}
   .streak-cal{display:flex; gap:3px;}
   .streak-day{width:14px; height:14px; border-radius:3px; background:var(--border);}
   .streak-day.done{background:var(--fe);}
   .streak-day.missed{background:var(--coral);}
   .streak-day.today{background:var(--toeic); box-shadow:0 0 0 2px var(--toeic-dim);}
   .streak-day.weekend{background:transparent; border:1px dashed var(--border);}
-  .start-streak-btn{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:8px 14px; border-radius:8px; border:none; background:var(--algo); color:#fff; cursor:pointer; white-space:nowrap;}
-  .start-streak-btn:hover{opacity:.88;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js" defer></script>
 </head>
@@ -300,7 +300,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v33</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v34</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -2932,6 +2932,7 @@ let notes = {};
 let progress = {};
 const savedCode = {};
 let streakData = { startDate: null, activity: {} };
+const STREAK_START_DATE = '2026-09-01';
 
 function todayStr(){
   const d = new Date();
@@ -2950,15 +2951,11 @@ function markTodayActive(){
     renderStreakWidget();
   }
 }
-function startStreakToday(){
-  streakData.startDate = todayStr();
-  markTodayActive();
-  renderStreakWidget();
-}
 function computeStreakInfo(){
   if (!streakData.startDate) return null;
-  const start = new Date(streakData.startDate+'T00:00:00');
+  const startRaw = new Date(streakData.startDate+'T00:00:00');
   const today = new Date(todayStr()+'T00:00:00');
+  const start = startRaw <= today ? startRaw : today;
   const days = [];
   for (let d = new Date(start); d <= today; d.setDate(d.getDate()+1)) {
     const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -2975,7 +2972,15 @@ function computeStreakInfo(){
     break;
   }
   const missedCount = days.filter(d => d.status === 'missed').length;
-  return { days: days.slice(-14), streak, missedCount };
+  // "broken" = the most recent non-today weekday (excluding today) was missed
+  let brokenRecently = false;
+  for (let i = days.length-1; i>=0; i--){
+    if (days[i].date === todayStr()) continue;
+    if (days[i].status === 'weekend') continue;
+    brokenRecently = days[i].status === 'missed';
+    break;
+  }
+  return { days: days.slice(-14), streak, missedCount, brokenRecently, studiedToday: !!streakData.activity[todayStr()] };
 }
 
 function loadProfileData(){
@@ -2987,6 +2992,7 @@ function loadProfileData(){
   try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
   streakData = { startDate: null, activity: {} };
   try { streakData = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || '{"startDate":null,"activity":{}}'); } catch(e){}
+  if (!streakData.startDate) { streakData.startDate = STREAK_START_DATE; saveStreak(); }
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -3662,20 +3668,26 @@ function renderAll(){
 function renderStreakWidget(){
   const wrap = document.getElementById('streakWidgetWrap');
   if (!wrap) return;
-  if (!streakData.startDate) {
-    wrap.innerHTML = `<button class="start-streak-btn" id="startStreakBtn">🚀 Bắt đầu học từ hôm nay</button>`;
-    document.getElementById('startStreakBtn').addEventListener('click', () => {
-      startStreakToday();
-      renderAll();
-    });
-    return;
-  }
   const info = computeStreakInfo();
-  const cal = info.days.map(d => `<span class="streak-day ${d.status}" title="${d.date}: ${d.status==='done'?'đã học':d.status==='missed'?'đã miss':d.status==='today'?'hôm nay':'cuối tuần'}"></span>`).join('');
-  const warn = info.missedCount > 0;
+  if (!info) return;
+  const cal = info.days.map(d => `<span class="streak-day ${d.status}" title="${d.date}: ${d.status==='done'?'đã học':d.status==='missed'?'đã miss — chuỗi bị đứt':d.status==='today'?'hôm nay':'cuối tuần'}"></span>`).join('');
+
+  let badgeClass = 'ok', badgeText;
+  if (info.streak > 0) {
+    badgeText = `🔥 ${info.streak} ngày liên tiếp`;
+  } else if (info.brokenRecently) {
+    badgeClass = 'warn';
+    badgeText = `💔 Chuỗi đã đứt — học lại hôm nay!`;
+  } else if (info.studiedToday) {
+    badgeText = `🔥 1 ngày — mới bắt đầu!`;
+  } else {
+    badgeClass = 'neutral';
+    badgeText = `🚀 Học hôm nay để bắt đầu chuỗi`;
+  }
+
   wrap.innerHTML = `
     <div class="streak-widget">
-      <span class="streak-count ${warn?'warn':''}">${warn ? `⚠️ Miss ${info.missedCount} ngày` : `🔥 ${info.streak} ngày liên tiếp`}</span>
+      <span class="streak-count ${badgeClass}">${badgeText}</span>
       <div class="streak-cal">${cal}</div>
     </div>
   `;
