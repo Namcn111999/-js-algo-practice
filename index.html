@@ -272,6 +272,24 @@
   .streak-day.missed{background:var(--coral);}
   .streak-day.today{background:var(--toeic); box-shadow:0 0 0 2px var(--toeic-dim);}
   .streak-day.weekend{background:transparent; border:1px dashed var(--border);}
+  .streak-history-btn{background:none; border:none; cursor:pointer; font-size:14px; opacity:.6; padding:2px 4px; border-radius:6px;}
+  .streak-history-btn:hover{opacity:1; background:var(--bg-panel);}
+  .streak-progress{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:4px; text-align:right;}
+  .streak-progress.reached{color:var(--fe);}
+  .history-modal{position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:250;}
+  .history-box{background:var(--bg-panel); border-radius:14px; padding:22px; width:460px; max-width:92vw; max-height:76vh; display:flex; flex-direction:column;}
+  .history-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .history-head h3{font-size:15.5px; font-weight:700;}
+  .history-close{background:none; border:none; font-size:16px; cursor:pointer; color:var(--text-muted); padding:4px 8px;}
+  .history-close:hover{color:var(--text-primary);}
+  .history-sub{font-size:11.5px; color:var(--text-muted); margin-bottom:14px; line-height:1.5;}
+  .history-body{overflow-y:auto; display:flex; flex-direction:column; gap:8px;}
+  .history-empty{font-size:12.5px; color:var(--text-dim); text-align:center; padding:20px 0;}
+  .history-row{padding:10px 12px; border-radius:8px; border:1px solid var(--border);}
+  .history-row.checked{border-color:var(--fe); background:var(--fe-dim);}
+  .history-row.notchecked{opacity:.7;}
+  .history-date{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:3px;}
+  .history-detail{font-size:11.5px; color:var(--text-muted);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js" defer></script>
 </head>
@@ -296,13 +314,24 @@
   </div>
 </header>
 
+<div class="history-modal app-hidden" id="historyModal">
+  <div class="history-box">
+    <div class="history-head">
+      <h3>📜 Lịch sử học tập</h3>
+      <button class="history-close" id="historyCloseBtn">✕</button>
+    </div>
+    <div class="history-sub">Mỗi ngày cần trả lời đúng tối thiểu <b id="historyThreshold"></b> câu quiz mới được tính là "đã học" (đánh dấu ✓).</div>
+    <div class="history-body" id="historyBody"></div>
+  </div>
+</div>
+
 <div class="app app-hidden" id="siteApp">
   <nav class="sidebar" id="sidebar"></nav>
   <main id="main"></main>
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v41</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v42</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -3839,8 +3868,9 @@ let currentNoteTab = 0;
 let notes = {};
 let progress = {};
 const savedCode = {};
-let streakData = { startDate: null, activity: {} };
+let streakData = { startDate: null, activity: {}, dailyCorrect: {}, history: {} };
 const STREAK_START_DATE = '2026-09-01';
+const STREAK_MIN_CORRECT = 5;
 
 function todayStr(){
   const d = new Date();
@@ -3852,12 +3882,30 @@ function isWeekend(dateStr){
 }
 function saveStreak(){ localStorage.setItem(pKey('roadmap-streak'), JSON.stringify(streakData)); }
 function markTodayActive(){
+  // Used only for verified-by-code events (algorithm test suite fully passing).
   const t = todayStr();
   if (!streakData.activity[t]) {
     streakData.activity[t] = true;
     saveStreak();
     renderStreakWidget();
   }
+}
+function recordQuizAnswer(isCorrect, trackKey){
+  const t = todayStr();
+  if (!streakData.dailyCorrect[t]) streakData.dailyCorrect[t] = 0;
+  if (!streakData.history[t]) streakData.history[t] = {correct:0, total:0, tracks:{}};
+  streakData.history[t].total++;
+  const label = tracks[trackKey] ? tracks[trackKey].label : trackKey;
+  streakData.history[t].tracks[label] = (streakData.history[t].tracks[label] || 0) + 1;
+  if (isCorrect) {
+    streakData.dailyCorrect[t]++;
+    streakData.history[t].correct++;
+    if (streakData.dailyCorrect[t] >= STREAK_MIN_CORRECT && !streakData.activity[t]) {
+      streakData.activity[t] = true;
+    }
+  }
+  saveStreak();
+  renderStreakWidget();
 }
 function computeStreakInfo(){
   if (!streakData.startDate) return null;
@@ -3898,8 +3946,10 @@ function loadProfileData(){
   try { progress = JSON.parse(localStorage.getItem(pKey('roadmap-progress')) || '{}'); } catch(e){ progress = {}; }
   Object.keys(savedCode).forEach(k => delete savedCode[k]);
   try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
-  streakData = { startDate: null, activity: {} };
+  streakData = { startDate: null, activity: {}, dailyCorrect: {}, history: {} };
   try { streakData = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || '{"startDate":null,"activity":{}}'); } catch(e){}
+  if (!streakData.dailyCorrect) streakData.dailyCorrect = {};
+  if (!streakData.history) streakData.history = {};
   if (!streakData.startDate) { streakData.startDate = STREAK_START_DATE; saveStreak(); }
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
@@ -3912,7 +3962,7 @@ function setDone(trackKey, weekIdx, val){
   if(!progress[trackKey]) progress[trackKey] = {};
   progress[trackKey][weekIdx] = val;
   saveProgress();
-  if (val) markTodayActive();
+  if (val && tracks[trackKey] && tracks[trackKey].isAlgo) markTodayActive();
 }
 function countDone(trackKey){
   const t = tracks[trackKey];
@@ -4226,7 +4276,7 @@ function bindDayTabs(days){
         const explainEl = container.querySelector('.quiz-explain');
         explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
         explainEl.style.display = 'block';
-        markTodayActive();
+        recordQuizAnswer(oi === item.correct, currentTrack);
       });
     });
   }
@@ -4448,7 +4498,7 @@ function bindAlgoProblemCard(problem, problemId){
         const explainEl = container.querySelector('.quiz-explain');
         explainEl.textContent = (oi === item.correct ? '✓ Chính xác! ' : '✗ Chưa đúng. ') + item.explain;
         explainEl.style.display = 'block';
-        markTodayActive();
+        recordQuizAnswer(oi === item.correct, currentTrack);
       });
     });
   }
@@ -4579,6 +4629,7 @@ function renderStreakWidget(){
   const info = computeStreakInfo();
   if (!info) return;
   const cal = info.days.map(d => `<span class="streak-day ${d.status}" title="${d.date}: ${d.status==='done'?'đã học':d.status==='missed'?'đã miss — chuỗi bị đứt':d.status==='today'?'hôm nay':'cuối tuần'}"></span>`).join('');
+  const todayCorrect = streakData.dailyCorrect[todayStr()] || 0;
 
   let badgeClass = 'ok', badgeText;
   if (info.streak > 0) {
@@ -4593,13 +4644,45 @@ function renderStreakWidget(){
     badgeText = `🚀 Học hôm nay để bắt đầu chuỗi`;
   }
 
+  const progressText = info.studiedToday
+    ? `✓ Hôm nay đã đạt ${todayCorrect}/${STREAK_MIN_CORRECT} câu đúng`
+    : `Hôm nay: ${Math.min(todayCorrect, STREAK_MIN_CORRECT)}/${STREAK_MIN_CORRECT} câu đúng — trả lời đúng thêm ${Math.max(0, STREAK_MIN_CORRECT - todayCorrect)} câu để tính ngày học`;
+
   wrap.innerHTML = `
     <div class="streak-widget">
       <span class="streak-count ${badgeClass}">${badgeText}</span>
       <div class="streak-cal">${cal}</div>
+      <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜</button>
     </div>
+    <div class="streak-progress ${info.studiedToday ? 'reached' : ''}">${progressText}</div>
   `;
+  const histBtn = document.getElementById('streakHistoryBtn');
+  if (histBtn) histBtn.addEventListener('click', showHistoryModal);
 }
+
+function showHistoryModal(){
+  const modal = document.getElementById('historyModal');
+  const body = document.getElementById('historyBody');
+  const dates = Object.keys(streakData.history).sort((a,b) => b.localeCompare(a));
+  if (dates.length === 0) {
+    body.innerHTML = `<div class="history-empty">Chưa có lịch sử — trả lời đúng ${STREAK_MIN_CORRECT} câu quiz/ngày để bắt đầu ghi nhận.</div>`;
+  } else {
+    body.innerHTML = dates.map(d => {
+      const h = streakData.history[d];
+      const checked = streakData.activity[d];
+      const trackList = Object.entries(h.tracks).map(([label,count]) => `${label} (${count})`).join(', ');
+      return `<div class="history-row ${checked ? 'checked' : 'notchecked'}">
+        <div class="history-date">${d} ${checked ? '✓' : ''}</div>
+        <div class="history-detail">${h.correct}/${h.total} câu đúng · ${trackList}</div>
+      </div>`;
+    }).join('');
+  }
+  modal.classList.remove('app-hidden');
+}
+function hideHistoryModal(){
+  document.getElementById('historyModal').classList.add('app-hidden');
+}
+
 
 /* ============ PROFILE SCREEN ============ */
 /* ============ PROFILE SCREEN — multi-step flow ============ */
@@ -4836,6 +4919,8 @@ function selectProfile(id){
   renderAll();
 }
 document.getElementById('switchProfileBtn').addEventListener('click', showProfileScreen);
+document.getElementById('historyCloseBtn').addEventListener('click', hideHistoryModal);
+document.getElementById('historyThreshold').textContent = STREAK_MIN_CORRECT;
 
 /* ============ CAMERA FACE LOGIN ============ */
 const FACEAPI_MODEL_URL = 'https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/';
