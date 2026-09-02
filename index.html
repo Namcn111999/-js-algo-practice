@@ -48,10 +48,20 @@
   .brand h1{font-family:var(--mono); font-size:15.5px; font-weight:700; letter-spacing:-0.02em;}
   .brand .path{font-family:var(--mono); font-size:11.5px; color:var(--text-dim);}
 
-  nav.menu{display:flex; gap:4px; overflow-x:auto;}
-  .menu-btn{display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:10px 18px; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; font-family:var(--sans); transition:.15s;}
-  .menu-btn .label{font-size:13.5px; font-weight:600; color:var(--text-muted);}
-  .menu-btn .sub{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
+  nav.menu{display:flex; flex-direction:column; gap:8px; flex:1; min-width:0;}
+  .category-row{display:flex; gap:8px;}
+  .category-btn{display:flex; align-items:center; gap:8px; padding:7px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-elevated); cursor:pointer; transition:.15s; white-space:nowrap;}
+  .category-btn:hover{border-color:var(--text-dim);}
+  .category-btn .cat-icon{font-size:14px;}
+  .category-btn .cat-label{font-family:var(--sans); font-size:12.5px; font-weight:700; color:var(--text-muted);}
+  .category-btn .cat-sub{font-family:var(--mono); font-size:10px; color:var(--text-dim); padding-left:6px; border-left:1px solid var(--border);}
+  .category-btn.active{border-color:var(--algo); background:var(--algo-dim);}
+  .category-btn.active .cat-label{color:var(--algo);}
+  .category-btn.active .cat-sub{color:var(--algo); border-left-color:rgba(124,58,237,0.25);}
+  .track-row{display:flex; gap:4px; overflow-x:auto;}
+  .menu-btn{display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:8px 16px; border:none; background:transparent; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; font-family:var(--sans); transition:.15s;}
+  .menu-btn .label{font-size:13px; font-weight:600; color:var(--text-muted);}
+  .menu-btn .sub{font-family:var(--mono); font-size:10px; color:var(--text-dim);}
   .menu-btn:hover .label{color:var(--text-primary);}
   .menu-btn.active{border-bottom-color:var(--track-color, var(--algo));}
   .menu-btn.active .label{color:var(--track-color, var(--algo));}
@@ -358,7 +368,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v43</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v44</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -3871,14 +3881,15 @@ const devopsWeeks = [
 ];
 
 const tracks = {
-  fe:{label:'Frontend', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false},
-  be:{label:'Java Backend', color:'--be', dim:'--be-dim', weeks:beWeeks, isAlgo:false},
-  algo:{label:'Thuật toán', color:'--algo', dim:'--algo-dim', weeks:algoWeeksData, isAlgo:true},
-  toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false},
-  aws:{label:'AWS SAA', color:'--aws', dim:'--aws-dim', weeks:awsWeeks, isAlgo:false},
-  korean:{label:'Tiếng Hàn', color:'--korean', dim:'--korean-dim', weeks:koreanWeeks, isAlgo:false},
-  devops:{label:'DevOps/Infra', color:'--devops', dim:'--devops-dim', weeks:devopsWeeks, isAlgo:false},
+  fe:{label:'Frontend', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false, category:'nganh'},
+  be:{label:'Java Backend', color:'--be', dim:'--be-dim', weeks:beWeeks, isAlgo:false, category:'nganh'},
+  algo:{label:'Thuật toán', color:'--algo', dim:'--algo-dim', weeks:algoWeeksData, isAlgo:true, category:'nganh'},
+  aws:{label:'AWS SAA', color:'--aws', dim:'--aws-dim', weeks:awsWeeks, isAlgo:false, category:'nganh'},
+  devops:{label:'DevOps/Infra', color:'--devops', dim:'--devops-dim', weeks:devopsWeeks, isAlgo:false, category:'nganh'},
+  toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false, category:'tieng'},
+  korean:{label:'Tiếng Hàn', color:'--korean', dim:'--korean-dim', weeks:koreanWeeks, isAlgo:false, category:'tieng'},
 };
+const categoryLabels = { nganh: {label:'Chuyên ngành', icon:'💼'}, tieng: {label:'Ngoại ngữ', icon:'🌐'} };
 
 /* ============ PROFILES ============ */
 let profiles = [];
@@ -3999,18 +4010,51 @@ function countDone(trackKey){
 }
 
 /* ============ RENDER: TOP MENU ============ */
+let currentCategory = tracks[currentTrack] ? tracks[currentTrack].category : 'nganh';
+let lastTrackByCategory = { nganh: 'fe', tieng: 'toeic' };
 function renderMenu(){
   const menu = document.getElementById('menu');
   menu.innerHTML = '';
-  Object.keys(tracks).forEach(key => {
+
+  const categoryRow = document.createElement('div');
+  categoryRow.className = 'category-row';
+  Object.keys(categoryLabels).forEach(catKey => {
+    const cat = categoryLabels[catKey];
+    const catTracks = Object.keys(tracks).filter(k => tracks[k].category === catKey);
+    const totalDone = catTracks.reduce((sum,k) => sum + countDone(k), 0);
+    const totalWeeks = catTracks.reduce((sum,k) => sum + tracks[k].weeks.length, 0);
+    const btn = document.createElement('button');
+    btn.className = 'category-btn' + (catKey === currentCategory ? ' active' : '');
+    btn.innerHTML = `<span class="cat-icon">${cat.icon}</span><span class="cat-label">${cat.label}</span><span class="cat-sub">${catTracks.length} mục · ${totalDone}/${totalWeeks} tuần</span>`;
+    btn.addEventListener('click', () => {
+      currentCategory = catKey;
+      if (!tracks[currentTrack] || tracks[currentTrack].category !== catKey) {
+        currentTrack = lastTrackByCategory[catKey] || catTracks[0];
+        currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
+      }
+      renderAll();
+    });
+    categoryRow.appendChild(btn);
+  });
+  menu.appendChild(categoryRow);
+
+  const trackRow = document.createElement('div');
+  trackRow.className = 'track-row';
+  Object.keys(tracks).filter(key => tracks[key].category === currentCategory).forEach(key => {
     const t = tracks[key];
     const btn = document.createElement('button');
     btn.className = 'menu-btn' + (key === currentTrack ? ' active' : '');
     btn.style.setProperty('--track-color', `var(${t.color})`);
     btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${countDone(key)}/${t.weeks.length} tuần</span>`;
-    btn.addEventListener('click', () => { currentTrack = key; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0; renderAll(); });
-    menu.appendChild(btn);
+    btn.addEventListener('click', () => {
+      currentTrack = key;
+      lastTrackByCategory[t.category] = key;
+      currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
+      renderAll();
+    });
+    trackRow.appendChild(btn);
   });
+  menu.appendChild(trackRow);
 }
 
 /* ============ RENDER: SIDEBAR ============ */
