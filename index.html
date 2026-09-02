@@ -271,24 +271,28 @@
   .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
 
-  .streak-widget{position:relative; display:flex; align-items:center; gap:12px; padding:9px 15px 9px 13px; border-radius:12px; background:linear-gradient(135deg, var(--bg-elevated), var(--bg-panel)); border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,.04);}
-  .streak-flame{font-size:21px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.08));}
-  .streak-flame.lit{animation:streakGlow 2.2s ease-in-out infinite;}
-  @keyframes streakGlow{0%,100%{transform:scale(1);} 50%{transform:scale(1.12);}}
-  .streak-mid{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .streak-widget{position:relative; display:flex; align-items:center; gap:16px; padding:10px 16px; border-radius:16px; background:linear-gradient(135deg, var(--bg-elevated), var(--bg-panel)); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .streak-left{display:flex; align-items:center; gap:9px;}
+  .streak-flame-badge{display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--bg-panel); font-size:17px; box-shadow:inset 0 0 0 1px var(--border);}
+  .streak-flame-badge.lit{animation:streakGlow 2.2s ease-in-out infinite; box-shadow:inset 0 0 0 1px rgba(232,140,0,.25), 0 0 10px rgba(232,140,0,.18);}
+  @keyframes streakGlow{0%,100%{transform:scale(1);} 50%{transform:scale(1.1);}}
   .streak-widget .streak-count{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary); white-space:nowrap; letter-spacing:-.01em;}
   .streak-widget .streak-count.warn{color:var(--coral);}
   .streak-widget .streak-count.neutral{color:var(--text-muted); font-weight:700;}
   .streak-widget .streak-count.ok{color:var(--fe);}
-  .streak-metrics{display:flex; gap:14px;}
-  .streak-metric{display:flex; flex-direction:column; gap:3px;}
-  .streak-history-btn{display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:9px; transition:.15s; flex-shrink:0;}
+  .streak-divider{width:1px; align-self:stretch; background:var(--border);}
+  .streak-ring-group{display:flex; align-items:center; gap:8px;}
+  .ring-wrap{position:relative; width:38px; height:38px; flex-shrink:0;}
+  .ring-svg{display:block;}
+  .ring-circle{transition:stroke-dashoffset .4s cubic-bezier(.2,.8,.3,1);}
+  .ring-icon{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--fe);}
+  .ring-text{display:flex; flex-direction:column; line-height:1.25;}
+  .ring-num{font-family:var(--mono); font-size:13px; font-weight:800; color:var(--text-primary);}
+  .ring-num.reached{color:var(--fe);}
+  .ring-num-of{font-weight:600; color:var(--text-dim); font-size:11px;}
+  .ring-label{font-size:10px; color:var(--text-muted);}
+  .streak-history-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:10px; transition:.15s; flex-shrink:0; margin-left:2px;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
-  .streak-progress-track{width:78px; height:5px; border-radius:99px; background:var(--border); overflow:hidden;}
-  .streak-progress-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--toeic), var(--algo)); transition:width .35s cubic-bezier(.2,.8,.3,1);}
-  .streak-progress-fill.reached{background:linear-gradient(90deg, var(--fe), #0BA898);}
-  .streak-metric-label{font-family:var(--mono); font-size:9.5px; color:var(--text-dim); white-space:nowrap;}
-  .streak-metric-label.reached{color:var(--fe); font-weight:700;}
 
   .history-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
   @keyframes histFadeIn{from{opacity:0;} to{opacity:1;}}
@@ -366,7 +370,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v45</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v46</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4724,6 +4728,16 @@ function formatMinutes(seconds){
   const m = Math.floor(seconds / 60);
   return `${m} phút`;
 }
+function ringSVG(pct, colorVar, done){
+  const r = 15.5, c = 2*Math.PI*r;
+  const offset = c - (c * Math.min(100,pct) / 100);
+  return `<svg width="38" height="38" viewBox="0 0 38 38" class="ring-svg">
+    <circle cx="19" cy="19" r="${r}" fill="none" stroke="var(--border)" stroke-width="4"/>
+    <circle cx="19" cy="19" r="${r}" fill="none" stroke="${done ? 'var(--fe)' : `var(${colorVar})`}" stroke-width="4"
+      stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"
+      stroke-linecap="round" transform="rotate(-90 19 19)" class="ring-circle"/>
+  </svg>`;
+}
 function renderStreakWidget(){
   const wrap = document.getElementById('streakWidgetWrap');
   if (!wrap) return;
@@ -4732,8 +4746,10 @@ function renderStreakWidget(){
   const t = todayStr();
   const todayCorrect = streakData.dailyCorrect[t] || 0;
   const todaySeconds = streakData.dailySeconds[t] || 0;
-  const pctCorrect = Math.min(100, Math.round((todayCorrect / STREAK_MIN_CORRECT) * 100));
-  const pctTime = Math.min(100, Math.round((todaySeconds / STREAK_MIN_SECONDS) * 100));
+  const pctCorrect = Math.round((todayCorrect / STREAK_MIN_CORRECT) * 100);
+  const pctTime = Math.round((todaySeconds / STREAK_MIN_SECONDS) * 100);
+  const correctDone = todayCorrect >= STREAK_MIN_CORRECT;
+  const timeDone = todaySeconds >= STREAK_MIN_SECONDS;
 
   let badgeClass = 'ok', badgeText, flameLit = 'lit';
   if (info.streak > 0) {
@@ -4750,18 +4766,29 @@ function renderStreakWidget(){
 
   wrap.innerHTML = `
     <div class="streak-widget">
-      <span class="streak-flame ${flameLit}">${info.brokenRecently ? '💔' : '🔥'}</span>
-      <div class="streak-mid">
+      <div class="streak-left">
+        <span class="streak-flame-badge ${flameLit}">${info.brokenRecently ? '💔' : '🔥'}</span>
         <span class="streak-count ${badgeClass}">${badgeText}</span>
-        <div class="streak-metrics">
-          <div class="streak-metric">
-            <div class="streak-progress-track"><div class="streak-progress-fill ${todayCorrect >= STREAK_MIN_CORRECT ? 'reached' : ''}" style="width:${pctCorrect}%"></div></div>
-            <span class="streak-metric-label ${todayCorrect >= STREAK_MIN_CORRECT ? 'reached' : ''}">✓ ${todayCorrect}/${STREAK_MIN_CORRECT} câu đúng</span>
-          </div>
-          <div class="streak-metric">
-            <div class="streak-progress-track"><div class="streak-progress-fill ${todaySeconds >= STREAK_MIN_SECONDS ? 'reached' : ''}" style="width:${pctTime}%"></div></div>
-            <span class="streak-metric-label ${todaySeconds >= STREAK_MIN_SECONDS ? 'reached' : ''}">⏱ ${formatMinutes(todaySeconds)}/${STREAK_MIN_SECONDS/60}p</span>
-          </div>
+      </div>
+      <div class="streak-divider"></div>
+      <div class="streak-ring-group">
+        <div class="ring-wrap">
+          ${ringSVG(pctCorrect, '--algo', correctDone)}
+          <span class="ring-icon">${correctDone ? '✓' : ''}</span>
+        </div>
+        <div class="ring-text">
+          <span class="ring-num ${correctDone ? 'reached' : ''}">${todayCorrect}<span class="ring-num-of">/${STREAK_MIN_CORRECT}</span></span>
+          <span class="ring-label">câu đúng</span>
+        </div>
+      </div>
+      <div class="streak-ring-group">
+        <div class="ring-wrap">
+          ${ringSVG(pctTime, '--toeic', timeDone)}
+          <span class="ring-icon">${timeDone ? '✓' : ''}</span>
+        </div>
+        <div class="ring-text">
+          <span class="ring-num ${timeDone ? 'reached' : ''}">${Math.floor(todaySeconds/60)}<span class="ring-num-of">/${STREAK_MIN_SECONDS/60}p</span></span>
+          <span class="ring-label">tương tác</span>
         </div>
       </div>
       <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜</button>
