@@ -297,22 +297,22 @@
   .streak-best{display:flex; flex-direction:column; align-items:center; gap:2px; padding:0 18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0;}
   .streak-best-num{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); white-space:nowrap;}
   .streak-best-label{font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
-  .streak-mini7{display:flex; gap:8px; flex:1; min-width:0;}
-  .mini7-col{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:7px 4px; border-radius:9px; background:var(--bg-panel); border:1px solid var(--border); transition:.15s;}
-  .mini7-dow{font-family:var(--mono); font-size:9.5px; font-weight:700; color:var(--text-dim); text-transform:uppercase;}
-  .mini7-date{font-family:var(--mono); font-size:11px; font-weight:700; color:var(--text-muted);}
-  .mini7-icon{font-size:11px; font-weight:800; line-height:1; height:13px;}
-  .mini7-col.done{background:linear-gradient(160deg, var(--fe-dim), transparent); border-color:rgba(14,143,130,.3);}
+  .streak-mini7{display:flex; gap:4px; flex:1; min-width:0; justify-content:space-evenly;}
+  .mini7-col{max-width:52px; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; padding:2px 6px 8px; border-bottom:2px solid var(--border); transition:.15s;}
+  .mini7-dow{font-family:var(--mono); font-size:9px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.02em;}
+  .mini7-date{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted);}
+  .mini7-icon{font-size:10px; font-weight:800; line-height:1; height:12px;}
+  .mini7-col.done{border-bottom-color:var(--fe);}
   .mini7-col.done .mini7-date{color:var(--fe);}
   .mini7-col.done .mini7-icon{color:var(--fe);}
-  .mini7-col.missed{background:linear-gradient(160deg, rgba(232,99,90,.1), transparent); border-color:rgba(232,99,90,.28);}
+  .mini7-col.missed{border-bottom-color:var(--coral);}
   .mini7-col.missed .mini7-date{color:var(--coral);}
   .mini7-col.missed .mini7-icon{color:var(--coral);}
-  .mini7-col.today{border-color:var(--toeic); border-width:1.5px; box-shadow:0 0 0 3px var(--toeic-dim);}
-  .mini7-col.today .mini7-date{color:var(--toeic);}
+  .mini7-col.today{border-bottom-color:var(--toeic); border-bottom-width:3px;}
+  .mini7-col.today .mini7-date{color:var(--toeic); font-weight:800;}
   .mini7-col.today .mini7-icon{color:var(--toeic);}
-  .mini7-col.weekend{background:transparent; border-style:dashed; opacity:.6;}
-  .mini7-col.none{opacity:.45;}
+  .mini7-col.weekend{border-bottom-style:dashed; opacity:.55;}
+  .mini7-col.none{opacity:.35;}
   .streak-history-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:10px; transition:.15s; flex-shrink:0;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
 
@@ -394,7 +394,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v56</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v57</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
