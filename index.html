@@ -272,8 +272,8 @@
   .switch-profile-btn{flex-shrink:0; font-family:var(--mono); font-size:11.5px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,.06);}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary); box-shadow:0 3px 10px rgba(0,0,0,.09);}
 
-  .streak-widget{position:relative; display:flex; align-items:center; gap:28px; padding:14px 22px; margin-bottom:12px; border-radius:16px; background:linear-gradient(120deg, var(--bg-elevated), var(--bg-panel) 60%); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05); width:fit-content; max-width:100%;}
-  .streak-left{display:flex; align-items:center; gap:12px;}
+  .streak-widget{position:relative; display:flex; align-items:center; gap:28px; padding:14px 22px; margin-bottom:12px; border-radius:16px; background:linear-gradient(120deg, var(--bg-elevated), var(--bg-panel) 60%); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .streak-left{display:flex; align-items:center; gap:12px; flex-shrink:0;}
   .streak-flame-badge{display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:var(--bg-panel); font-size:19px; box-shadow:inset 0 0 0 1px var(--border); flex-shrink:0;}
   .streak-flame-badge.lit{animation:streakGlow 2.2s ease-in-out infinite; box-shadow:inset 0 0 0 1px rgba(232,140,0,.25), 0 0 12px rgba(232,140,0,.2);}
   @keyframes streakGlow{0%,100%{transform:scale(1);} 50%{transform:scale(1.1);}}
@@ -297,15 +297,22 @@
   .streak-best{display:flex; flex-direction:column; align-items:center; gap:2px; padding:0 18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0;}
   .streak-best-num{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); white-space:nowrap;}
   .streak-best-label{font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
-  .streak-mini7{display:flex; gap:6px; flex-shrink:0;}
-  .mini7-col{display:flex; flex-direction:column; align-items:center; gap:4px;}
-  .mini7-dot{width:10px; height:10px; border-radius:4px; background:var(--border); display:block;}
-  .mini7-dot.done{background:linear-gradient(145deg, var(--fe), #0BA898);}
-  .mini7-dot.missed{background:linear-gradient(145deg, var(--coral), #E8635A);}
-  .mini7-dot.today{background:var(--bg-panel); border:2px solid var(--toeic);}
-  .mini7-dot.weekend{background:transparent; border:1.5px dashed var(--border);}
-  .mini7-dot.none{background:var(--bg-elevated); border:1.5px solid var(--border);}
-  .mini7-dow{font-family:var(--mono); font-size:8.5px; color:var(--text-dim);}
+  .streak-mini7{display:flex; gap:8px; flex:1; min-width:0;}
+  .mini7-col{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:7px 4px; border-radius:9px; background:var(--bg-panel); border:1px solid var(--border); transition:.15s;}
+  .mini7-dow{font-family:var(--mono); font-size:9.5px; font-weight:700; color:var(--text-dim); text-transform:uppercase;}
+  .mini7-date{font-family:var(--mono); font-size:11px; font-weight:700; color:var(--text-muted);}
+  .mini7-icon{font-size:11px; font-weight:800; line-height:1; height:13px;}
+  .mini7-col.done{background:linear-gradient(160deg, var(--fe-dim), transparent); border-color:rgba(14,143,130,.3);}
+  .mini7-col.done .mini7-date{color:var(--fe);}
+  .mini7-col.done .mini7-icon{color:var(--fe);}
+  .mini7-col.missed{background:linear-gradient(160deg, rgba(232,99,90,.1), transparent); border-color:rgba(232,99,90,.28);}
+  .mini7-col.missed .mini7-date{color:var(--coral);}
+  .mini7-col.missed .mini7-icon{color:var(--coral);}
+  .mini7-col.today{border-color:var(--toeic); border-width:1.5px; box-shadow:0 0 0 3px var(--toeic-dim);}
+  .mini7-col.today .mini7-date{color:var(--toeic);}
+  .mini7-col.today .mini7-icon{color:var(--toeic);}
+  .mini7-col.weekend{background:transparent; border-style:dashed; opacity:.6;}
+  .mini7-col.none{opacity:.45;}
   .streak-history-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:10px; transition:.15s; flex-shrink:0;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
 
@@ -387,7 +394,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v55</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v56</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4787,16 +4794,21 @@ function renderStreakWidget(){
   }
 
   const weekDayNames = ['CN','T2','T3','T4','T5','T6','T7'];
+  const statusIcon = {done:'✓', missed:'✕', today:'●', weekend:'–', none:''};
   const last7Raw = info.days.slice(-7);
   const pad = 7 - last7Raw.length;
   const last7 = [];
   for (let i = pad; i > 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - (last7Raw.length + i - 1));
-    last7.push(`<div class="mini7-col"><span class="mini7-dot none"></span><span class="mini7-dow">${weekDayNames[d.getDay()]}</span></div>`);
+    const dm = `${d.getDate()}/${d.getMonth()+1}`;
+    last7.push(`<div class="mini7-col none" title="${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}"><span class="mini7-dow">${weekDayNames[d.getDay()]}</span><span class="mini7-date">${dm}</span><span class="mini7-icon"></span></div>`);
   }
   last7Raw.forEach(d => {
-    const dow = weekDayNames[new Date(d.date+'T00:00:00').getDay()];
-    last7.push(`<div class="mini7-col"><span class="mini7-dot ${d.status}" title="${d.date}"></span><span class="mini7-dow">${dow}</span></div>`);
+    const dObj = new Date(d.date+'T00:00:00');
+    const dow = weekDayNames[dObj.getDay()];
+    const dm = `${dObj.getDate()}/${dObj.getMonth()+1}`;
+    const fullDate = `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}/${dObj.getFullYear()}`;
+    last7.push(`<div class="mini7-col ${d.status}" title="${dow}, ${fullDate}"><span class="mini7-dow">${dow}</span><span class="mini7-date">${dm}</span><span class="mini7-icon">${statusIcon[d.status]}</span></div>`);
   });
   const last7HTML = last7.join('');
   const bestStreak = Math.max(streakData.bestStreak || 0, info.streak);
