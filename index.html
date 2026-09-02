@@ -297,10 +297,10 @@
   .streak-best{display:flex; flex-direction:column; align-items:center; gap:2px; padding:0 18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0;}
   .streak-best-num{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); white-space:nowrap;}
   .streak-best-label{font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
-  .streak-cal-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:15px; border-radius:10px; transition:.15s; flex-shrink:0; margin-left:auto;}
-  .streak-cal-btn:hover{border-color:var(--korean); background:var(--korean-dim); transform:translateY(-1px);}
-  .streak-history-btn{display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-muted); border-radius:10px; transition:.15s; flex-shrink:0;}
-  .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); color:var(--algo); transform:translateY(-1px);}
+  .streak-actions{display:flex; align-items:center; background:var(--bg-panel); border:1px solid var(--border); border-radius:11px; padding:3px; flex-shrink:0; margin-left:auto;}
+  .streak-action-divider{width:1px; height:22px; background:var(--border);}
+  .streak-action-btn{display:flex; align-items:center; gap:6px; padding:7px 13px; background:none; border:none; cursor:pointer; font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted); border-radius:8px; transition:.15s;}
+  .streak-action-btn:hover{background:var(--algo-dim); color:var(--algo);}
 
   .history-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
   @keyframes histFadeIn{from{opacity:0;} to{opacity:1;}}
@@ -437,7 +437,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v59</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v60</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4873,8 +4873,11 @@ function renderStreakWidget(){
           </div>
         </div>
       </div>
-      <button class="streak-cal-btn" id="streakCalBtn" title="Xem theo lịch tháng">🗓️</button>
-      <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📅 Lịch sử</button>
+      <div class="streak-actions">
+        <button class="streak-action-btn" id="streakCalBtn" title="Xem theo lịch tháng">🗓️ Lịch tháng</button>
+        <span class="streak-action-divider"></span>
+        <button class="streak-action-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜 Lịch sử</button>
+      </div>
     </div>
   `;
   const histBtn = document.getElementById('streakHistoryBtn');
