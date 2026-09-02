@@ -297,24 +297,8 @@
   .streak-best{display:flex; flex-direction:column; align-items:center; gap:2px; padding:0 18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0;}
   .streak-best-num{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); white-space:nowrap;}
   .streak-best-label{font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
-  .streak-mini7{display:flex; gap:4px; flex:1; min-width:0; justify-content:space-evenly;}
-  .mini7-col{max-width:52px; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; padding:2px 6px 8px; border-bottom:2px solid var(--border); transition:.15s;}
-  .mini7-dow{font-family:var(--mono); font-size:9px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.02em;}
-  .mini7-date{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted);}
-  .mini7-icon{font-size:10px; font-weight:800; line-height:1; height:12px;}
-  .mini7-col.done{border-bottom-color:var(--fe);}
-  .mini7-col.done .mini7-date{color:var(--fe);}
-  .mini7-col.done .mini7-icon{color:var(--fe);}
-  .mini7-col.missed{border-bottom-color:var(--coral);}
-  .mini7-col.missed .mini7-date{color:var(--coral);}
-  .mini7-col.missed .mini7-icon{color:var(--coral);}
-  .mini7-col.today{border-bottom-color:var(--toeic); border-bottom-width:3px;}
-  .mini7-col.today .mini7-date{color:var(--toeic); font-weight:800;}
-  .mini7-col.today .mini7-icon{color:var(--toeic);}
-  .mini7-col.weekend{border-bottom-style:dashed; opacity:.55;}
-  .mini7-col.none{opacity:.35;}
-  .streak-history-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:10px; transition:.15s; flex-shrink:0;}
-  .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
+  .streak-history-btn{display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-muted); border-radius:10px; transition:.15s; flex-shrink:0; margin-left:auto;}
+  .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); color:var(--algo); transform:translateY(-1px);}
 
   .history-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
   @keyframes histFadeIn{from{opacity:0;} to{opacity:1;}}
@@ -394,7 +378,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v57</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v58</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4793,24 +4777,6 @@ function renderStreakWidget(){
     badgeText = `Học hôm nay để bắt đầu chuỗi`;
   }
 
-  const weekDayNames = ['CN','T2','T3','T4','T5','T6','T7'];
-  const statusIcon = {done:'✓', missed:'✕', today:'●', weekend:'–', none:''};
-  const last7Raw = info.days.slice(-7);
-  const pad = 7 - last7Raw.length;
-  const last7 = [];
-  for (let i = pad; i > 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - (last7Raw.length + i - 1));
-    const dm = `${d.getDate()}/${d.getMonth()+1}`;
-    last7.push(`<div class="mini7-col none" title="${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}"><span class="mini7-dow">${weekDayNames[d.getDay()]}</span><span class="mini7-date">${dm}</span><span class="mini7-icon"></span></div>`);
-  }
-  last7Raw.forEach(d => {
-    const dObj = new Date(d.date+'T00:00:00');
-    const dow = weekDayNames[dObj.getDay()];
-    const dm = `${dObj.getDate()}/${dObj.getMonth()+1}`;
-    const fullDate = `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}/${dObj.getFullYear()}`;
-    last7.push(`<div class="mini7-col ${d.status}" title="${dow}, ${fullDate}"><span class="mini7-dow">${dow}</span><span class="mini7-date">${dm}</span><span class="mini7-icon">${statusIcon[d.status]}</span></div>`);
-  });
-  const last7HTML = last7.join('');
   const bestStreak = Math.max(streakData.bestStreak || 0, info.streak);
 
   wrap.innerHTML = `
@@ -4848,8 +4814,7 @@ function renderStreakWidget(){
           </div>
         </div>
       </div>
-      <div class="streak-mini7">${last7HTML}</div>
-      <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜</button>
+      <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📅 Lịch sử</button>
     </div>
   `;
   const histBtn = document.getElementById('streakHistoryBtn');
