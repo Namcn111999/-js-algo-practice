@@ -271,25 +271,27 @@
   .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
 
-  .streak-widget{position:relative; display:flex; align-items:center; gap:16px; padding:10px 16px; border-radius:16px; background:linear-gradient(135deg, var(--bg-elevated), var(--bg-panel)); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .streak-left{display:flex; align-items:center; gap:9px;}
-  .streak-flame-badge{display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--bg-panel); font-size:17px; box-shadow:inset 0 0 0 1px var(--border);}
-  .streak-flame-badge.lit{animation:streakGlow 2.2s ease-in-out infinite; box-shadow:inset 0 0 0 1px rgba(232,140,0,.25), 0 0 10px rgba(232,140,0,.18);}
+  .streak-widget{position:relative; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:14px 22px; margin-bottom:12px; border-radius:16px; background:linear-gradient(120deg, var(--bg-elevated), var(--bg-panel) 60%); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .streak-left{display:flex; align-items:center; gap:12px;}
+  .streak-flame-badge{display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:var(--bg-panel); font-size:19px; box-shadow:inset 0 0 0 1px var(--border); flex-shrink:0;}
+  .streak-flame-badge.lit{animation:streakGlow 2.2s ease-in-out infinite; box-shadow:inset 0 0 0 1px rgba(232,140,0,.25), 0 0 12px rgba(232,140,0,.2);}
   @keyframes streakGlow{0%,100%{transform:scale(1);} 50%{transform:scale(1.1);}}
-  .streak-widget .streak-count{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary); white-space:nowrap; letter-spacing:-.01em;}
+  .streak-left-text{display:flex; flex-direction:column; gap:2px;}
+  .streak-widget .streak-count{font-family:var(--mono); font-size:14px; font-weight:800; color:var(--text-primary); white-space:nowrap; letter-spacing:-.01em;}
   .streak-widget .streak-count.warn{color:var(--coral);}
   .streak-widget .streak-count.neutral{color:var(--text-muted); font-weight:700;}
   .streak-widget .streak-count.ok{color:var(--fe);}
-  .streak-divider{width:1px; align-self:stretch; background:var(--border);}
-  .streak-ring-group{display:flex; align-items:center; gap:8px;}
-  .ring-wrap{position:relative; width:38px; height:38px; flex-shrink:0;}
+  .streak-subtitle{font-size:10.5px; color:var(--text-dim);}
+  .streak-ring-area{display:flex; align-items:center; gap:34px;}
+  .streak-ring-group{display:flex; align-items:center; gap:10px;}
+  .ring-wrap{position:relative; width:42px; height:42px; flex-shrink:0;}
   .ring-svg{display:block;}
   .ring-circle{transition:stroke-dashoffset .4s cubic-bezier(.2,.8,.3,1);}
-  .ring-icon{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--fe);}
+  .ring-icon{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:var(--fe);}
   .ring-text{display:flex; flex-direction:column; line-height:1.25;}
-  .ring-num{font-family:var(--mono); font-size:13px; font-weight:800; color:var(--text-primary);}
+  .ring-num{font-family:var(--mono); font-size:14px; font-weight:800; color:var(--text-primary);}
   .ring-num.reached{color:var(--fe);}
-  .ring-num-of{font-weight:600; color:var(--text-dim); font-size:11px;}
+  .ring-num-of{font-weight:600; color:var(--text-dim); font-size:11.5px;}
   .ring-label{font-size:10px; color:var(--text-muted);}
   .streak-history-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:10px; transition:.15s; flex-shrink:0; margin-left:2px;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
@@ -340,9 +342,9 @@
 
 <header class="app-hidden" id="siteHeader">
   <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
+  <div id="streakWidgetWrap"></div>
   <div style="display:flex; align-items:center; gap:14px; margin-bottom:10px;">
     <nav class="menu" id="menu" style="flex:1"></nav>
-    <div id="streakWidgetWrap"></div>
     <button class="switch-profile-btn" id="switchProfileBtn">👤 Đổi hồ sơ</button>
   </div>
 </header>
@@ -370,7 +372,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v46</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v47</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4768,27 +4770,31 @@ function renderStreakWidget(){
     <div class="streak-widget">
       <div class="streak-left">
         <span class="streak-flame-badge ${flameLit}">${info.brokenRecently ? '💔' : '🔥'}</span>
-        <span class="streak-count ${badgeClass}">${badgeText}</span>
-      </div>
-      <div class="streak-divider"></div>
-      <div class="streak-ring-group">
-        <div class="ring-wrap">
-          ${ringSVG(pctCorrect, '--algo', correctDone)}
-          <span class="ring-icon">${correctDone ? '✓' : ''}</span>
-        </div>
-        <div class="ring-text">
-          <span class="ring-num ${correctDone ? 'reached' : ''}">${todayCorrect}<span class="ring-num-of">/${STREAK_MIN_CORRECT}</span></span>
-          <span class="ring-label">câu đúng</span>
+        <div class="streak-left-text">
+          <span class="streak-count ${badgeClass}">${badgeText}</span>
+          <span class="streak-subtitle">Chuỗi chỉ tính khi học thật — đủ cả câu đúng lẫn thời gian tương tác</span>
         </div>
       </div>
-      <div class="streak-ring-group">
-        <div class="ring-wrap">
-          ${ringSVG(pctTime, '--toeic', timeDone)}
-          <span class="ring-icon">${timeDone ? '✓' : ''}</span>
+      <div class="streak-ring-area">
+        <div class="streak-ring-group">
+          <div class="ring-wrap">
+            ${ringSVG(pctCorrect, '--algo', correctDone)}
+            <span class="ring-icon">${correctDone ? '✓' : ''}</span>
+          </div>
+          <div class="ring-text">
+            <span class="ring-num ${correctDone ? 'reached' : ''}">${todayCorrect}<span class="ring-num-of">/${STREAK_MIN_CORRECT}</span></span>
+            <span class="ring-label">câu đúng</span>
+          </div>
         </div>
-        <div class="ring-text">
-          <span class="ring-num ${timeDone ? 'reached' : ''}">${Math.floor(todaySeconds/60)}<span class="ring-num-of">/${STREAK_MIN_SECONDS/60}p</span></span>
-          <span class="ring-label">tương tác</span>
+        <div class="streak-ring-group">
+          <div class="ring-wrap">
+            ${ringSVG(pctTime, '--toeic', timeDone)}
+            <span class="ring-icon">${timeDone ? '✓' : ''}</span>
+          </div>
+          <div class="ring-text">
+            <span class="ring-num ${timeDone ? 'reached' : ''}">${Math.floor(todaySeconds/60)}<span class="ring-num-of">/${STREAK_MIN_SECONDS/60}p</span></span>
+            <span class="ring-label">tương tác</span>
+          </div>
         </div>
       </div>
       <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜</button>
