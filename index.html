@@ -268,7 +268,8 @@
   .camera-status.ok{color:var(--fe);}
   .camera-cancel{font-family:var(--mono); font-size:12px; font-weight:600; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-muted); cursor:pointer;}
 
-  .switch-profile-btn{position:fixed; top:16px; right:20px; z-index:120; font-family:var(--mono); font-size:11.5px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .brand-row{display:flex; align-items:center; justify-content:space-between; gap:14px;}
+  .switch-profile-btn{flex-shrink:0; font-family:var(--mono); font-size:11.5px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,.06);}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary); box-shadow:0 3px 10px rgba(0,0,0,.09);}
 
   .streak-widget{position:relative; display:flex; align-items:center; gap:28px; padding:14px 22px; margin-bottom:12px; border-radius:16px; background:linear-gradient(120deg, var(--bg-elevated), var(--bg-panel) 60%); border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.05);}
@@ -353,13 +354,15 @@
 </div>
 
 <header class="app-hidden" id="siteHeader">
-  <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
+  <div class="brand-row">
+    <div class="brand"><span class="dot"></span><h1>lộ trình học tập</h1><span class="path" id="brandPath">6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC</span></div>
+    <button class="switch-profile-btn" id="switchProfileBtn">👤 Đổi hồ sơ</button>
+  </div>
   <div id="streakWidgetWrap"></div>
   <div style="display:flex; align-items:center; gap:14px; margin-bottom:10px;">
     <nav class="menu" id="menu" style="flex:1"></nav>
   </div>
 </header>
-<button class="switch-profile-btn app-hidden" id="switchProfileBtn">👤 Đổi hồ sơ</button>
 
 <div class="history-modal app-hidden" id="historyModal">
   <div class="history-box">
@@ -384,7 +387,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v52</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v53</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4890,7 +4893,6 @@ function showProfileScreen(){
   document.getElementById('siteHeader').classList.add('app-hidden');
   document.getElementById('siteApp').classList.add('app-hidden');
   document.getElementById('siteFooter').classList.add('app-hidden');
-  document.getElementById('switchProfileBtn').classList.add('app-hidden');
   document.getElementById('profileScreen').classList.remove('app-hidden');
   psState = 'pick';
   psTargetProfile = null;
@@ -5110,7 +5112,6 @@ function selectProfile(id){
   document.getElementById('siteHeader').classList.remove('app-hidden');
   document.getElementById('siteApp').classList.remove('app-hidden');
   document.getElementById('siteFooter').classList.remove('app-hidden');
-  document.getElementById('switchProfileBtn').classList.remove('app-hidden');
   loadProfileData();
   const p = profiles.find(x => x.id === id);
   document.getElementById('brandPath').textContent = `Hồ sơ: ${p ? p.name : ''} · 6 tháng FE/BE/Thuật toán/AWS/Hàn · 4 tháng TOEIC`;
