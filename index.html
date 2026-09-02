@@ -297,7 +297,9 @@
   .streak-best{display:flex; flex-direction:column; align-items:center; gap:2px; padding:0 18px; border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0;}
   .streak-best-num{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); white-space:nowrap;}
   .streak-best-label{font-size:9.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;}
-  .streak-history-btn{display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-muted); border-radius:10px; transition:.15s; flex-shrink:0; margin-left:auto;}
+  .streak-cal-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:15px; border-radius:10px; transition:.15s; flex-shrink:0; margin-left:auto;}
+  .streak-cal-btn:hover{border-color:var(--korean); background:var(--korean-dim); transform:translateY(-1px);}
+  .streak-history-btn{display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-muted); border-radius:10px; transition:.15s; flex-shrink:0;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); color:var(--algo); transform:translateY(-1px);}
 
   .history-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
@@ -329,6 +331,36 @@
   .history-mini-fill.time{background:linear-gradient(90deg, var(--toeic), var(--korean));}
   .history-tracks{display:flex; flex-wrap:wrap; gap:5px;}
   .history-track-pill{font-size:10px; padding:2px 8px; border-radius:99px; background:var(--bg-panel); color:var(--text-muted); border:1px solid var(--border);}
+
+  .cal-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
+  .cal-box{background:var(--bg-panel); border-radius:18px; width:400px; max-width:92vw; padding:20px 22px 18px; box-shadow:0 24px 60px rgba(0,0,0,.28); animation:histSlideUp .22s cubic-bezier(.2,.8,.3,1);}
+  .cal-head{position:relative; margin-bottom:14px;}
+  .cal-close{position:absolute; top:-2px; right:0; background:var(--bg-elevated); border:1px solid var(--border); font-size:12px; cursor:pointer; color:var(--text-muted); width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;}
+  .cal-close:hover{color:var(--text-primary); border-color:var(--text-dim);}
+  .cal-nav{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:10px;}
+  .cal-nav-btn{background:var(--bg-elevated); border:1px solid var(--border); font-size:15px; font-weight:800; cursor:pointer; color:var(--text-muted); width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;}
+  .cal-nav-btn:hover{color:var(--text-primary); border-color:var(--algo);}
+  .cal-month-label{font-family:var(--mono); font-size:15px; font-weight:800; color:var(--text-primary); min-width:130px; text-align:center;}
+  .cal-quick{display:flex; justify-content:center; gap:8px;}
+  .cal-quick select{font-family:var(--mono); font-size:11px; padding:4px 8px; border-radius:7px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-muted); cursor:pointer;}
+  .cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:6px;}
+  .cal-weekdays span{font-family:var(--mono); font-size:10px; font-weight:700; color:var(--text-dim); text-transform:uppercase;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:9px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--text-muted); background:var(--bg-elevated); border:1px solid transparent; position:relative;}
+  .cal-day.empty{background:transparent;}
+  .cal-day.done{background:linear-gradient(150deg, var(--fe-dim), transparent); border-color:rgba(14,143,130,.3); color:var(--fe); font-weight:800;}
+  .cal-day.missed{background:linear-gradient(150deg, rgba(232,99,90,.12), transparent); border-color:rgba(232,99,90,.28); color:var(--coral);}
+  .cal-day.weekend{background:transparent; border:1px dashed var(--border); color:var(--text-dim);}
+  .cal-day.today{border-color:var(--toeic); border-width:2px; color:var(--toeic); font-weight:800;}
+  .cal-day.future{opacity:.4;}
+  .cal-day.before-start{opacity:.25;}
+  .cal-legend{display:flex; justify-content:center; gap:14px; margin-top:14px; flex-wrap:wrap;}
+  .cal-legend-item{display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--text-muted);}
+  .cal-legend-dot{width:9px; height:9px; border-radius:3px; display:inline-block;}
+  .cal-legend-dot.done{background:var(--fe);}
+  .cal-legend-dot.missed{background:var(--coral);}
+  .cal-legend-dot.today{background:var(--bg-panel); border:2px solid var(--toeic);}
+  .cal-legend-dot.weekend{background:transparent; border:1px dashed var(--border);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js" defer></script>
 </head>
@@ -372,13 +404,40 @@
   </div>
 </div>
 
+<div class="cal-modal app-hidden" id="calendarModal">
+  <div class="cal-box">
+    <div class="cal-head">
+      <button class="cal-close" id="calCloseBtn">✕</button>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="calPrevBtn">‹</button>
+        <span class="cal-month-label" id="calMonthLabel"></span>
+        <button class="cal-nav-btn" id="calNextBtn">›</button>
+      </div>
+      <div class="cal-quick">
+        <select id="calMonthSelect"></select>
+        <select id="calYearSelect"></select>
+      </div>
+    </div>
+    <div class="cal-weekdays">
+      <span>CN</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span class="cal-legend-item"><span class="cal-legend-dot done"></span>Đã học</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot missed"></span>Bỏ lỡ</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot today"></span>Hôm nay</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot weekend"></span>Cuối tuần</span>
+    </div>
+  </div>
+</div>
+
 <div class="app app-hidden" id="siteApp">
   <nav class="sidebar" id="sidebar"></nav>
   <main id="main"></main>
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v58</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v59</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4814,11 +4873,14 @@ function renderStreakWidget(){
           </div>
         </div>
       </div>
+      <button class="streak-cal-btn" id="streakCalBtn" title="Xem theo lịch tháng">🗓️</button>
       <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📅 Lịch sử</button>
     </div>
   `;
   const histBtn = document.getElementById('streakHistoryBtn');
   if (histBtn) histBtn.addEventListener('click', showHistoryModal);
+  const calBtn = document.getElementById('streakCalBtn');
+  if (calBtn) calBtn.addEventListener('click', showCalendarModal);
 }
 
 function showHistoryModal(){
@@ -4858,6 +4920,71 @@ function showHistoryModal(){
 function hideHistoryModal(){
   document.getElementById('historyModal').classList.add('app-hidden');
 }
+
+/* ============ MONTH CALENDAR MODAL ============ */
+let calViewYear, calViewMonth; // calViewMonth is 0-indexed
+const calMonthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+
+function showCalendarModal(){
+  const now = new Date();
+  calViewYear = now.getFullYear();
+  calViewMonth = now.getMonth();
+  populateCalSelects();
+  renderCalendarGrid();
+  document.getElementById('calendarModal').classList.remove('app-hidden');
+}
+function hideCalendarModal(){
+  document.getElementById('calendarModal').classList.add('app-hidden');
+}
+function populateCalSelects(){
+  const monthSel = document.getElementById('calMonthSelect');
+  const yearSel = document.getElementById('calYearSelect');
+  monthSel.innerHTML = calMonthNames.map((m,i) => `<option value="${i}">${m}</option>`).join('');
+  const nowYear = new Date().getFullYear();
+  const years = [];
+  for (let y = nowYear - 2; y <= nowYear + 1; y++) years.push(y);
+  yearSel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+}
+function changeCalendarMonth(delta){
+  calViewMonth += delta;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  renderCalendarGrid();
+}
+function renderCalendarGrid(){
+  document.getElementById('calMonthLabel').textContent = `${calMonthNames[calViewMonth]}, ${calViewYear}`;
+  document.getElementById('calMonthSelect').value = calViewMonth;
+  document.getElementById('calYearSelect').value = calViewYear;
+
+  const firstDay = new Date(calViewYear, calViewMonth, 1);
+  const startWeekday = firstDay.getDay(); // 0=CN
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const todayStrVal = todayStr();
+  const startDateVal = streakData.startDate;
+
+  let cells = [];
+  for (let i = 0; i < startWeekday; i++) cells.push('<div class="cal-day empty"></div>');
+  for (let day = 1; day <= daysInMonth; day++) {
+    const ds = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dow = new Date(calViewYear, calViewMonth, day).getDay();
+    let status;
+    if (ds === todayStrVal) status = 'today';
+    else if (startDateVal && ds < startDateVal) status = 'before-start';
+    else if (ds > todayStrVal) status = 'future';
+    else if (streakData.activity[ds]) status = 'done';
+    else if (dow === 0 || dow === 6) status = 'weekend';
+    else status = 'missed';
+    const h = streakData.history[ds];
+    const detail = h ? ` — ${h.correct}/${h.total} câu đúng` : '';
+    cells.push(`<div class="cal-day ${status}" title="${ds}${detail}">${day}</div>`);
+  }
+  document.getElementById('calGrid').innerHTML = cells.join('');
+}
+document.getElementById('calCloseBtn').addEventListener('click', hideCalendarModal);
+document.getElementById('calPrevBtn').addEventListener('click', () => changeCalendarMonth(-1));
+document.getElementById('calNextBtn').addEventListener('click', () => changeCalendarMonth(1));
+document.getElementById('calMonthSelect').addEventListener('change', (e) => { calViewMonth = parseInt(e.target.value,10); renderCalendarGrid(); });
+document.getElementById('calYearSelect').addEventListener('change', (e) => { calViewYear = parseInt(e.target.value,10); renderCalendarGrid(); });
 
 
 /* ============ PROFILE SCREEN ============ */
