@@ -271,28 +271,24 @@
   .switch-profile-btn{font-family:var(--mono); font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; white-space:nowrap;}
   .switch-profile-btn:hover{border-color:var(--text-dim); color:var(--text-primary);}
 
-  .streak-widget{position:relative; display:flex; align-items:center; gap:12px; padding:9px 14px 9px 12px; border-radius:12px; background:linear-gradient(135deg, var(--bg-elevated), var(--bg-panel)); border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,.04);}
-  .streak-flame{font-size:19px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.08));}
+  .streak-widget{position:relative; display:flex; align-items:center; gap:12px; padding:9px 15px 9px 13px; border-radius:12px; background:linear-gradient(135deg, var(--bg-elevated), var(--bg-panel)); border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .streak-flame{font-size:21px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.08));}
   .streak-flame.lit{animation:streakGlow 2.2s ease-in-out infinite;}
   @keyframes streakGlow{0%,100%{transform:scale(1);} 50%{transform:scale(1.12);}}
-  .streak-mid{display:flex; flex-direction:column; gap:5px; min-width:0;}
+  .streak-mid{display:flex; flex-direction:column; gap:6px; min-width:0;}
   .streak-widget .streak-count{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary); white-space:nowrap; letter-spacing:-.01em;}
   .streak-widget .streak-count.warn{color:var(--coral);}
   .streak-widget .streak-count.neutral{color:var(--text-muted); font-weight:700;}
   .streak-widget .streak-count.ok{color:var(--fe);}
-  .streak-cal{display:flex; gap:4px;}
-  .streak-day{width:15px; height:15px; border-radius:5px; background:var(--border); transition:.15s;}
-  .streak-day.done{background:linear-gradient(145deg, var(--fe), #0BA898); box-shadow:0 1px 3px rgba(14,143,130,.35);}
-  .streak-day.missed{background:linear-gradient(145deg, var(--coral), #E8635A); box-shadow:0 1px 3px rgba(232,99,90,.3);}
-  .streak-day.today{background:var(--bg-panel); border:2px solid var(--toeic); box-shadow:0 0 0 3px var(--toeic-dim);}
-  .streak-day.weekend{background:transparent; border:1.5px dashed var(--border);}
-  .streak-history-btn{display:flex; align-items:center; justify-content:center; width:30px; height:30px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:9px; transition:.15s; flex-shrink:0;}
+  .streak-metrics{display:flex; gap:14px;}
+  .streak-metric{display:flex; flex-direction:column; gap:3px;}
+  .streak-history-btn{display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:var(--bg-panel); border:1px solid var(--border); cursor:pointer; font-size:14px; border-radius:9px; transition:.15s; flex-shrink:0;}
   .streak-history-btn:hover{border-color:var(--algo); background:var(--algo-dim); transform:translateY(-1px);}
-  .streak-progress-track{width:100%; height:5px; border-radius:99px; background:var(--border); overflow:hidden;}
+  .streak-progress-track{width:78px; height:5px; border-radius:99px; background:var(--border); overflow:hidden;}
   .streak-progress-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--toeic), var(--algo)); transition:width .35s cubic-bezier(.2,.8,.3,1);}
   .streak-progress-fill.reached{background:linear-gradient(90deg, var(--fe), #0BA898);}
-  .streak-progress-label{font-family:var(--mono); font-size:10px; color:var(--text-dim); white-space:nowrap;}
-  .streak-progress-label.reached{color:var(--fe); font-weight:700;}
+  .streak-metric-label{font-family:var(--mono); font-size:9.5px; color:var(--text-dim); white-space:nowrap;}
+  .streak-metric-label.reached{color:var(--fe); font-weight:700;}
 
   .history-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
   @keyframes histFadeIn{from{opacity:0;} to{opacity:1;}}
@@ -317,8 +313,10 @@
   .history-date{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:6px;}
   .history-badge{font-size:10px; font-weight:700; padding:1px 7px; border-radius:99px; background:var(--fe); color:#fff;}
   .history-score{font-family:var(--mono); font-size:11px; color:var(--text-muted); font-weight:700;}
-  .history-mini-track{height:4px; border-radius:99px; background:var(--border); overflow:hidden; margin-bottom:7px;}
-  .history-mini-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--toeic), var(--fe));}
+  .history-dual-track{display:flex; flex-direction:column; gap:3px; margin-bottom:7px;}
+  .history-mini-track{height:4px; border-radius:99px; background:var(--border); overflow:hidden;}
+  .history-mini-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--algo), var(--fe));}
+  .history-mini-fill.time{background:linear-gradient(90deg, var(--toeic), var(--korean));}
   .history-tracks{display:flex; flex-wrap:wrap; gap:5px;}
   .history-track-pill{font-size:10px; padding:2px 8px; border-radius:99px; background:var(--bg-panel); color:var(--text-muted); border:1px solid var(--border);}
 </style>
@@ -356,7 +354,7 @@
         <div class="history-stat"><div class="history-stat-num" id="historyStatStreak">0</div><div class="history-stat-label">ngày liên tiếp</div></div>
         <div class="history-stat"><div class="history-stat-num" id="historyStatDays">0</div><div class="history-stat-label">tổng ngày đã học</div></div>
       </div>
-      <div class="history-sub">Mỗi ngày cần trả lời đúng tối thiểu <b id="historyThreshold"></b> câu quiz mới được tính là "đã học".</div>
+      <div class="history-sub">Mỗi ngày cần đạt <b id="historyThresholdCorrect"></b> câu đúng <b>VÀ</b> <b id="historyThresholdTime"></b> phút tương tác thật (di chuột/gõ phím/cuộn trang) mới được tính là "đã học".</div>
     </div>
     <div class="history-body" id="historyBody"></div>
   </div>
@@ -368,7 +366,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v44</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v45</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -3906,9 +3904,11 @@ let currentNoteTab = 0;
 let notes = {};
 let progress = {};
 const savedCode = {};
-let streakData = { startDate: null, activity: {}, dailyCorrect: {}, history: {} };
+let streakData = { startDate: null, activity: {}, dailyCorrect: {}, dailySeconds: {}, history: {} };
 const STREAK_START_DATE = '2026-09-01';
-const STREAK_MIN_CORRECT = 5;
+const STREAK_MIN_CORRECT = 10;
+const STREAK_MIN_SECONDS = 15 * 60; // 15 minutes of genuinely active time
+const IDLE_CUTOFF_MS = 90 * 1000; // stop counting time after 90s with no interaction
 
 function todayStr(){
   const d = new Date();
@@ -3920,12 +3920,21 @@ function isWeekend(dateStr){
 }
 function saveStreak(){ localStorage.setItem(pKey('roadmap-streak'), JSON.stringify(streakData)); }
 function markTodayActive(){
-  // Used only for verified-by-code events (algorithm test suite fully passing).
+  // Used only for verified-by-code events (algorithm test suite fully passing) — bypasses the dual threshold since it's already proof of real work.
   const t = todayStr();
   if (!streakData.activity[t]) {
     streakData.activity[t] = true;
     saveStreak();
     renderStreakWidget();
+  }
+}
+function checkAndMarkDayComplete(){
+  const t = todayStr();
+  const correct = streakData.dailyCorrect[t] || 0;
+  const seconds = streakData.dailySeconds[t] || 0;
+  if (correct >= STREAK_MIN_CORRECT && seconds >= STREAK_MIN_SECONDS && !streakData.activity[t]) {
+    streakData.activity[t] = true;
+    saveStreak();
   }
 }
 function recordQuizAnswer(isCorrect, trackKey){
@@ -3938,13 +3947,29 @@ function recordQuizAnswer(isCorrect, trackKey){
   if (isCorrect) {
     streakData.dailyCorrect[t]++;
     streakData.history[t].correct++;
-    if (streakData.dailyCorrect[t] >= STREAK_MIN_CORRECT && !streakData.activity[t]) {
-      streakData.activity[t] = true;
-    }
   }
+  checkAndMarkDayComplete();
   saveStreak();
   renderStreakWidget();
 }
+
+/* ---- Active-time tracking (idle-aware): only counts seconds while tab is visible AND the user interacted recently ---- */
+let lastInteractionAt = Date.now();
+function markInteraction(){ lastInteractionAt = Date.now(); }
+['mousemove','keydown','click','scroll','touchstart'].forEach(evt => {
+  document.addEventListener(evt, markInteraction, {passive:true});
+});
+setInterval(() => {
+  if (typeof activeProfileId === 'undefined' || !activeProfileId) return;
+  if (document.visibilityState !== 'visible') return;
+  if (Date.now() - lastInteractionAt > IDLE_CUTOFF_MS) return;
+  const t = todayStr();
+  streakData.dailySeconds[t] = (streakData.dailySeconds[t] || 0) + 10;
+  checkAndMarkDayComplete();
+  saveStreak();
+  renderStreakWidget();
+}, 10000);
+
 function computeStreakInfo(){
   if (!streakData.startDate) return null;
   const startRaw = new Date(streakData.startDate+'T00:00:00');
@@ -3984,9 +4009,10 @@ function loadProfileData(){
   try { progress = JSON.parse(localStorage.getItem(pKey('roadmap-progress')) || '{}'); } catch(e){ progress = {}; }
   Object.keys(savedCode).forEach(k => delete savedCode[k]);
   try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
-  streakData = { startDate: null, activity: {}, dailyCorrect: {}, history: {} };
+  streakData = { startDate: null, activity: {}, dailyCorrect: {}, dailySeconds: {}, history: {} };
   try { streakData = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || '{"startDate":null,"activity":{}}'); } catch(e){}
   if (!streakData.dailyCorrect) streakData.dailyCorrect = {};
+  if (!streakData.dailySeconds) streakData.dailySeconds = {};
   if (!streakData.history) streakData.history = {};
   if (!streakData.startDate) { streakData.startDate = STREAK_START_DATE; saveStreak(); }
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
@@ -4694,14 +4720,20 @@ function renderAll(){
 }
 
 /* ============ STREAK / DAILY CALENDAR WIDGET ============ */
+function formatMinutes(seconds){
+  const m = Math.floor(seconds / 60);
+  return `${m} phút`;
+}
 function renderStreakWidget(){
   const wrap = document.getElementById('streakWidgetWrap');
   if (!wrap) return;
   const info = computeStreakInfo();
   if (!info) return;
-  const cal = info.days.map(d => `<span class="streak-day ${d.status}" title="${d.date}: ${d.status==='done'?'đã học':d.status==='missed'?'đã miss — chuỗi bị đứt':d.status==='today'?'hôm nay':'cuối tuần'}"></span>`).join('');
-  const todayCorrect = streakData.dailyCorrect[todayStr()] || 0;
-  const pct = Math.min(100, Math.round((todayCorrect / STREAK_MIN_CORRECT) * 100));
+  const t = todayStr();
+  const todayCorrect = streakData.dailyCorrect[t] || 0;
+  const todaySeconds = streakData.dailySeconds[t] || 0;
+  const pctCorrect = Math.min(100, Math.round((todayCorrect / STREAK_MIN_CORRECT) * 100));
+  const pctTime = Math.min(100, Math.round((todaySeconds / STREAK_MIN_SECONDS) * 100));
 
   let badgeClass = 'ok', badgeText, flameLit = 'lit';
   if (info.streak > 0) {
@@ -4716,21 +4748,22 @@ function renderStreakWidget(){
     badgeText = `Học hôm nay để bắt đầu chuỗi`;
   }
 
-  const progressLabel = info.studiedToday
-    ? `✓ ${todayCorrect}/${STREAK_MIN_CORRECT} câu đúng hôm nay`
-    : `${todayCorrect}/${STREAK_MIN_CORRECT} câu đúng hôm nay`;
-
   wrap.innerHTML = `
     <div class="streak-widget">
       <span class="streak-flame ${flameLit}">${info.brokenRecently ? '💔' : '🔥'}</span>
       <div class="streak-mid">
         <span class="streak-count ${badgeClass}">${badgeText}</span>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div class="streak-progress-track" style="width:64px;"><div class="streak-progress-fill ${info.studiedToday ? 'reached' : ''}" style="width:${pct}%"></div></div>
-          <span class="streak-progress-label ${info.studiedToday ? 'reached' : ''}">${progressLabel}</span>
+        <div class="streak-metrics">
+          <div class="streak-metric">
+            <div class="streak-progress-track"><div class="streak-progress-fill ${todayCorrect >= STREAK_MIN_CORRECT ? 'reached' : ''}" style="width:${pctCorrect}%"></div></div>
+            <span class="streak-metric-label ${todayCorrect >= STREAK_MIN_CORRECT ? 'reached' : ''}">✓ ${todayCorrect}/${STREAK_MIN_CORRECT} câu đúng</span>
+          </div>
+          <div class="streak-metric">
+            <div class="streak-progress-track"><div class="streak-progress-fill ${todaySeconds >= STREAK_MIN_SECONDS ? 'reached' : ''}" style="width:${pctTime}%"></div></div>
+            <span class="streak-metric-label ${todaySeconds >= STREAK_MIN_SECONDS ? 'reached' : ''}">⏱ ${formatMinutes(todaySeconds)}/${STREAK_MIN_SECONDS/60}p</span>
+          </div>
         </div>
       </div>
-      <div class="streak-cal">${cal}</div>
       <button class="streak-history-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜</button>
     </div>
   `;
@@ -4744,24 +4777,28 @@ function showHistoryModal(){
   const dates = Object.keys(streakData.history).sort((a,b) => b.localeCompare(a));
   const totalDaysStudied = Object.values(streakData.activity).filter(Boolean).length;
   const info = computeStreakInfo();
-  const bestStreak = Math.max(info ? info.streak : 0, totalDaysStudied); // current streak is a safe lower-bound display; best-effort simple stat
   document.getElementById('historyStatDays').textContent = totalDaysStudied;
   document.getElementById('historyStatStreak').textContent = info ? info.streak : 0;
 
   if (dates.length === 0) {
-    body.innerHTML = `<div class="history-empty">Chưa có lịch sử — trả lời đúng ${STREAK_MIN_CORRECT} câu quiz/ngày để bắt đầu ghi nhận.</div>`;
+    body.innerHTML = `<div class="history-empty">Chưa có lịch sử — cần đủ cả ${STREAK_MIN_CORRECT} câu đúng VÀ ${STREAK_MIN_SECONDS/60} phút tương tác thật trong ngày để bắt đầu ghi nhận.</div>`;
   } else {
     body.innerHTML = dates.map(d => {
       const h = streakData.history[d];
       const checked = streakData.activity[d];
-      const pct = Math.min(100, Math.round((h.correct / STREAK_MIN_CORRECT) * 100));
+      const secs = streakData.dailySeconds[d] || 0;
+      const pctC = Math.min(100, Math.round((h.correct / STREAK_MIN_CORRECT) * 100));
+      const pctT = Math.min(100, Math.round((secs / STREAK_MIN_SECONDS) * 100));
       const trackPills = Object.entries(h.tracks).map(([label,count]) => `<span class="history-track-pill">${label} · ${count}</span>`).join('');
       return `<div class="history-row ${checked ? 'checked' : 'notchecked'}">
         <div class="history-row-top">
           <span class="history-date">${d}${checked ? '<span class="history-badge">✓ đã học</span>' : ''}</span>
-          <span class="history-score">${h.correct}/${h.total} đúng</span>
+          <span class="history-score">${h.correct}/${h.total} đúng · ${formatMinutes(secs)}</span>
         </div>
-        <div class="history-mini-track"><div class="history-mini-fill" style="width:${pct}%"></div></div>
+        <div class="history-dual-track">
+          <div class="history-mini-track"><div class="history-mini-fill" style="width:${pctC}%"></div></div>
+          <div class="history-mini-track"><div class="history-mini-fill time" style="width:${pctT}%"></div></div>
+        </div>
         <div class="history-tracks">${trackPills}</div>
       </div>`;
     }).join('');
@@ -5009,7 +5046,8 @@ function selectProfile(id){
 }
 document.getElementById('switchProfileBtn').addEventListener('click', showProfileScreen);
 document.getElementById('historyCloseBtn').addEventListener('click', hideHistoryModal);
-document.getElementById('historyThreshold').textContent = STREAK_MIN_CORRECT;
+document.getElementById('historyThresholdCorrect').textContent = STREAK_MIN_CORRECT;
+document.getElementById('historyThresholdTime').textContent = STREAK_MIN_SECONDS/60;
 
 /* ============ CAMERA FACE LOGIN ============ */
 const FACEAPI_MODEL_URL = 'https://cdn.jsdelivr.net/gh/vladmandic/face-api/model/';
