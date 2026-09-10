@@ -39,6 +39,8 @@
     --database-dim:rgba(126,34,206,0.09);
     --angular:#DC2626;
     --angular-dim:rgba(220,38,38,0.09);
+    --convo:#059669;
+    --convo-dim:rgba(5,150,105,0.09);
     --coral:#DC2626;
     --coral-dim:rgba(220,38,38,0.09);
     --amber2:#B45309;
@@ -78,6 +80,7 @@
   .menu-btn.active .sub{color:var(--track-color, var(--algo));}
 
   .app{flex:1; display:grid; grid-template-columns:250px 1fr; min-height:0;}
+  .app.convo-mode{grid-template-columns:1fr !important;}
   @media (max-width:860px){ .app{grid-template-columns:1fr;} .sidebar{border-right:none; border-bottom:1px solid var(--border); max-height:220px;} }
   @media (min-width:1300px){ .app{grid-template-columns:250px 1fr 320px;} #notesPanel.notes-panel{display:flex;} }
 
@@ -342,6 +345,44 @@
   .history-tracks{display:flex; flex-wrap:wrap; gap:5px;}
   .history-track-pill{font-size:10px; padding:2px 8px; border-radius:99px; background:var(--bg-panel); color:var(--text-muted); border:1px solid var(--border);}
 
+  .convo-wrap{display:grid; grid-template-columns:260px 1fr; height:100%; min-height:0;}
+  .convo-sidebar{overflow-y:auto; border-right:1px solid var(--border); background:var(--bg-panel); padding:12px 0;}
+  .convo-stage-block{margin-bottom:6px;}
+  .convo-stage-head{display:flex; align-items:center; justify-content:space-between; padding:9px 16px; font-family:var(--mono); font-size:11px; font-weight:800; color:var(--stage-color); text-transform:uppercase; letter-spacing:.03em;}
+  .convo-topic-list{display:flex; flex-direction:column;}
+  .convo-topic-item{display:flex; align-items:center; gap:9px; padding:8px 16px; border:none; background:none; cursor:pointer; text-align:left; font-family:var(--sans); font-size:12.5px; color:var(--text-muted); transition:.12s;}
+  .convo-topic-item:hover{background:var(--bg-elevated);}
+  .convo-topic-item.active{background:var(--algo-dim); color:var(--algo); font-weight:700;}
+  .convo-topic-item.done .convo-topic-name{color:var(--fe);}
+  .convo-topic-num{font-family:var(--mono); font-size:10px; color:var(--text-dim); width:16px; flex-shrink:0;}
+  .convo-topic-name{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .convo-topic-check{color:var(--fe); font-weight:800; flex-shrink:0;}
+  .convo-main{padding:22px 26px; overflow-y:auto; display:flex; flex-direction:column;}
+  .convo-topic-header{margin-bottom:18px;}
+  .convo-stage-badge{display:inline-block; font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--stage-color); background:color-mix(in srgb, var(--stage-color) 12%, transparent); padding:3px 10px; border-radius:99px; margin-bottom:8px;}
+  .convo-topic-header h3{font-size:19px; font-weight:800; margin-bottom:6px;}
+  .convo-topic-header p{font-size:13.5px; color:var(--text-muted); line-height:1.6; max-width:640px;}
+  .convo-setup{max-width:460px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:22px;}
+  .convo-setup h4{font-size:14.5px; font-weight:700; margin-bottom:8px;}
+  .convo-setup-note{font-size:12px; color:var(--text-muted); line-height:1.6; margin-bottom:14px;}
+  .convo-setup input{width:100%; font-family:var(--mono); font-size:13px; padding:11px 14px; border:1.5px solid var(--border); border-radius:9px; background:var(--bg-panel); margin-bottom:12px;}
+  .convo-session{flex:1; display:flex; flex-direction:column; min-height:0;}
+  .convo-top-row{flex:1; display:flex; gap:16px; min-height:0; margin-bottom:14px;}
+  .convo-cam{width:220px; height:165px; border-radius:14px; object-fit:cover; background:#111; flex-shrink:0; box-shadow:0 4px 14px rgba(0,0,0,.15);}
+  .convo-chat{flex:1; background:var(--bg-elevated); border-radius:14px; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; min-height:220px;}
+  .convo-chat-empty{font-size:12.5px; color:var(--text-dim); text-align:center; margin:auto;}
+  .convo-msg{max-width:80%; padding:9px 13px; border-radius:12px; font-size:13px; line-height:1.5;}
+  .convo-msg.user{align-self:flex-end; background:var(--algo); color:#fff;}
+  .convo-msg.assistant{align-self:flex-start; background:var(--bg-panel); border:1px solid var(--border);}
+  .convo-msg-label{display:block; font-family:var(--mono); font-size:9.5px; opacity:.7; margin-bottom:3px; text-transform:uppercase;}
+  .convo-controls{display:flex; gap:10px; align-items:center;}
+  .convo-mic-btn{flex:1; font-family:var(--mono); font-size:13.5px; font-weight:700; padding:13px; border-radius:12px; border:none; background:var(--convo); color:#fff; cursor:pointer; transition:.15s;}
+  .convo-mic-btn.recording{background:var(--coral); animation:convoPulse 1.2s ease-in-out infinite;}
+  @keyframes convoPulse{0%,100%{opacity:1;} 50%{opacity:.7;}}
+  .convo-done-btn{font-family:var(--mono); font-size:12px; font-weight:700; padding:12px 16px; border-radius:12px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer;}
+  .convo-done-btn:hover{border-color:var(--fe); color:var(--fe);}
+  .convo-key-btn{font-size:14px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-panel); cursor:pointer;}
+
   .cal-modal{position:fixed; inset:0; background:rgba(15,15,20,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:250; animation:histFadeIn .18s ease;}
   .cal-box{background:var(--bg-panel); border-radius:18px; width:400px; max-width:92vw; padding:20px 22px 18px; box-shadow:0 24px 60px rgba(0,0,0,.28); animation:histSlideUp .22s cubic-bezier(.2,.8,.3,1);}
   .cal-head{position:relative; margin-bottom:14px;}
@@ -447,7 +488,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v69</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v70</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4378,6 +4419,117 @@ const angularWeeks = [
 {title:"Dự án tổng hợp Angular & tổng kết toàn khóa", points:["Sau 6 tháng, bạn đã có lộ trình Angular TOÀN DIỆN: từ nền tảng Component/Binding/DI (tháng 1) đến Form/Router/RxJS (tháng 2-3) đến State Management/Signal/Performance/Testing (tháng 4-5) đến UI Library/SSR/Production-ready (tháng 6).","Với nền tảng Vue 3 và React đã có, bạn giờ THÀNH THẠO CẢ 3 FRAMEWORK FRONTEND PHỔ BIẾN NHẤT hiện nay — mỗi framework có TRIẾT LÝ RIÊNG (Vue: linh hoạt/dễ tiếp cận, React: linh hoạt/hệ sinh thái lớn, Angular: đầy đủ/có cấu trúc/doanh nghiệp) mà bạn có thể LỰA CHỌN phù hợp tùy dự án.","Angular đặc biệt PHỔ BIẾN trong các dự án DOANH NGHIỆP LỚN (enterprise), hệ thống ngân hàng/tài chính, và các công ty ưa chuộng TypeScript/cấu trúc chặt chẽ ngay từ đầu — hiểu biết Angular mở ra cơ hội ở PHÂN KHÚC THỊ TRƯỜNG khác biệt so với Vue/React thuần.","Portfolio nên thể hiện được sự HIỂU BIẾT SÂU về Angular (không chỉ 'biết dùng') — ví dụ hiểu RÕ khi nào chọn NgRx vs Signal, khi nào cần OnPush, cách tổ chức Feature Module cho dự án lớn.","Kết hợp 3 tháng đầu Backend (Java Core/Spring Boot/Database) và 3 framework Frontend đã học, bạn giờ có năng lực FULL-STACK THỰC SỰ — có thể tự tin đảm nhận cả vai trò Backend Developer LẪN Frontend Developer ở NHIỀU công nghệ khác nhau, 1 lợi thế cạnh tranh LỚN trên thị trường tuyển dụng."], practice:"Xây dựng 1 dự án tổng hợp Angular hoàn chỉnh: ứng dụng thương mại điện tử có Router/Guard, NgRx cho giỏ hàng, Reactive Forms cho checkout, Angular Material cho UI, và đã qua Testing cơ bản.", case:"Câu hỏi phỏng vấn 'Angular vs React vs Vue, bạn chọn cái nào cho dự án X?' là câu hỏi RẤT PHỔ BIẾN cho vị trí Senior Frontend — có kinh nghiệm THỰC SỰ với cả 3 framework (không chỉ đọc lý thuyết) giúp bạn trả lời câu hỏi này 1 cách THUYẾT PHỤC và CÓ CHIỀU SÂU.", task:"Viết 1 bài so sánh TOÀN DIỆN (README hoặc blog cá nhân) giữa Vue 3, React, và Angular dựa trên TRẢI NGHIỆM THỰC TẾ đã học ở cả 3 track — về Component Model, State Management, Reactivity, và trường hợp sử dụng phù hợp nhất cho mỗi framework."},
 ];
 
+const convoStages = [
+  {
+    name: "Beginner",
+    label: "Cơ bản",
+    color: "--fe",
+    topics: [
+      {title: "Giới thiệu bản thân", prompt: "Hãy tự giới thiệu về bản thân: tên, tuổi, nghề nghiệp, nơi sống. Giáo viên sẽ hỏi thêm chi tiết và sửa lỗi phát âm/ngữ pháp nếu có."},
+      {title: "Gia đình của bạn", prompt: "Kể về gia đình bạn: có bao nhiêu người, họ làm nghề gì, bạn thân với ai nhất trong nhà."},
+      {title: "Một ngày bình thường của bạn", prompt: "Mô tả lịch trình 1 ngày điển hình của bạn từ sáng đến tối, dùng thì hiện tại đơn."},
+      {title: "Sở thích cá nhân", prompt: "Nói về 2-3 sở thích của bạn, tại sao bạn thích, và bạn thường làm khi nào."},
+      {title: "Món ăn yêu thích", prompt: "Mô tả món ăn bạn thích nhất, nó có vị như thế nào, và bạn thường ăn ở đâu."},
+      {title: "Thời tiết hôm nay", prompt: "Nói về thời tiết hôm nay và bạn thích loại thời tiết nào nhất, vì sao."},
+      {title: "Công việc/việc học hiện tại", prompt: "Kể về công việc hoặc việc học hiện tại của bạn, bạn làm gì mỗi ngày."},
+      {title: "Nhà của bạn", prompt: "Mô tả ngôi nhà/căn hộ bạn đang sống: có mấy phòng, phòng nào bạn thích nhất."},
+      {title: "Bạn bè thân thiết", prompt: "Kể về 1 người bạn thân của bạn, các bạn quen nhau như thế nào, thường làm gì cùng nhau."},
+      {title: "Cuối tuần vừa rồi", prompt: "Kể lại cuối tuần vừa qua của bạn đã làm gì, dùng thì quá khứ đơn."},
+      {title: "Kế hoạch cuối tuần này", prompt: "Nói về dự định của bạn cho cuối tuần này, dùng thì tương lai (going to/will)."},
+      {title: "Mua sắm", prompt: "Kể về lần mua sắm gần đây nhất của bạn: mua gì, ở đâu, giá bao nhiêu."},
+      {title: "Phương tiện đi lại", prompt: "Nói về cách bạn di chuyển hàng ngày (xe máy, ô tô, xe buýt...) và tại sao bạn chọn phương tiện đó."},
+      {title: "Mô tả 1 người bạn quen", prompt: "Mô tả ngoại hình và tính cách của 1 người bạn quen biết."},
+      {title: "Môn thể thao yêu thích", prompt: "Nói về môn thể thao bạn thích xem hoặc chơi, luật chơi cơ bản như thế nào."},
+      {title: "Kỳ nghỉ đáng nhớ", prompt: "Kể về 1 kỳ nghỉ hoặc chuyến đi đáng nhớ bạn đã từng có."},
+      {title: "Ước mơ nghề nghiệp", prompt: "Nói về công việc mơ ước của bạn trong tương lai và tại sao."},
+      {title: "Mô tả thành phố bạn sống", prompt: "Mô tả thành phố/quê hương của bạn cho người nước ngoài chưa từng đến."},
+      {title: "Phim/chương trình yêu thích", prompt: "Nói về bộ phim hoặc chương trình TV bạn thích nhất, nội dung về gì."},
+      {title: "Tổng ôn Beginner", prompt: "Giáo viên sẽ hỏi ngẫu nhiên lại các chủ đề đã học 19 ngày qua để kiểm tra khả năng phản xạ."},
+    ]
+  },
+  {
+    name: "Intermediate",
+    label: "Trung cấp",
+    color: "--toeic",
+    topics: [
+      {title: "Kinh nghiệm du lịch", prompt: "Kể chi tiết về 1 chuyến du lịch đáng nhớ: khó khăn gặp phải, điều học được, có gì đặc biệt."},
+      {title: "Quan điểm về mạng xã hội", prompt: "Nêu ý kiến của bạn về ảnh hưởng của mạng xã hội đến cuộc sống - tích cực và tiêu cực."},
+      {title: "So sánh 2 thành phố/quốc gia", prompt: "So sánh quê hương bạn với 1 thành phố/quốc gia khác bạn biết - điểm giống và khác."},
+      {title: "Công nghệ thay đổi cuộc sống", prompt: "Thảo luận về 1 công nghệ đã thay đổi cách bạn sống/làm việc trong 5 năm qua."},
+      {title: "Thói quen sức khỏe", prompt: "Nói về thói quen giữ gìn sức khỏe của bạn và những gì bạn muốn cải thiện."},
+      {title: "Vấn đề môi trường", prompt: "Thảo luận về 1 vấn đề môi trường bạn quan tâm và giải pháp có thể áp dụng."},
+      {title: "Sự khác biệt văn hóa", prompt: "Kể về 1 trải nghiệm hoặc quan sát về sự khác biệt văn hóa giữa Việt Nam và nước khác."},
+      {title: "Kể lại 1 câu chuyện hài hước", prompt: "Kể 1 câu chuyện hài hước hoặc thú vị đã xảy ra với bạn, luyện kỹ năng storytelling."},
+      {title: "Đưa ra lời khuyên", prompt: "Giáo viên sẽ mô tả 1 tình huống khó xử, hãy đưa ra lời khuyên hợp lý bằng tiếng Anh."},
+      {title: "Ưu nhược điểm làm việc từ xa", prompt: "Thảo luận ưu và nhược điểm của làm việc từ xa (remote work) so với đến văn phòng."},
+      {title: "Giáo dục lý tưởng", prompt: "Nêu quan điểm về 1 hệ thống giáo dục lý tưởng nên như thế nào."},
+      {title: "Kỷ niệm thời thơ ấu", prompt: "Kể về 1 kỷ niệm đáng nhớ thời thơ ấu, dùng thì quá khứ và used to."},
+      {title: "Ảnh hưởng của AI đến công việc", prompt: "Thảo luận về cách AI có thể ảnh hưởng đến ngành nghề của bạn trong tương lai."},
+      {title: "Giả định - Nếu trúng số", prompt: "Nếu bạn trúng số 1 triệu đô, bạn sẽ làm gì? (luyện câu điều kiện loại 2)."},
+      {title: "Áp lực công việc/học tập", prompt: "Nói về cách bạn đối phó với áp lực trong công việc hoặc học tập."},
+      {title: "Xu hướng ẩm thực", prompt: "Thảo luận về 1 xu hướng ẩm thực gần đây bạn để ý (đồ ăn healthy, trà sữa, K-food...)."},
+      {title: "Tranh luận nhẹ - Sách vs Phim", prompt: "Đưa ra quan điểm: đọc sách hay xem phim chuyển thể tốt hơn, và tại sao."},
+      {title: "Kỹ năng mềm quan trọng nhất", prompt: "Nói về 1 kỹ năng mềm bạn nghĩ quan trọng nhất trong công việc hiện đại."},
+      {title: "Trải nghiệm học ngoại ngữ", prompt: "Chia sẻ khó khăn và cách bạn vượt qua khi học tiếng Anh."},
+      {title: "Tổng ôn Intermediate", prompt: "Giáo viên hỏi lại ngẫu nhiên các chủ đề Intermediate, yêu cầu trả lời có lập luận chi tiết hơn Beginner."},
+    ]
+  },
+  {
+    name: "Advanced",
+    label: "Nâng cao",
+    color: "--react",
+    topics: [
+      {title: "Tranh luận: Công nghệ và hạnh phúc", prompt: "Tranh luận quan điểm: công nghệ có thực sự khiến con người hạnh phúc hơn không."},
+      {title: "Phân tích tin tức", prompt: "Giáo viên đưa ra 1 chủ đề thời sự, bạn phân tích và nêu quan điểm cá nhân."},
+      {title: "Đạo đức trong kinh doanh", prompt: "Thảo luận 1 tình huống đạo đức kinh doanh (ví dụ: quảng cáo sai sự thật) và cách xử lý."},
+      {title: "Thuyết phục người khác", prompt: "Thuyết phục giáo viên (đóng vai nhà đầu tư) về 1 ý tưởng kinh doanh của bạn."},
+      {title: "Phản biện quan điểm trái chiều", prompt: "Giáo viên đưa ra 1 quan điểm gây tranh cãi, bạn phản biện có căn cứ."},
+      {title: "Phỏng vấn xin việc mô phỏng", prompt: "Giáo viên đóng vai nhà tuyển dụng, phỏng vấn bạn cho vị trí công việc mơ ước."},
+      {title: "Thảo luận chính sách xã hội", prompt: "Nêu quan điểm về 1 chính sách xã hội (giáo dục, y tế, thuế...) và đề xuất cải thiện."},
+      {title: "Giải quyết mâu thuẫn", prompt: "Mô phỏng tình huống giải quyết mâu thuẫn với đồng nghiệp/khách hàng bằng tiếng Anh."},
+      {title: "Xu hướng tương lai công việc", prompt: "Dự đoán và thảo luận cách ngành nghề của bạn sẽ thay đổi trong 10 năm tới."},
+      {title: "Đàm phán lương", prompt: "Mô phỏng tình huống đàm phán lương với nhà tuyển dụng."},
+      {title: "Phân tích ưu nhược điểm quyết định lớn", prompt: "Phân tích 1 quyết định lớn trong đời (đổi nghề, chuyển nước ngoài...) theo hướng lập luận đa chiều."},
+      {title: "Thuyết trình ý tưởng dự án", prompt: "Thuyết trình ngắn (2-3 phút) về 1 dự án/ý tưởng bạn đang ấp ủ."},
+      {title: "Tranh luận: Làm việc để sống hay sống để làm việc", prompt: "Tranh luận quan điểm về work-life balance trong xã hội hiện đại."},
+      {title: "Phản hồi tiêu cực chuyên nghiệp", prompt: "Luyện cách đưa ra phản hồi/phê bình mang tính xây dựng cho đồng nghiệp bằng tiếng Anh."},
+      {title: "Thảo luận triết học nhẹ", prompt: "Thảo luận 1 câu hỏi triết học đơn giản (thành công là gì, hạnh phúc là gì...)."},
+      {title: "Kể chuyện có cấu trúc STAR", prompt: "Kể về 1 thử thách bạn vượt qua theo cấu trúc Situation-Task-Action-Result (dùng trong phỏng vấn)."},
+      {title: "Phân tích rủi ro kinh doanh", prompt: "Phân tích rủi ro và cơ hội của 1 quyết định kinh doanh giả định."},
+      {title: "Debate: AI thay thế con người", prompt: "Tranh luận 2 chiều về việc AI có nên được tin tưởng thay thế quyết định con người."},
+      {title: "Thương lượng hợp đồng", prompt: "Mô phỏng thương lượng điều khoản hợp đồng với đối tác kinh doanh."},
+      {title: "Tổng ôn Advanced", prompt: "Giáo viên hỏi lại các chủ đề Advanced, yêu cầu lập luận chặt chẽ và phản biện linh hoạt."},
+    ]
+  },
+  {
+    name: "Expert",
+    label: "Expert",
+    color: "--korean",
+    topics: [
+      {title: "Thuyết trình chuyên môn kỹ thuật", prompt: "Thuyết trình 1 chủ đề kỹ thuật (Vue/Java/AWS đã học) cho đồng nghiệp không rành kỹ thuật hiểu."},
+      {title: "Đàm phán đa bên phức tạp", prompt: "Mô phỏng đàm phán 1 dự án có nhiều bên liên quan với lợi ích xung đột."},
+      {title: "Phân tích case study kinh doanh", prompt: "Giáo viên đưa ra 1 case study kinh doanh thực tế, bạn phân tích và đề xuất chiến lược."},
+      {title: "Tranh luận học thuật", prompt: "Tranh luận 1 chủ đề học thuật/nghiên cứu theo phong cách trang trọng."},
+      {title: "Xử lý khủng hoảng truyền thông", prompt: "Mô phỏng tình huống công ty gặp khủng hoảng truyền thông, bạn là người phát ngôn xử lý."},
+      {title: "Thuyết phục hội đồng đầu tư", prompt: "Pitching 1 startup idea trước hội đồng đầu tư khó tính, trả lời câu hỏi phản biện."},
+      {title: "Phân tích xu hướng vĩ mô", prompt: "Thảo luận tác động của 1 xu hướng kinh tế/công nghệ vĩ mô đến ngành của bạn."},
+      {title: "Lãnh đạo đội nhóm khó khăn", prompt: "Mô phỏng tình huống lãnh đạo 1 đội nhóm đang gặp khủng hoảng nội bộ."},
+      {title: "Phỏng vấn cấp Senior/Leadership", prompt: "Phỏng vấn cho vị trí quản lý cấp cao, trả lời câu hỏi về tầm nhìn và chiến lược."},
+      {title: "Tranh biện chính sách công", prompt: "Tranh biện 2 chiều về 1 chính sách công gây tranh cãi ở tầm quốc gia/toàn cầu."},
+      {title: "Xây dựng luận điểm phản biện đa lớp", prompt: "Xây dựng và bảo vệ 1 luận điểm phức tạp trước nhiều lớp phản biện liên tiếp từ giáo viên."},
+      {title: "Đánh giá & phản hồi 360 độ", prompt: "Luyện đưa và nhận phản hồi 360 độ trong môi trường công sở quốc tế."},
+      {title: "Thảo luận đạo đức AI/công nghệ", prompt: "Thảo luận sâu về các vấn đề đạo đức trong phát triển AI (thiên vị, quyền riêng tư, việc làm)."},
+      {title: "Kể chuyện truyền cảm hứng (TED-style)", prompt: "Luyện kể 1 câu chuyện cá nhân theo phong cách truyền cảm hứng như TED Talk."},
+      {title: "Phân tích đối thủ cạnh tranh", prompt: "Phân tích chiến lược của 1 đối thủ cạnh tranh giả định và đề xuất phản ứng."},
+      {title: "Xử lý câu hỏi hóc búa bất ngờ", prompt: "Giáo viên đặt câu hỏi hóc búa bất ngờ về mọi chủ đề, luyện phản xạ trả lời tự tin."},
+      {title: "Thương thảo sáp nhập/hợp tác", prompt: "Mô phỏng đàm phán sáp nhập hoặc hợp tác chiến lược giữa 2 công ty."},
+      {title: "Bảo vệ luận điểm trước hội đồng", prompt: "Bảo vệ 1 đề xuất/luận điểm trước hội đồng phản biện gay gắt (mô phỏng bảo vệ luận văn/dự án)."},
+      {title: "Ứng biến trong tình huống ngoại giao", prompt: "Xử lý 1 tình huống ngoại giao/văn hóa nhạy cảm trong môi trường đa quốc gia."},
+      {title: "Đánh giá tổng kết Expert", prompt: "Buổi đánh giá tổng hợp: giáo viên hỏi xoay quanh nhiều chủ đề Expert liên tiếp, đánh giá mức độ trôi chảy, lập luận, và từ vựng học thuật."},
+    ]
+  },
+];
+
 const tracks = {
   fe:{label:'Frontend (Vue)', color:'--fe', dim:'--fe-dim', weeks:feWeeks, isAlgo:false, category:'frontend'},
   jsmodern:{label:'JS Hiện Đại', color:'--jsmodern', dim:'--jsmodern-dim', weeks:jsModernWeeks, isAlgo:false, category:'frontend'},
@@ -4391,6 +4543,7 @@ const tracks = {
   devops:{label:'DevOps/Infra', color:'--devops', dim:'--devops-dim', weeks:devopsWeeks, isAlgo:false, category:'backend'},
   toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false, category:'tieng'},
   korean:{label:'Tiếng Hàn', color:'--korean', dim:'--korean-dim', weeks:koreanWeeks, isAlgo:false, category:'tieng'},
+  convo:{label:'🎙️ Giao tiếp hàng ngày', color:'--convo', dim:'--convo-dim', weeks:[], isAlgo:false, category:'tieng', isConvo:true},
 };
 const categoryLabels = { frontend: {label:'Frontend', icon:'🎨'}, backend: {label:'Backend & Hệ thống', icon:'⚙️'}, tieng: {label:'Ngoại ngữ', icon:'🌐'} };
 
@@ -4408,6 +4561,7 @@ let currentDay = 0;
 let currentNoteTab = 0;
 let notes = {};
 let progress = {};
+let convoData = { completedTopics: {}, practiceLog: {}, apiKey: '', selectedStage: 0, selectedTopic: 0 };
 const savedCode = {};
 let streakData = { startDate: null, activity: {}, dailyCorrect: {}, dailySeconds: {}, history: {} };
 const STREAK_START_DATE = '2026-09-01';
@@ -4525,6 +4679,12 @@ function loadProfileData(){
   if (!streakData.bestStreak) streakData.bestStreak = 0;
   if (!streakData.history) streakData.history = {};
   if (!streakData.startDate) { streakData.startDate = STREAK_START_DATE; saveStreak(); }
+  convoData = { completedTopics: {}, practiceLog: {}, apiKey: '', selectedStage: 0, selectedTopic: 0 };
+  try { convoData = JSON.parse(localStorage.getItem(pKey('roadmap-convo')) || '{}'); } catch(e){}
+  if (!convoData.completedTopics) convoData.completedTopics = {};
+  if (!convoData.practiceLog) convoData.practiceLog = {};
+  if (convoData.selectedStage === undefined) convoData.selectedStage = 0;
+  if (convoData.selectedTopic === undefined) convoData.selectedTopic = 0;
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -4545,6 +4705,234 @@ function countDone(trackKey){
   return c;
 }
 
+/* ============ DAILY ENGLISH CONVERSATION FEATURE ============ */
+function saveConvoData(){ localStorage.setItem(pKey('roadmap-convo'), JSON.stringify(convoData)); }
+function convoTopicKey(stageIdx, topicIdx){ return `${stageIdx}-${topicIdx}`; }
+function countConvoCompleted(){ return Object.values(convoData.completedTopics).filter(Boolean).length; }
+
+let convoStream = null;
+let convoRecognition = null;
+let convoIsRecording = false;
+let convoMessages = []; // {role:'user'|'assistant', text:''}
+let convoSelStage = 0;
+let convoSelTopic = 0;
+
+function renderConvoScreen(){
+  convoSelStage = convoData.selectedStage;
+  convoSelTopic = convoData.selectedTopic;
+  const main = document.getElementById('main');
+  const topic = convoStages[convoSelStage].topics[convoSelTopic];
+  const hasKey = !!(convoData.apiKey && convoData.apiKey.length > 10);
+
+  const stagesHtml = convoStages.map((stage, si) => {
+    const topicsHtml = stage.topics.map((t, ti) => {
+      const done = convoData.completedTopics[convoTopicKey(si, ti)];
+      const active = si === convoSelStage && ti === convoSelTopic;
+      return `<button class="convo-topic-item ${active?'active':''} ${done?'done':''}" data-stage="${si}" data-topic="${ti}">
+        <span class="convo-topic-num">${ti+1}</span>
+        <span class="convo-topic-name">${t.title}</span>
+        ${done ? '<span class="convo-topic-check">✓</span>' : ''}
+      </button>`;
+    }).join('');
+    const stageDone = stage.topics.filter((t,ti) => convoData.completedTopics[convoTopicKey(si,ti)]).length;
+    return `<div class="convo-stage-block">
+      <div class="convo-stage-head" style="--stage-color:var(${stage.color})">
+        <span class="convo-stage-name">${stage.label}</span>
+        <span class="convo-stage-count">${stageDone}/20</span>
+      </div>
+      <div class="convo-topic-list">${topicsHtml}</div>
+    </div>`;
+  }).join('');
+
+  main.innerHTML = `
+    <div class="convo-wrap">
+      <div class="convo-sidebar">${stagesHtml}</div>
+      <div class="convo-main">
+        <div class="convo-topic-header">
+          <span class="convo-stage-badge" style="--stage-color:var(${convoStages[convoSelStage].color})">${convoStages[convoSelStage].label} · Ngày ${convoSelTopic+1}</span>
+          <h3>${topic.title}</h3>
+          <p>${topic.prompt}</p>
+        </div>
+        ${!hasKey ? `
+        <div class="convo-setup">
+          <h4>🔑 Kết nối API để bắt đầu</h4>
+          <p class="convo-setup-note">Nhập Anthropic API Key của bạn (lấy tại console.anthropic.com). Key chỉ lưu trên trình duyệt này (localStorage), không gửi đi đâu khác ngoài gọi thẳng đến API của Anthropic.</p>
+          <input type="password" id="convoApiKeyInput" placeholder="sk-ant-...">
+          <button class="ps-primary-btn" id="convoSaveKeyBtn">Lưu & Bắt đầu</button>
+        </div>
+        ` : `
+        <div class="convo-session">
+          <div class="convo-top-row">
+            <video id="convoCamVideo" class="convo-cam" autoplay muted playsinline></video>
+            <div class="convo-chat" id="convoChat"></div>
+          </div>
+          <div class="convo-controls">
+            <button class="convo-mic-btn" id="convoMicBtn">🎤 Bấm để nói</button>
+            <button class="convo-done-btn" id="convoDoneBtn">${convoData.completedTopics[convoTopicKey(convoSelStage,convoSelTopic)] ? '✓ Đã hoàn thành' : 'Đánh dấu hoàn thành'}</button>
+            <button class="convo-key-btn" id="convoChangeKeyBtn" title="Đổi API Key">⚙️</button>
+          </div>
+        </div>
+        `}
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.convo-topic-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      convoData.selectedStage = parseInt(btn.dataset.stage, 10);
+      convoData.selectedTopic = parseInt(btn.dataset.topic, 10);
+      saveConvoData();
+      stopConvoCamera();
+      convoMessages = [];
+      renderConvoScreen();
+    });
+  });
+
+  if (!hasKey) {
+    document.getElementById('convoSaveKeyBtn').addEventListener('click', () => {
+      const val = document.getElementById('convoApiKeyInput').value.trim();
+      if (!val) return;
+      convoData.apiKey = val;
+      saveConvoData();
+      renderConvoScreen();
+    });
+  } else {
+    document.getElementById('convoChangeKeyBtn').addEventListener('click', () => {
+      if (!confirm('Xóa API Key hiện tại và nhập lại?')) return;
+      convoData.apiKey = '';
+      saveConvoData();
+      stopConvoCamera();
+      renderConvoScreen();
+    });
+    document.getElementById('convoMicBtn').addEventListener('click', toggleConvoRecording);
+    document.getElementById('convoDoneBtn').addEventListener('click', () => {
+      const key = convoTopicKey(convoSelStage, convoSelTopic);
+      convoData.completedTopics[key] = true;
+      convoData.practiceLog[todayStr()] = true;
+      saveConvoData();
+      renderConvoScreen();
+      renderMenu();
+    });
+    startConvoCamera();
+    renderConvoChat();
+  }
+}
+
+async function startConvoCamera(){
+  try {
+    convoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    const video = document.getElementById('convoCamVideo');
+    if (video) video.srcObject = convoStream;
+  } catch(e) {
+    console.log('Camera not available:', e.message);
+  }
+}
+function stopConvoCamera(){
+  if (convoStream) { convoStream.getTracks().forEach(t => t.stop()); convoStream = null; }
+}
+
+function renderConvoChat(){
+  const chatEl = document.getElementById('convoChat');
+  if (!chatEl) return;
+  if (convoMessages.length === 0) {
+    chatEl.innerHTML = `<div class="convo-chat-empty">Bấm 🎤 và bắt đầu nói tiếng Anh về chủ đề trên. Giáo viên AI sẽ trả lời và sửa lỗi nhẹ nhàng cho bạn.</div>`;
+    return;
+  }
+  chatEl.innerHTML = convoMessages.map(m =>
+    `<div class="convo-msg ${m.role}"><span class="convo-msg-label">${m.role === 'user' ? 'Bạn' : '🎓 Giáo viên'}</span><span class="convo-msg-text">${m.text}</span></div>`
+  ).join('');
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function toggleConvoRecording(){
+  if (convoIsRecording) { stopConvoRecording(); return; }
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognitionAPI) { alert('Trình duyệt này không hỗ trợ nhận diện giọng nói. Hãy dùng Chrome.'); return; }
+  convoRecognition = new SpeechRecognitionAPI();
+  convoRecognition.lang = 'en-US';
+  convoRecognition.interimResults = false;
+  convoRecognition.maxAlternatives = 1;
+  convoRecognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    handleConvoUserSpeech(transcript);
+  };
+  convoRecognition.onerror = (event) => {
+    console.log('Speech recognition error:', event.error);
+    convoIsRecording = false;
+    updateConvoMicButton();
+  };
+  convoRecognition.onend = () => {
+    convoIsRecording = false;
+    updateConvoMicButton();
+  };
+  convoRecognition.start();
+  convoIsRecording = true;
+  updateConvoMicButton();
+}
+function stopConvoRecording(){
+  if (convoRecognition) convoRecognition.stop();
+  convoIsRecording = false;
+  updateConvoMicButton();
+}
+function updateConvoMicButton(){
+  const btn = document.getElementById('convoMicBtn');
+  if (!btn) return;
+  btn.textContent = convoIsRecording ? '⏹ Đang nghe... (bấm để dừng)' : '🎤 Bấm để nói';
+  btn.classList.toggle('recording', convoIsRecording);
+}
+
+async function handleConvoUserSpeech(transcript){
+  convoMessages.push({role:'user', text: transcript});
+  renderConvoChat();
+  convoMessages.push({role:'assistant', text: '...'});
+  renderConvoChat();
+  try {
+    const reply = await callClaudeConvo(transcript);
+    convoMessages[convoMessages.length-1] = {role:'assistant', text: reply};
+    renderConvoChat();
+    speakText(reply, null, 'en-US');
+    markInteraction();
+    const t = todayStr();
+    convoData.practiceLog[t] = true;
+    saveConvoData();
+  } catch(e) {
+    convoMessages[convoMessages.length-1] = {role:'assistant', text: '⚠️ Lỗi khi gọi API: ' + e.message};
+    renderConvoChat();
+  }
+}
+
+async function callClaudeConvo(userText){
+  const topic = convoStages[convoSelStage].topics[convoSelTopic];
+  const systemPrompt = `You are a friendly, patient English conversation tutor helping a Vietnamese learner practice spoken English daily. Current practice topic: "${topic.title}" - ${topic.prompt}. Engage naturally, ask a short follow-up question to keep the conversation going. If the learner made a grammar or word-choice mistake, gently model the correct phrasing naturally within your reply (do not lecture or list corrections separately). Keep replies conversational, warm, and SHORT (2-4 sentences max). Occasionally give a very brief tip if you notice a repeated mistake.`;
+
+  const historyMessages = convoMessages.filter(m => m.text !== '...').map(m => ({
+    role: m.role === 'user' ? 'user' : 'assistant',
+    content: m.text
+  }));
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': convoData.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 250,
+      system: systemPrompt,
+      messages: historyMessages
+    })
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`API trả về lỗi ${response.status}: ${errText.slice(0,150)}`);
+  }
+  const data = await response.json();
+  return data.content[0].text;
+}
+
 /* ============ RENDER: TOP MENU ============ */
 let currentCategory = tracks[currentTrack] ? tracks[currentTrack].category : 'frontend';
 let lastTrackByCategory = { frontend: 'fe', backend: 'javacore', tieng: 'toeic' };
@@ -4557,8 +4945,9 @@ function renderMenu(){
   Object.keys(categoryLabels).forEach(catKey => {
     const cat = categoryLabels[catKey];
     const catTracks = Object.keys(tracks).filter(k => tracks[k].category === catKey);
-    const totalDone = catTracks.reduce((sum,k) => sum + countDone(k), 0);
-    const totalWeeks = catTracks.reduce((sum,k) => sum + tracks[k].weeks.length, 0);
+    const weekTracks = catTracks.filter(k => !tracks[k].isConvo);
+    const totalDone = weekTracks.reduce((sum,k) => sum + countDone(k), 0);
+    const totalWeeks = weekTracks.reduce((sum,k) => sum + tracks[k].weeks.length, 0);
     const btn = document.createElement('button');
     btn.className = 'category-btn' + (catKey === currentCategory ? ' active' : '');
     btn.innerHTML = `<span class="cat-icon">${cat.icon}</span><span class="cat-label">${cat.label}</span><span class="cat-sub">${catTracks.length} mục · ${totalDone}/${totalWeeks} tuần</span>`;
@@ -4581,7 +4970,8 @@ function renderMenu(){
     const btn = document.createElement('button');
     btn.className = 'menu-btn' + (key === currentTrack ? ' active' : '');
     btn.style.setProperty('--track-color', `var(${t.color})`);
-    btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${countDone(key)}/${t.weeks.length} tuần</span>`;
+    const subLabel = t.isConvo ? `${countConvoCompleted()}/80 chủ đề` : `${countDone(key)}/${t.weeks.length} tuần`;
+    btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${subLabel}</span>`;
     btn.addEventListener('click', () => {
       currentTrack = key;
       lastTrackByCategory[t.category] = key;
@@ -5223,9 +5613,20 @@ function runTests(problemId, problem, editorId, consoleId){
 /* ============ INIT ============ */
 function renderAll(){
   renderMenu();
-  renderSidebar();
-  renderMain();
-  renderNotesPanel();
+  const appEl = document.getElementById('siteApp');
+  if (tracks[currentTrack] && tracks[currentTrack].isConvo) {
+    document.getElementById('sidebar').classList.add('app-hidden');
+    document.getElementById('notesPanel').classList.add('app-hidden');
+    appEl.classList.add('convo-mode');
+    renderConvoScreen();
+  } else {
+    document.getElementById('sidebar').classList.remove('app-hidden');
+    document.getElementById('notesPanel').classList.remove('app-hidden');
+    appEl.classList.remove('convo-mode');
+    renderSidebar();
+    renderMain();
+    renderNotesPanel();
+  }
   renderStreakWidget();
 }
 
