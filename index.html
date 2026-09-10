@@ -375,6 +375,7 @@
   .convo-msg.user{align-self:flex-end; background:var(--algo); color:#fff;}
   .convo-msg.assistant{align-self:flex-start; background:var(--bg-panel); border:1px solid var(--border);}
   .convo-msg-label{display:block; font-family:var(--mono); font-size:9.5px; opacity:.7; margin-bottom:3px; text-transform:uppercase;}
+  .convo-correction{margin-top:8px; padding:9px 11px; border-radius:9px; background:var(--fe-dim); border:1px solid rgba(14,143,130,.25); font-size:12px; line-height:1.6; color:var(--text-primary);}
   .convo-controls{display:flex; gap:10px; align-items:center;}
   .convo-mic-btn{flex:1; font-family:var(--mono); font-size:13.5px; font-weight:700; padding:13px; border-radius:12px; border:none; background:var(--convo); color:#fff; cursor:pointer; transition:.15s;}
   .convo-mic-btn.recording{background:var(--coral); animation:convoPulse 1.2s ease-in-out infinite;}
@@ -488,7 +489,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v70</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v71</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4835,12 +4836,13 @@ function renderConvoChat(){
   const chatEl = document.getElementById('convoChat');
   if (!chatEl) return;
   if (convoMessages.length === 0) {
-    chatEl.innerHTML = `<div class="convo-chat-empty">Bấm 🎤 và bắt đầu nói tiếng Anh về chủ đề trên. Giáo viên AI sẽ trả lời và sửa lỗi nhẹ nhàng cho bạn.</div>`;
+    chatEl.innerHTML = `<div class="convo-chat-empty">Bấm 🎤 và bắt đầu nói tiếng Anh về chủ đề trên. Giáo viên AI sẽ trả lời và chỉ rõ lỗi sai (nếu có) ngay bên dưới.</div>`;
     return;
   }
-  chatEl.innerHTML = convoMessages.map(m =>
-    `<div class="convo-msg ${m.role}"><span class="convo-msg-label">${m.role === 'user' ? 'Bạn' : '🎓 Giáo viên'}</span><span class="convo-msg-text">${m.text}</span></div>`
-  ).join('');
+  chatEl.innerHTML = convoMessages.map(m => {
+    const correctionHtml = m.correction ? `<div class="convo-correction">📝 <b>Sửa lỗi:</b> ${m.correction}</div>` : '';
+    return `<div class="convo-msg ${m.role}"><span class="convo-msg-label">${m.role === 'user' ? 'Bạn' : '🎓 Giáo viên'}</span><span class="convo-msg-text">${m.text}</span>${correctionHtml}</div>`;
+  }).join('');
   chatEl.scrollTop = chatEl.scrollHeight;
 }
 
@@ -4887,8 +4889,8 @@ async function handleConvoUserSpeech(transcript){
   convoMessages.push({role:'assistant', text: '...'});
   renderConvoChat();
   try {
-    const reply = await callClaudeConvo(transcript);
-    convoMessages[convoMessages.length-1] = {role:'assistant', text: reply};
+    const {reply, correction} = await callClaudeConvo(transcript);
+    convoMessages[convoMessages.length-1] = {role:'assistant', text: reply, correction};
     renderConvoChat();
     speakText(reply, null, 'en-US');
     markInteraction();
@@ -4903,11 +4905,17 @@ async function handleConvoUserSpeech(transcript){
 
 async function callClaudeConvo(userText){
   const topic = convoStages[convoSelStage].topics[convoSelTopic];
-  const systemPrompt = `You are a friendly, patient English conversation tutor helping a Vietnamese learner practice spoken English daily. Current practice topic: "${topic.title}" - ${topic.prompt}. Engage naturally, ask a short follow-up question to keep the conversation going. If the learner made a grammar or word-choice mistake, gently model the correct phrasing naturally within your reply (do not lecture or list corrections separately). Keep replies conversational, warm, and SHORT (2-4 sentences max). Occasionally give a very brief tip if you notice a repeated mistake.`;
+  const systemPrompt = `You are a friendly, patient English conversation tutor helping a Vietnamese learner practice spoken English daily. Current practice topic: "${topic.title}" - ${topic.prompt}. Engage naturally and ask a short follow-up question to keep the conversation going. Keep the conversational part warm and SHORT (2-4 sentences max).
+
+You MUST respond using EXACTLY this two-line format, nothing else before or after:
+REPLY: <your natural conversational reply in English>
+CORRECTION: <if the learner's last message had a grammar, word-choice, or pronunciation-spelling mistake, write it as: You said: "..." -> Better: "..." (short reason in Vietnamese). If there was NO mistake at all, write exactly: NONE>
+
+Only flag genuine mistakes, not minor stylistic differences. Be encouraging, never harsh.`;
 
   const historyMessages = convoMessages.filter(m => m.text !== '...').map(m => ({
     role: m.role === 'user' ? 'user' : 'assistant',
-    content: m.text
+    content: m.role === 'user' ? m.text : `REPLY: ${m.text}\nCORRECTION: NONE`
   }));
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -4920,7 +4928,7 @@ async function callClaudeConvo(userText){
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 250,
+      max_tokens: 300,
       system: systemPrompt,
       messages: historyMessages
     })
@@ -4930,7 +4938,13 @@ async function callClaudeConvo(userText){
     throw new Error(`API trả về lỗi ${response.status}: ${errText.slice(0,150)}`);
   }
   const data = await response.json();
-  return data.content[0].text;
+  const raw = data.content[0].text;
+  const replyMatch = raw.match(/REPLY:\s*([\s\S]*?)(?=\nCORRECTION:|$)/i);
+  const correctionMatch = raw.match(/CORRECTION:\s*([\s\S]*)/i);
+  const reply = replyMatch ? replyMatch[1].trim() : raw.trim();
+  const correctionRaw = correctionMatch ? correctionMatch[1].trim() : 'NONE';
+  const correction = /^none$/i.test(correctionRaw) ? null : correctionRaw;
+  return { reply, correction };
 }
 
 /* ============ RENDER: TOP MENU ============ */
