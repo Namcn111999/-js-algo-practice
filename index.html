@@ -489,7 +489,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v72</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v73</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4884,14 +4884,49 @@ let convoFollowupIdx = 0;
    LanguageTool's public API is unreachable (no CORS / rate-limited / offline). */
 function localGrammarCheck(text){
   const rules = [
-    { re: /\bI\s+am\s+(go|do|eat|play|study|work|watch|read|write|have|like|want|need|make|take|come|walk|run|talk|speak|live|stay)\b/i,
+    // be-verb + base verb confusion
+    { re: /\bI\s+am\s+(go|do|eat|play|study|work|watch|read|write|have|like|want|need|make|take|come|walk|run|talk|speak|live|stay|think|know|feel|see|hear|get|buy|sell|drive|cook|clean|sleep|wake|start|finish|learn|teach|help|meet|visit|call|send|receive|open|close)\b(?!ing)/i,
       fix: (m) => `I ${m[1]}`, reason: "không dùng am/is/are trước động từ thường (base verb), chỉ dùng khi có -ing" },
-    { re: /\b(he|she|it)\s+(go|do|eat|play|study|work|watch|read|write|have|like|want|need|make|take|come|walk|run|talk|speak|live)\b(?!ing)/i,
-      fix: (m) => `${m[1]} ${m[2]}s`, reason: "động từ thường ở thì hiện tại đơn cần thêm -s/-es với chủ ngữ he/she/it" },
+    { re: /\b(you|we|they)\s+(is|am)\s+/i, fix: (m) => `${m[1]} are `, reason: "you/we/they dùng với are, không dùng is/am" },
+    { re: /\b(he|she|it)\s+(are|am)\s+/i, fix: (m) => `${m[1]} is `, reason: "he/she/it dùng với is, không dùng are/am" },
+    { re: /\bI\s+(is|are)\s+/i, fix: () => `I am `, reason: "I luôn đi với am, không dùng is/are" },
+    // subject-verb agreement (3rd person singular)
+    { re: /\b(he|she|it)\s+(go|do|eat|play|study|work|watch|read|write|have|like|want|need|make|take|come|walk|run|talk|speak|live|think|know|feel|see|hear|get|buy|sell|drive|cook|clean|sleep|wake|start|finish|learn|teach|help|meet|visit|call|send|receive|open|close|love|enjoy|prefer|believe|hope|plan|try|stop|begin|continue|agree|disagree|understand|remember|forget|decide|choose|hate)\b(?!ing|s\b|es\b)/i,
+      fix: (m) => `${m[1]} ${m[2]}${/^(go|do)$/i.test(m[2]) ? 'es' : 's'}`, reason: "động từ thường ở thì hiện tại đơn cần thêm -s/-es với chủ ngữ he/she/it" },
     { re: /\bdon't\s+(he|she|it)\b/i, fix: (m) => `doesn't ${m[1]}`, reason: "dùng doesn't (không phải don't) với he/she/it" },
+    { re: /\b(he|she|it)\s+don't\b/i, fix: (m) => `${m[1]} doesn't`, reason: "dùng doesn't (không phải don't) với he/she/it" },
+    // comparatives
     { re: /\bmore\s+(\w+er)\b/i, fix: (m) => m[1], reason: "không dùng more cùng với tính từ đã có đuôi -er (so sánh kép)" },
+    { re: /\bvery\s+(better|worse|more)\b/i, fix: (m) => `much ${m[1]}`, reason: "dùng much (không phải very) để nhấn mạnh so sánh hơn" },
+    // articles
     { re: /\ba\s+([aeiouAEIOU]\w*)\b/, fix: (m) => `an ${m[1]}`, reason: "dùng an trước từ bắt đầu bằng nguyên âm, không dùng a" },
-    { re: /\bmuch\s+(people|friends|things|books|cars|students)\b/i, fix: (m) => `many ${m[1]}`, reason: "dùng many với danh từ đếm được số nhiều, không dùng much" },
+    { re: /\ban\s+([^aeiouAEIOU\s]\w*)\b/, fix: (m) => `a ${m[1]}`, reason: "dùng a trước từ bắt đầu bằng phụ âm, không dùng an" },
+    // countable/uncountable
+    { re: /\bmuch\s+(people|friends|things|books|cars|students|dogs|cats|problems|ideas|questions|jobs|houses)\b/i, fix: (m) => `many ${m[1]}`, reason: "dùng many với danh từ đếm được số nhiều, không dùng much" },
+    { re: /\bmany\s+(money|information|advice|furniture|water|time|work|homework|news|traffic)\b/i, fix: (m) => `much ${m[1]}`, reason: "danh từ không đếm được dùng much, không dùng many" },
+    // missing be-verb before adjective (common Vietnamese-speaker pattern)
+    { re: /\bI\s+(happy|sad|tired|hungry|thirsty|angry|excited|bored|nervous|scared|worried|confused|busy|free|sick|fine|okay|good|great|interested|surprised)\b/i,
+      fix: (m) => `I am ${m[1]}`, reason: "thiếu động từ am/is/are trước tính từ" },
+    { re: /\b(he|she)\s+(happy|sad|tired|hungry|thirsty|angry|excited|bored|nervous|scared|worried|confused|busy|free|sick|fine|okay|good|great|interested|surprised|nice|kind|smart|beautiful|handsome|tall|short)\b/i,
+      fix: (m) => `${m[1]} is ${m[2]}`, reason: "thiếu động từ is trước tính từ" },
+    // "I am agree" - classic Vietnamese-speaker mistake
+    { re: /\bI\s+am\s+agree\b/i, fix: () => `I agree`, reason: "agree là động từ, không dùng am trước agree" },
+    { re: /\bI\s+am\s+disagree\b/i, fix: () => `I disagree`, reason: "disagree là động từ, không dùng am trước disagree" },
+    // double negatives
+    { re: /\b(don't|doesn't|didn't)\s+have\s+no\b/i, fix: (m) => `${m[1]} have any`, reason: "tránh phủ định kép, dùng any thay vì no" },
+    { re: /\b(don't|doesn't|didn't)\s+(\w+)\s+nothing\b/i, fix: (m) => `${m[1]} ${m[2]} anything`, reason: "tránh phủ định kép, dùng anything thay vì nothing" },
+    // common preposition mistakes
+    { re: /\binterested\s+about\b/i, fix: () => `interested in`, reason: "interested đi với in, không phải about" },
+    { re: /\bmarried\s+with\b/i, fix: () => `married to`, reason: "married đi với to, không phải with" },
+    { re: /\bdepend\s+of\b/i, fix: () => `depend on`, reason: "depend đi với on, không phải of" },
+    { re: /\bgood\s+in\b/i, fix: () => `good at`, reason: "good đi với at, không phải in" },
+    { re: /\bdiscuss\s+about\b/i, fix: () => `discuss`, reason: "discuss không cần giới từ about theo sau" },
+    { re: /\barrive\s+to\b/i, fix: () => `arrive at`, reason: "arrive đi với at/in, không phải to" },
+    { re: /\blisten\s+music\b/i, fix: () => `listen to music`, reason: "listen cần to trước danh từ (listen to)" },
+    // let/make + to + verb (should be bare infinitive)
+    { re: /\b(let|make)\s+(me|him|her|us|them)\s+to\s+(\w+)\b/i, fix: (m) => `${m[1]} ${m[2]} ${m[3]}`, reason: "sau let/make + tân ngữ dùng động từ nguyên mẫu không to" },
+    // very common word confusion
+    { re: /\bI\s+very\s+like\b/i, fix: () => `I really like`, reason: "dùng really thay vì very trước like" },
   ];
   for (const rule of rules) {
     const m = text.match(rule.re);
@@ -4904,9 +4939,10 @@ function localGrammarCheck(text){
 }
 
 async function checkGrammar(text){
+  const localResult = localGrammarCheck(text);
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
     const response = await fetch('https://api.languagetool.org/v2/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -4926,9 +4962,9 @@ async function checkGrammar(text){
         return `You said: "${text}" -> Better: "${corrected}" (${m.message})`;
       }
     }
-    return null;
+    return localResult;
   } catch(e) {
-    return localGrammarCheck(text);
+    return localResult;
   }
 }
 
