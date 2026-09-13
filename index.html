@@ -493,7 +493,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v74</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v75</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4887,6 +4887,39 @@ let convoFollowupIdx = 0;
 /* Simple rule-based grammar checker used as a free, offline fallback when
    LanguageTool's public API is unreachable (no CORS / rate-limited / offline). */
 function localGrammarCheck(text){
+  const irregularPast = {go:'went', do:'did', eat:'ate', have:'had', see:'saw', come:'came', take:'take', get:'got', make:'made', say:'said', write:'wrote', read:'read', buy:'bought', sell:'sold', drive:'drove', speak:'spoke', run:'ran', give:'gave', find:'found', think:'thought', feel:'felt', meet:'met', leave:'left', bring:'brought', build:'built', break:'broke', begin:'began', sing:'sang', drink:'drank', fly:'flew', know:'knew', wear:'wore', tell:'told'};
+  const regularPastList = 'play|study|watch|walk|talk|call|help|start|finish|open|close|visit|clean|cook|wait|work|live|stay|like|love|want|need|enjoy|try|learn|listen|arrive|happen';
+
+  // Missing past tense when sentence has a clear past-time marker (yesterday, last week...)
+  const timeMarker = /\b(yesterday|last\s+(week|night|month|year|weekend)|(\d+\s+)?(days?|weeks?|months?|years?)\s+ago)\b/i;
+  if (timeMarker.test(text)) {
+    const irregularKeys = Object.keys(irregularPast).join('|');
+    const presentVerbRe = new RegExp(`\\b(I|you|we|they|he|she|it)\\s+(${irregularKeys})\\b`, 'i');
+    const m1 = text.match(presentVerbRe);
+    if (m1) {
+      const corrected = text.replace(presentVerbRe, `${m1[1]} ${irregularPast[m1[2].toLowerCase()]}`);
+      return `You said: "${text}" -> Better: "${corrected}" (có mốc thời gian quá khứ như yesterday/last week nên động từ phải chia ở thì quá khứ)`;
+    }
+    const regularVerbRe = new RegExp(`\\b(I|you|we|they|he|she|it)\\s+(${regularPastList})\\b(?!ed)`, 'i');
+    const m2 = text.match(regularVerbRe);
+    if (m2) {
+      const corrected = text.replace(regularVerbRe, `${m2[1]} ${m2[2]}ed`);
+      return `You said: "${text}" -> Better: "${corrected}" (có mốc thời gian quá khứ như yesterday/last week nên động từ phải thêm -ed)`;
+    }
+  }
+  // was/were mismatch
+  const wasWereRules = [
+    { re: /\b(we|you|they)\s+was\b/i, fix: (m) => `${m[1]} were`, reason: "we/you/they dùng với were, không dùng was" },
+    { re: /\b(I|he|she|it)\s+were\b/i, fix: (m) => `${m[1]} was`, reason: "I/he/she/it dùng với was, không dùng were" },
+  ];
+  for (const rule of wasWereRules) {
+    const m = text.match(rule.re);
+    if (m) {
+      const corrected = text.replace(rule.re, rule.fix(m));
+      return `You said: "${text}" -> Better: "${corrected}" (${rule.reason})`;
+    }
+  }
+
   const rules = [
     // be-verb + base verb confusion
     { re: /\bI\s+am\s+(go|do|eat|play|study|work|watch|read|write|have|like|want|need|make|take|come|walk|run|talk|speak|live|stay|think|know|feel|see|hear|get|buy|sell|drive|cook|clean|sleep|wake|start|finish|learn|teach|help|meet|visit|call|send|receive|open|close)\b(?!ing)/i,
@@ -5482,8 +5515,8 @@ function renderMain(){
 
 /* ============ ALGO PROBLEM CARD (reused for both single-problem weeks and weekday sets) ============ */
 /* ============ JAVA LANGUAGE MODE (best-effort signature inference, no in-browser execution) ============ */
-let algoLang = localStorage.getItem('algo-lang-pref') || 'js';
-function setAlgoLang(lang){ algoLang = lang; localStorage.setItem('algo-lang-pref', lang); renderAll(); }
+let algoLang = 'js'; // never persisted across page loads — always starts in JS mode so "Chạy test" works by default
+function setAlgoLang(lang){ algoLang = lang; renderAll(); }
 
 function inferJavaType(val, depth){
   depth = depth || 0;
@@ -5728,7 +5761,9 @@ function runTests(problemId, problem, editorId, consoleId){
 
   if (allPass) {
     setDone(currentTrack, currentWeek, true);
-    renderAll();
+    renderSidebar();
+    renderMenu();
+    renderStreakWidget();
   }
 }
 
