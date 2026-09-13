@@ -198,6 +198,10 @@
 
   .editor-wrap{border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:14px; margin-top:14px;}
   .editor-topbar{display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--bg-elevated); border-bottom:1px solid var(--border);}
+  .lang-toggle{display:inline-flex; gap:4px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:9px; padding:3px; margin-bottom:14px;}
+  .lang-btn{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 14px; border:none; background:none; border-radius:7px; cursor:pointer; color:var(--text-muted); transition:.15s;}
+  .lang-btn.active{background:var(--algo); color:#fff;}
+  .lang-btn:not(.active):hover{color:var(--text-primary);}
   .editor-topbar .fname{font-family:var(--mono); font-size:11.5px; color:var(--text-muted);}
   .btn-row{display:flex; gap:8px;}
   button.action{font-family:var(--mono); font-size:12px; font-weight:600; border:none; border-radius:6px; padding:7px 14px; cursor:pointer; transition:transform .1s, opacity .15s;}
@@ -489,7 +493,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v73</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v74</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5477,7 +5481,42 @@ function renderMain(){
 }
 
 /* ============ ALGO PROBLEM CARD (reused for both single-problem weeks and weekday sets) ============ */
+/* ============ JAVA LANGUAGE MODE (best-effort signature inference, no in-browser execution) ============ */
+let algoLang = localStorage.getItem('algo-lang-pref') || 'js';
+function setAlgoLang(lang){ algoLang = lang; localStorage.setItem('algo-lang-pref', lang); renderAll(); }
+
+function inferJavaType(val, depth){
+  depth = depth || 0;
+  if (Array.isArray(val)) {
+    if (val.length === 0) return 'int[]';
+    return inferJavaType(val[0], depth+1) + '[]';
+  }
+  const t = typeof val;
+  if (t === 'number') return Number.isInteger(val) ? 'int' : 'double';
+  if (t === 'string') return 'String';
+  if (t === 'boolean') return 'boolean';
+  if (t === 'object' && val !== null) return 'Map<String, Object>';
+  return 'Object';
+}
+
+function inferJavaSignature(problem){
+  const m = problem.signature.match(/function\s+solve\(([^)]*)\)/);
+  const paramNames = m && m[1].trim() ? m[1].split(',').map(s => s.trim()) : [];
+  const t0 = (problem.tests && problem.tests[0]) || { args: [], expected: null };
+  const paramDecls = paramNames.map((name, i) => `${inferJavaType(t0.args[i])} ${name}`).join(', ');
+  const returnType = t0.expected === undefined ? 'void' : inferJavaType(t0.expected);
+  const declaration = `public static ${returnType} solve(${paramDecls})`;
+  const returnStub = returnType === 'void' ? '' : `\n        return ${returnType.includes('[]') ? 'null' : returnType === 'int' ? '0' : returnType === 'double' ? '0.0' : returnType === 'boolean' ? 'false' : 'null'};`;
+  const starterCode = `public class Solution {\n    ${declaration} {\n        // viết code tại đây${returnStub}\n    }\n}`;
+  return { declaration, starterCode };
+}
+
 function algoProblemCardHTML(problem, problemId){
+  const javaInfo = inferJavaSignature(problem);
+  const isJava = algoLang === 'java';
+  const displaySignature = isJava ? javaInfo.declaration : problem.signature;
+  const starterForLang = isJava ? javaInfo.starterCode : problem.starter;
+  const savedKey = problemId + (isJava ? ':java' : '');
   return `
     <div class="section">
       <div class="section-head">
@@ -5488,19 +5527,24 @@ function algoProblemCardHTML(problem, problemId){
         <p class="algo-desc">${problem.desc}</p>
         <div class="algo-example">${problem.example}</div>
         <div class="info-box practice"><b>Gợi ý cách tiếp cận</b>${problem.approach}</div>
+        <div class="lang-toggle">
+          <button class="lang-btn ${!isJava ? 'active' : ''}" data-lang="js">JavaScript</button>
+          <button class="lang-btn ${isJava ? 'active' : ''}" data-lang="java">Java</button>
+        </div>
+        ${isJava ? `<div class="info-box case" style="margin-bottom:14px;"><b>Lưu ý về Java</b>Trang này KHÔNG chạy được Java trực tiếp trong trình duyệt (không có máy ảo Java) — chữ ký hàm bên dưới được suy luận tự động từ dữ liệu test, có thể cần chỉnh lại kiểu dữ liệu cho khớp. Viết code để LUYỆN CÚ PHÁP và TỰ KIỂM TRA bằng cách copy sang IDE Java (IntelliJ/Eclipse) hoặc <a href="https://www.jdoodle.com/online-java-compiler/" target="_blank" rel="noopener">trình biên dịch Java online</a>. Chuyển sang JavaScript để được chấm test tự động ngay tại đây.</div>` : ''}
         <div class="editor-wrap">
           <div class="editor-topbar">
-            <span class="fname">${problem.signature}</span>
+            <span class="fname">${displaySignature}</span>
             <div class="btn-row">
               <button class="action btn-reset" id="btn-reset">Đặt lại</button>
-              <button class="action btn-run" id="btn-run">▶ Chạy test</button>
+              <button class="action btn-run" id="btn-run">${isJava ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
             </div>
           </div>
-          <textarea class="editor" id="editor" spellcheck="false">${(savedCode[problemId] || problem.starter).replace(/</g,'&lt;')}</textarea>
+          <textarea class="editor" id="editor" spellcheck="false">${(savedCode[savedKey] || starterForLang).replace(/</g,'&lt;')}</textarea>
         </div>
         <div class="console">
           <div class="console-topbar">console</div>
-          <div class="console-body" id="console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
+          <div class="console-body" id="console-body"><div class="console-empty">${isJava ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để kiểm tra bài giải'}</div></div>
         </div>
         <div class="info-box case"><b>Ứng dụng thực tế</b>${problem.caseReal}</div>
         ${problem.quiz ? `
@@ -5521,14 +5565,20 @@ function algoProblemCardHTML(problem, problemId){
   `;
 }
 function bindAlgoProblemCard(problem, problemId){
+  const isJava = algoLang === 'java';
+  const savedKey = problemId + (isJava ? ':java' : '');
+  document.querySelectorAll('#main .lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setAlgoLang(btn.dataset.lang));
+  });
   document.getElementById('btn-reset').addEventListener('click', () => {
-    document.getElementById('editor').value = problem.starter;
-    delete savedCode[problemId];
+    const javaInfo = inferJavaSignature(problem);
+    document.getElementById('editor').value = isJava ? javaInfo.starterCode : problem.starter;
+    delete savedCode[savedKey];
     saveCode();
     document.getElementById('console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
   });
   document.getElementById('editor').addEventListener('input', (e) => {
-    savedCode[problemId] = e.target.value;
+    savedCode[savedKey] = e.target.value;
     saveCode();
   });
   if (problem.quiz) {
@@ -5563,6 +5613,11 @@ function extraSetHTML(extraIds){
   }).join('');
   const curId = extraIds[currentExtraProblem];
   const p = problems[curId];
+  const javaInfoExtra = inferJavaSignature(p);
+  const isJavaExtra = algoLang === 'java';
+  const displaySigExtra = isJavaExtra ? javaInfoExtra.declaration : p.signature;
+  const starterExtra = isJavaExtra ? javaInfoExtra.starterCode : p.starter;
+  const savedKeyExtra = curId + (isJavaExtra ? ':java' : '');
   return `
     <div class="extra-set">
       <div class="extra-set-title">Luyện thêm hôm nay — 4 bài dễ → khó (cùng với bài chính ở trên là đủ 5 bài)</div>
@@ -5576,19 +5631,24 @@ function extraSetHTML(extraIds){
           <p class="algo-desc">${p.desc}</p>
           <div class="algo-example">${p.example}</div>
           <div class="info-box practice"><b>Gợi ý cách tiếp cận</b>${p.approach}</div>
+          <div class="lang-toggle">
+            <button class="lang-btn ${!isJavaExtra ? 'active' : ''}" data-lang="js">JavaScript</button>
+            <button class="lang-btn ${isJavaExtra ? 'active' : ''}" data-lang="java">Java</button>
+          </div>
+          ${isJavaExtra ? `<div class="info-box case" style="margin-bottom:14px;"><b>Lưu ý về Java</b>Trang này KHÔNG chạy được Java trực tiếp trong trình duyệt — chữ ký hàm được suy luận tự động, có thể cần chỉnh lại kiểu dữ liệu. Copy code sang IDE Java hoặc <a href="https://www.jdoodle.com/online-java-compiler/" target="_blank" rel="noopener">trình biên dịch online</a> để tự kiểm tra.</div>` : ''}
           <div class="editor-wrap">
             <div class="editor-topbar">
-              <span class="fname">${p.signature}</span>
+              <span class="fname">${displaySigExtra}</span>
               <div class="btn-row">
                 <button class="action btn-reset" id="btn-extra-reset">Đặt lại</button>
-                <button class="action btn-run" id="btn-extra-run">▶ Chạy test</button>
+                <button class="action btn-run" id="btn-extra-run">${isJavaExtra ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
               </div>
             </div>
-            <textarea class="editor" id="extra-editor" spellcheck="false">${(savedCode[curId] || p.starter).replace(/</g,'&lt;')}</textarea>
+            <textarea class="editor" id="extra-editor" spellcheck="false">${(savedCode[savedKeyExtra] || starterExtra).replace(/</g,'&lt;')}</textarea>
           </div>
           <div class="console">
             <div class="console-topbar">console</div>
-            <div class="console-body" id="extra-console-body"><div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div></div>
+            <div class="console-body" id="extra-console-body"><div class="console-empty">${isJavaExtra ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để kiểm tra bài giải'}</div></div>
           </div>
           <div class="info-box case"><b>Ứng dụng thực tế</b>${p.caseReal}</div>
         </div>
@@ -5605,18 +5665,24 @@ function bindExtraSet(extraIds){
   });
   const curId = extraIds[currentExtraProblem];
   const p = problems[curId];
+  const isJavaExtra = algoLang === 'java';
+  const savedKeyExtra = curId + (isJavaExtra ? ':java' : '');
+  document.querySelectorAll('#main .lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setAlgoLang(btn.dataset.lang));
+  });
   const resetBtn = document.getElementById('btn-extra-reset');
   const runBtn = document.getElementById('btn-extra-run');
   const editor = document.getElementById('extra-editor');
   if (!resetBtn) return;
   resetBtn.addEventListener('click', () => {
-    editor.value = p.starter;
-    delete savedCode[curId];
+    const javaInfoExtra = inferJavaSignature(p);
+    editor.value = isJavaExtra ? javaInfoExtra.starterCode : p.starter;
+    delete savedCode[savedKeyExtra];
     saveCode();
     document.getElementById('extra-console-body').innerHTML = '<div class="console-empty">nhấn "Chạy test" để kiểm tra bài giải</div>';
   });
   editor.addEventListener('input', (e) => {
-    savedCode[curId] = e.target.value;
+    savedCode[savedKeyExtra] = e.target.value;
     saveCode();
   });
   runBtn.addEventListener('click', () => runTests(curId, p, 'extra-editor', 'extra-console-body'));
@@ -5626,8 +5692,12 @@ function bindExtraSet(extraIds){
 function runTests(problemId, problem, editorId, consoleId){
   editorId = editorId || 'editor';
   consoleId = consoleId || 'console-body';
-  const code = document.getElementById(editorId).value;
   const body = document.getElementById(consoleId);
+  if (algoLang === 'java') {
+    body.innerHTML = `<div class="console-empty">Chế độ Java chỉ để luyện viết code — không tự động chấm được trong trình duyệt. Copy code sang 1 trình biên dịch Java (IntelliJ/Eclipse/jdoodle.com) để tự kiểm tra, hoặc chuyển sang JavaScript ở trên để được chấm test tự động ngay tại đây.</div>`;
+    return;
+  }
+  const code = document.getElementById(editorId).value;
   let userFn;
   try {
     const scope = new Function(code + '\nreturn solve;');
