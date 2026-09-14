@@ -207,6 +207,7 @@
   button.action{font-family:var(--mono); font-size:12px; font-weight:600; border:none; border-radius:6px; padding:7px 14px; cursor:pointer; transition:transform .1s, opacity .15s;}
   button.action:active{transform:scale(0.97);}
   .btn-run{background:var(--algo); color:#fff;}
+  .btn-format{background:var(--toeic-dim); color:var(--toeic);}
   .btn-run:hover{opacity:.88;}
   .btn-reset{background:var(--bg-panel); color:var(--text-muted); border:1px solid var(--border);}
   .btn-reset:hover{color:var(--text-primary); border-color:var(--text-dim);}
@@ -419,6 +420,8 @@
   .cal-legend-dot.weekend{background:transparent; border:1px dashed var(--border);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js" defer></script>
+<script src="https://unpkg.com/prettier@2.8.8/standalone.js" defer></script>
+<script src="https://unpkg.com/prettier@2.8.8/parser-babel.js" defer></script>
 </head>
 <body>
 
@@ -493,7 +496,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v75</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v76</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5570,6 +5573,7 @@ function algoProblemCardHTML(problem, problemId){
             <span class="fname">${displaySignature}</span>
             <div class="btn-row">
               <button class="action btn-reset" id="btn-reset">Đặt lại</button>
+              <button class="action btn-format" id="btn-format">✨ Format code</button>
               <button class="action btn-run" id="btn-run">${isJava ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
             </div>
           </div>
@@ -5635,6 +5639,12 @@ function bindAlgoProblemCard(problem, problemId){
     });
   }
   document.getElementById('btn-run').addEventListener('click', () => runTests(problemId, problem));
+  document.getElementById('btn-format').addEventListener('click', () => {
+    if (formatCode('editor')) {
+      savedCode[savedKey] = document.getElementById('editor').value;
+      saveCode();
+    }
+  });
 }
 
 /* ============ EXTRA PROBLEM SET (4 more problems per week, easy-to-hard) ============ */
@@ -5674,6 +5684,7 @@ function extraSetHTML(extraIds){
               <span class="fname">${displaySigExtra}</span>
               <div class="btn-row">
                 <button class="action btn-reset" id="btn-extra-reset">Đặt lại</button>
+                <button class="action btn-format" id="btn-extra-format">✨ Format code</button>
                 <button class="action btn-run" id="btn-extra-run">${isJavaExtra ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
               </div>
             </div>
@@ -5719,8 +5730,54 @@ function bindExtraSet(extraIds){
     saveCode();
   });
   runBtn.addEventListener('click', () => runTests(curId, p, 'extra-editor', 'extra-console-body'));
+  document.getElementById('btn-extra-format').addEventListener('click', () => {
+    if (formatCode('extra-editor')) {
+      savedCode[savedKeyExtra] = editor.value;
+      saveCode();
+    }
+  });
 }
 
+
+/* ============ CODE FORMATTING ============ */
+function simpleJavaFormat(code){
+  const lines = code.split('\n').map(l => l.trim()).filter((l,i,arr) => !(l === '' && arr[i-1] === ''));
+  let indent = 0;
+  const indentUnit = '    ';
+  const out = [];
+  for (let raw of lines) {
+    if (raw === '') { out.push(''); continue; }
+    const closingFirst = /^[}\)\]]/.test(raw);
+    if (closingFirst) indent = Math.max(0, indent - 1);
+    out.push(indentUnit.repeat(indent) + raw);
+    const opens = (raw.match(/[{([]/g) || []).length;
+    const closes = (raw.match(/[})\]]/g) || []).length;
+    let delta = opens - closes;
+    if (closingFirst) delta += 1; // already accounted for the one leading close above
+    indent = Math.max(0, indent + delta);
+  }
+  return out.join('\n');
+}
+function formatCode(editorId){
+  const editor = document.getElementById(editorId);
+  const code = editor.value;
+  if (algoLang === 'java') {
+    editor.value = simpleJavaFormat(code);
+    return true;
+  }
+  if (typeof prettier === 'undefined' || typeof prettierPlugins === 'undefined') {
+    alert('Công cụ format đang tải, vui lòng thử lại sau vài giây.');
+    return false;
+  }
+  try {
+    const formatted = prettier.format(code, { parser: 'babel', plugins: prettierPlugins, semi: true, singleQuote: true, tabWidth: 2 });
+    editor.value = formatted;
+    return true;
+  } catch(e) {
+    alert('Không thể format: code có lỗi cú pháp.\n' + e.message.split('\n')[0]);
+    return false;
+  }
+}
 
 function runTests(problemId, problem, editorId, consoleId){
   editorId = editorId || 'editor';
