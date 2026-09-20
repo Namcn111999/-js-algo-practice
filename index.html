@@ -362,6 +362,21 @@
   .toast-warning{border-left:3px solid #D97706;}
   @media (max-width:640px){ .toast-container{left:14px; right:14px; top:14px;} .toast{min-width:0; max-width:none;} }
 
+  .confirm-overlay{position:fixed; inset:0; background:rgba(15,15,20,0); display:flex; align-items:center; justify-content:center; z-index:450; padding:20px; transition:background .2s ease;}
+  .confirm-overlay.show{background:rgba(15,15,20,0.55); backdrop-filter:blur(2px);}
+  .confirm-box{background:var(--bg-panel); border-radius:18px; width:380px; max-width:100%; padding:24px 24px 20px; box-shadow:0 24px 60px rgba(0,0,0,.28); opacity:0; transform:translateY(14px) scale(.97); transition:opacity .22s cubic-bezier(.2,.8,.3,1), transform .22s cubic-bezier(.2,.8,.3,1);}
+  .confirm-overlay.show .confirm-box{opacity:1; transform:translateY(0) scale(1);}
+  .confirm-title{font-size:16px; font-weight:800; margin-bottom:10px;}
+  .confirm-msg{font-size:13.5px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;}
+  .confirm-actions{display:flex; gap:10px; justify-content:flex-end;}
+  .confirm-btn{font-family:var(--mono); font-size:12.5px; font-weight:700; padding:10px 18px; border-radius:10px; border:none; cursor:pointer; transition:.15s;}
+  .confirm-cancel{background:var(--bg-elevated); color:var(--text-muted); border:1px solid var(--border);}
+  .confirm-cancel:hover{color:var(--text-primary); border-color:var(--text-dim);}
+  .confirm-primary{background:var(--algo); color:#fff;}
+  .confirm-primary:hover{opacity:.9;}
+  .confirm-danger{background:var(--coral); color:#fff;}
+  .confirm-danger:hover{opacity:.9;}
+
   .convo-wrap{display:grid; grid-template-columns:260px 1fr; height:100%; min-height:0;}
   .convo-sidebar{overflow-y:auto; border-right:1px solid var(--border); background:var(--bg-panel); padding:12px 0;}
   .convo-stage-block{margin-bottom:6px;}
@@ -508,7 +523,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v79</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v80</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5976,33 +5991,70 @@ function showToast(message, type){
   toast.addEventListener('mouseenter', () => clearTimeout(autoTimer));
 }
 
-function resetStreakData(){
-  const confirmed = confirm('Xóa toàn bộ lịch sử học tập cũ (bao gồm các ngày bị miss) và bắt đầu đếm chuỗi lại từ HÔM NAY?\n\nKỷ lục chuỗi dài nhất sẽ vẫn được giữ lại.');
-  if (!confirmed) return;
-  const keepBest = Math.max(streakData.bestStreak || 0, (computeStreakInfo() || {}).streak || 0);
-  const newData = {
-    startDate: todayStr(),
-    activity: {},
-    dailyCorrect: {},
-    dailySeconds: {},
-    history: {},
-    bestStreak: keepBest
+/* ============ CUSTOM CONFIRM MODAL ============ */
+function showConfirmModal(opts){
+  const { title, message, confirmText, cancelText, danger, onConfirm } = Object.assign({
+    title: 'Xác nhận', confirmText: 'Xác nhận', cancelText: 'Hủy', danger: false
+  }, opts);
+  let overlay = document.getElementById('confirmModalOverlay');
+  if (overlay) overlay.remove();
+  overlay = document.createElement('div');
+  overlay.id = 'confirmModalOverlay';
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <div class="confirm-title">${title}</div>
+      <div class="confirm-msg">${message}</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-cancel" id="confirmCancelBtn">${cancelText}</button>
+        <button class="confirm-btn ${danger ? 'confirm-danger' : 'confirm-primary'}" id="confirmOkBtn">${confirmText}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('show'));
+  const close = () => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 200);
   };
-  streakData = newData;
-  try {
-    saveStreak();
-    const verify = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || 'null');
-    const ok = verify && verify.startDate === todayStr() && Object.keys(verify.activity || {}).length === 0;
-    renderStreakWidget();
-    if (ok) {
-      showToast('Đã reset thành công! Chuỗi học tập bắt đầu lại từ hôm nay, mọi ngày miss cũ đã được xóa.', 'success');
-    } else {
-      showToast('Reset có thể chưa lưu đúng — hãy tải lại trang (F5) và kiểm tra lại. Nếu vẫn còn ngày miss cũ, thử reset lại lần nữa.', 'warning');
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.getElementById('confirmCancelBtn').addEventListener('click', close);
+  document.getElementById('confirmOkBtn').addEventListener('click', () => { close(); onConfirm(); });
+}
+
+function resetStreakData(){
+  showConfirmModal({
+    title: '🔄 Reset lịch học',
+    message: 'Xóa toàn bộ lịch sử học tập cũ (bao gồm các ngày bị miss) và bắt đầu đếm chuỗi lại từ <b>HÔM NAY</b>?<br><br>Kỷ lục chuỗi dài nhất sẽ vẫn được giữ lại.',
+    confirmText: 'Reset ngay',
+    danger: true,
+    onConfirm: () => {
+      const keepBest = Math.max(streakData.bestStreak || 0, (computeStreakInfo() || {}).streak || 0);
+      const newData = {
+        startDate: todayStr(),
+        activity: {},
+        dailyCorrect: {},
+        dailySeconds: {},
+        history: {},
+        bestStreak: keepBest
+      };
+      streakData = newData;
+      try {
+        saveStreak();
+        const verify = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || 'null');
+        const ok = verify && verify.startDate === todayStr() && Object.keys(verify.activity || {}).length === 0;
+        renderStreakWidget();
+        if (ok) {
+          showToast('Đã reset thành công! Chuỗi học tập bắt đầu lại từ hôm nay, mọi ngày miss cũ đã được xóa.', 'success');
+        } else {
+          showToast('Reset có thể chưa lưu đúng — hãy tải lại trang (F5) và kiểm tra lại. Nếu vẫn còn ngày miss cũ, thử reset lại lần nữa.', 'warning');
+        }
+      } catch(e) {
+        renderStreakWidget();
+        showToast('Reset thất bại: không lưu được vào trình duyệt (' + e.message + '). Hãy kiểm tra trình duyệt có đang chặn lưu dữ liệu rồi thử lại.', 'error');
+      }
     }
-  } catch(e) {
-    renderStreakWidget();
-    showToast('Reset thất bại: không lưu được vào trình duyệt (' + e.message + '). Hãy kiểm tra trình duyệt có đang chặn lưu dữ liệu rồi thử lại.', 'error');
-  }
+  });
 }
 
 function showHistoryModal(){
@@ -6168,13 +6220,20 @@ function renderPsPick(screen){
   document.querySelectorAll('.ps-del').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!confirm('Xóa hồ sơ này? Toàn bộ tiến độ, ghi chú sẽ mất vĩnh viễn.')) return;
       const id = btn.dataset.id;
-      ['roadmap-notes','roadmap-progress','roadmap-code','roadmap-streak'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
-      localStorage.removeItem(`unlocked-${id}`);
-      profiles = profiles.filter(p => p.id !== id);
-      saveProfiles();
-      renderPsPick(document.getElementById('profileScreen'));
+      showConfirmModal({
+        title: '🗑️ Xóa hồ sơ',
+        message: 'Xóa hồ sơ này? Toàn bộ tiến độ, ghi chú sẽ <b>mất vĩnh viễn</b>.',
+        confirmText: 'Xóa hồ sơ',
+        danger: true,
+        onConfirm: () => {
+          ['roadmap-notes','roadmap-progress','roadmap-code','roadmap-streak'].forEach(k => localStorage.removeItem(`profile:${id}:${k}`));
+          localStorage.removeItem(`unlocked-${id}`);
+          profiles = profiles.filter(p => p.id !== id);
+          saveProfiles();
+          renderPsPick(document.getElementById('profileScreen'));
+        }
+      });
     });
   });
   document.getElementById('psAddCard').addEventListener('click', () => {
