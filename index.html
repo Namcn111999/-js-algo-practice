@@ -496,7 +496,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v76</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v77</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5926,6 +5926,8 @@ function renderStreakWidget(){
         <button class="streak-action-btn" id="streakCalBtn" title="Xem theo lịch tháng">🗓️ Lịch tháng</button>
         <span class="streak-action-divider"></span>
         <button class="streak-action-btn" id="streakHistoryBtn" title="Xem lịch sử học tập">📜 Lịch sử</button>
+        <span class="streak-action-divider"></span>
+        <button class="streak-action-btn" id="streakResetBtn" title="Xóa lịch sử cũ, bắt đầu đếm lại từ hôm nay">🔄 Reset</button>
       </div>
     </div>
   `;
@@ -5933,6 +5935,24 @@ function renderStreakWidget(){
   if (histBtn) histBtn.addEventListener('click', showHistoryModal);
   const calBtn = document.getElementById('streakCalBtn');
   if (calBtn) calBtn.addEventListener('click', showCalendarModal);
+  const resetBtn = document.getElementById('streakResetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', resetStreakData);
+}
+
+function resetStreakData(){
+  const confirmed = confirm('Xóa toàn bộ lịch sử học tập cũ (bao gồm các ngày bị miss) và bắt đầu đếm chuỗi lại từ HÔM NAY?\n\nKỷ lục chuỗi dài nhất sẽ vẫn được giữ lại.');
+  if (!confirmed) return;
+  const keepBest = Math.max(streakData.bestStreak || 0, (computeStreakInfo() || {}).streak || 0);
+  streakData = {
+    startDate: todayStr(),
+    activity: {},
+    dailyCorrect: {},
+    dailySeconds: {},
+    history: {},
+    bestStreak: keepBest
+  };
+  saveStreak();
+  renderStreakWidget();
 }
 
 function showHistoryModal(){
