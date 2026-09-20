@@ -198,7 +198,7 @@
 
   .editor-wrap{border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:14px; margin-top:14px;}
   .editor-topbar{display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--bg-elevated); border-bottom:1px solid var(--border);}
-  .lang-toggle{display:inline-flex; gap:4px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:9px; padding:3px; margin-bottom:14px;}
+  .lang-toggle{display:inline-flex; gap:4px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:9px; padding:3px; margin-top:14px; margin-bottom:14px;}
   .lang-btn{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 14px; border:none; background:none; border-radius:7px; cursor:pointer; color:var(--text-muted); transition:.15s;}
   .lang-btn.active{background:var(--algo); color:#fff;}
   .lang-btn:not(.active):hover{color:var(--text-primary);}
@@ -208,6 +208,12 @@
   button.action:active{transform:scale(0.97);}
   .btn-run{background:var(--algo); color:#fff;}
   .btn-format{background:var(--toeic-dim); color:var(--toeic);}
+  .btn-submit{background:linear-gradient(135deg, var(--fe), #0BA898); color:#fff;}
+  .algo-status-badge{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:99px;}
+  .algo-status-badge.solved{background:var(--fe-dim); color:var(--fe);}
+  .algo-status-badge.attempted{background:rgba(217,119,6,.1); color:#D97706;}
+  .console-hint{font-size:12px; color:var(--text-muted); padding:8px 12px; background:var(--bg-elevated); border-radius:8px; margin-top:6px;}
+  .submit-banner{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--fe); padding:6px 0 10px; letter-spacing:.02em;}
   .btn-run:hover{opacity:.88;}
   .btn-reset{background:var(--bg-panel); color:var(--text-muted); border:1px solid var(--border);}
   .btn-reset:hover{color:var(--text-primary); border-color:var(--text-dim);}
@@ -523,7 +529,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v80</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v81</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4598,6 +4604,8 @@ let notes = {};
 let progress = {};
 let convoData = { completedTopics: {}, practiceLog: {}, selectedStage: 0, selectedTopic: 0 };
 const savedCode = {};
+let algoProblemStatus = {}; // { [problemId]: 'solved' | 'attempted' }
+function saveAlgoStatus(){ localStorage.setItem(pKey('roadmap-algo-status'), JSON.stringify(algoProblemStatus)); }
 let streakData = { startDate: null, activity: {}, dailyCorrect: {}, dailySeconds: {}, history: {} };
 const STREAK_START_DATE = '2026-09-01';
 const STREAK_MIN_CORRECT = 10;
@@ -4707,6 +4715,8 @@ function loadProfileData(){
   try { progress = JSON.parse(localStorage.getItem(pKey('roadmap-progress')) || '{}'); } catch(e){ progress = {}; }
   Object.keys(savedCode).forEach(k => delete savedCode[k]);
   try { Object.assign(savedCode, JSON.parse(localStorage.getItem(pKey('roadmap-code')) || '{}')); } catch(e){}
+  algoProblemStatus = {};
+  try { algoProblemStatus = JSON.parse(localStorage.getItem(pKey('roadmap-algo-status')) || '{}'); } catch(e){}
   streakData = { startDate: null, activity: {}, dailyCorrect: {}, dailySeconds: {}, history: {} };
   try { streakData = JSON.parse(localStorage.getItem(pKey('roadmap-streak')) || '{"startDate":null,"activity":{}}'); } catch(e){}
   if (!streakData.dailyCorrect) streakData.dailyCorrect = {};
@@ -5580,10 +5590,12 @@ function algoProblemCardHTML(problem, problemId){
   const displaySignature = isJava ? javaInfo.declaration : problem.signature;
   const starterForLang = isJava ? javaInfo.starterCode : problem.starter;
   const savedKey = problemId + (isJava ? ':java' : '');
+  const status = algoProblemStatus[problemId];
+  const statusBadge = status === 'solved' ? '<span class="algo-status-badge solved">✅ Đã hoàn thành</span>' : status === 'attempted' ? '<span class="algo-status-badge attempted">🔶 Đã thử — chưa Accepted</span>' : '';
   return `
     <div class="section">
       <div class="section-head">
-        <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${problem.name}</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${problem.name}</span>${statusBadge}</div>
         <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${problem.difficulty}</span>
       </div>
       <div class="section-body">
@@ -5602,13 +5614,14 @@ function algoProblemCardHTML(problem, problemId){
               <button class="action btn-reset" id="btn-reset">Đặt lại</button>
               <button class="action btn-format" id="btn-format">✨ Format code</button>
               <button class="action btn-run" id="btn-run">${isJava ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
+              <button class="action btn-submit" id="btn-submit">${isJava ? '📋 Không submit được' : '🚀 Submit'}</button>
             </div>
           </div>
           <textarea class="editor" id="editor" spellcheck="false">${(savedCode[savedKey] || starterForLang).replace(/</g,'&lt;')}</textarea>
         </div>
         <div class="console">
           <div class="console-topbar">console</div>
-          <div class="console-body" id="console-body"><div class="console-empty">${isJava ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để kiểm tra bài giải'}</div></div>
+          <div class="console-body" id="console-body"><div class="console-empty">${isJava ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để thử với test mẫu, hoặc "Submit" để chấm toàn bộ (kể cả test ẩn)'}</div></div>
         </div>
         <div class="info-box case"><b>Ứng dụng thực tế</b>${problem.caseReal}</div>
         ${problem.quiz ? `
@@ -5666,6 +5679,7 @@ function bindAlgoProblemCard(problem, problemId){
     });
   }
   document.getElementById('btn-run').addEventListener('click', () => runTests(problemId, problem));
+  document.getElementById('btn-submit').addEventListener('click', () => submitSolution(problemId, problem));
   document.getElementById('btn-format').addEventListener('click', () => {
     if (formatCode('editor')) {
       savedCode[savedKey] = document.getElementById('editor').value;
@@ -5688,13 +5702,15 @@ function extraSetHTML(extraIds){
   const displaySigExtra = isJavaExtra ? javaInfoExtra.declaration : p.signature;
   const starterExtra = isJavaExtra ? javaInfoExtra.starterCode : p.starter;
   const savedKeyExtra = curId + (isJavaExtra ? ':java' : '');
+  const statusExtra = algoProblemStatus[curId];
+  const statusBadgeExtra = statusExtra === 'solved' ? '<span class="algo-status-badge solved">✅ Đã hoàn thành</span>' : statusExtra === 'attempted' ? '<span class="algo-status-badge attempted">🔶 Đã thử — chưa Accepted</span>' : '';
   return `
     <div class="extra-set">
       <div class="extra-set-title">Luyện thêm hôm nay — 4 bài dễ → khó (cùng với bài chính ở trên là đủ 5 bài)</div>
       <div class="extra-tabs">${tabs}</div>
       <div class="section">
         <div class="section-head">
-          <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${p.name}</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="track-tag">${p.name}</span>${statusBadgeExtra}</div>
           <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${p.difficulty}</span>
         </div>
         <div class="section-body">
@@ -5713,13 +5729,14 @@ function extraSetHTML(extraIds){
                 <button class="action btn-reset" id="btn-extra-reset">Đặt lại</button>
                 <button class="action btn-format" id="btn-extra-format">✨ Format code</button>
                 <button class="action btn-run" id="btn-extra-run">${isJavaExtra ? '📋 Đã hiểu, không chấm được' : '▶ Chạy test'}</button>
+                <button class="action btn-submit" id="btn-extra-submit">${isJavaExtra ? '📋 Không submit được' : '🚀 Submit'}</button>
               </div>
             </div>
             <textarea class="editor" id="extra-editor" spellcheck="false">${(savedCode[savedKeyExtra] || starterExtra).replace(/</g,'&lt;')}</textarea>
           </div>
           <div class="console">
             <div class="console-topbar">console</div>
-            <div class="console-body" id="extra-console-body"><div class="console-empty">${isJavaExtra ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để kiểm tra bài giải'}</div></div>
+            <div class="console-body" id="extra-console-body"><div class="console-empty">${isJavaExtra ? 'Chế độ Java chỉ để luyện viết code, không tự động chấm được' : 'nhấn "Chạy test" để thử với test mẫu, hoặc "Submit" để chấm toàn bộ'}</div></div>
           </div>
           <div class="info-box case"><b>Ứng dụng thực tế</b>${p.caseReal}</div>
         </div>
@@ -5757,6 +5774,7 @@ function bindExtraSet(extraIds){
     saveCode();
   });
   runBtn.addEventListener('click', () => runTests(curId, p, 'extra-editor', 'extra-console-body'));
+  document.getElementById('btn-extra-submit').addEventListener('click', () => submitSolution(curId, p, 'extra-editor', 'extra-console-body'));
   document.getElementById('btn-extra-format').addEventListener('click', () => {
     if (formatCode('extra-editor')) {
       savedCode[savedKeyExtra] = editor.value;
@@ -5806,6 +5824,41 @@ function formatCode(editorId){
   }
 }
 
+function getPublicTests(problem){
+  const n = problem.tests.length;
+  const publicCount = n <= 1 ? n : Math.min(2, n - 1);
+  return problem.tests.slice(0, publicCount);
+}
+function getHiddenTests(problem){
+  const n = problem.tests.length;
+  const publicCount = n <= 1 ? n : Math.min(2, n - 1);
+  return problem.tests.slice(publicCount);
+}
+
+function compileUserFn(editorId, body){
+  const code = document.getElementById(editorId).value;
+  try {
+    const scope = new Function(code + '\nreturn solve;');
+    const userFn = scope();
+    if (typeof userFn !== 'function') throw new Error('Không tìm thấy hàm solve() hợp lệ.');
+    return userFn;
+  } catch(e){
+    body.innerHTML = `<div class="error-line">✗ Lỗi cú pháp: ${e.message}</div>`;
+    return null;
+  }
+}
+
+function runTestLine(userFn, t, label){
+  try {
+    const actual = userFn(...t.args);
+    const pass = t.normalize === 'anagram' ? anagramEqual(actual, t.expected) : deepEqual(actual, t.expected);
+    const detail = pass ? '' : `mong đợi ${JSON.stringify(t.expected)}, nhận được ${JSON.stringify(actual)}`;
+    return { pass, html: `<div class="test-line ${pass ? 'pass' : 'fail'}"><span class="mark">${pass ? '✓' : '✗'}</span><span><span class="txt">${label} — input: ${JSON.stringify(t.args)}</span>${detail ? `<span class="detail">${detail}</span>` : ''}</span></div>` };
+  } catch(e){
+    return { pass: false, html: `<div class="test-line fail"><span class="mark">✗</span><span><span class="txt">${label} — lỗi khi chạy</span><span class="detail">${e.message}</span></span></div>` };
+  }
+}
+
 function runTests(problemId, problem, editorId, consoleId){
   editorId = editorId || 'editor';
   consoleId = consoleId || 'console-body';
@@ -5814,41 +5867,91 @@ function runTests(problemId, problem, editorId, consoleId){
     body.innerHTML = `<div class="console-empty">Chế độ Java chỉ để luyện viết code — không tự động chấm được trong trình duyệt. Copy code sang 1 trình biên dịch Java (IntelliJ/Eclipse/jdoodle.com) để tự kiểm tra, hoặc chuyển sang JavaScript ở trên để được chấm test tự động ngay tại đây.</div>`;
     return;
   }
-  const code = document.getElementById(editorId).value;
-  let userFn;
-  try {
-    const scope = new Function(code + '\nreturn solve;');
-    userFn = scope();
-    if (typeof userFn !== 'function') throw new Error('Không tìm thấy hàm solve() hợp lệ.');
-  } catch(e){
-    body.innerHTML = `<div class="error-line">✗ Lỗi cú pháp: ${e.message}</div>`;
-    return;
-  }
+  const userFn = compileUserFn(editorId, body);
+  if (!userFn) return;
 
+  const publicTests = getPublicTests(problem);
+  const hiddenCount = getHiddenTests(problem).length;
   let lines = '';
   let passCount = 0;
-  problem.tests.forEach((t, i) => {
+  publicTests.forEach((t, i) => {
+    const r = runTestLine(userFn, t, `test mẫu ${i+1}`);
+    if (r.pass) passCount++;
+    lines += r.html;
+  });
+  lines += `<div class="summary-line ${passCount===publicTests.length ? 'pass' : 'fail'}">${passCount}/${publicTests.length} test mẫu passed</div>`;
+  if (hiddenCount > 0) {
+    lines += `<div class="console-hint">Còn ${hiddenCount} test ẩn chưa kiểm tra — bấm <b>🚀 Submit</b> để chấm đầy đủ như thi đấu thật.</div>`;
+  }
+  body.innerHTML = lines;
+}
+
+function submitSolution(problemId, problem, editorId, consoleId){
+  editorId = editorId || 'editor';
+  consoleId = consoleId || 'console-body';
+  const body = document.getElementById(consoleId);
+  if (algoLang === 'java') {
+    body.innerHTML = `<div class="console-empty">Chế độ Java chỉ để luyện viết code — không tự động chấm được trong trình duyệt. Chuyển sang JavaScript để Submit được chấm đầy đủ.</div>`;
+    return;
+  }
+  const userFn = compileUserFn(editorId, body);
+  if (!userFn) return;
+
+  const publicTests = getPublicTests(problem);
+  const hiddenTests = getHiddenTests(problem);
+  let lines = '<div class="submit-banner">🚀 ĐANG CHẤM TOÀN BỘ TEST (như nộp bài thi)</div>';
+  let passCount = 0;
+  publicTests.forEach((t, i) => {
+    const r = runTestLine(userFn, t, `test mẫu ${i+1}`);
+    if (r.pass) passCount++;
+    lines += r.html;
+  });
+  hiddenTests.forEach((t, i) => {
+    // Hidden tests: only reveal pass/fail, never input/expected/actual — like a real judge
+    let pass;
     try {
       const actual = userFn(...t.args);
-      const pass = t.normalize === 'anagram' ? anagramEqual(actual, t.expected) : deepEqual(actual, t.expected);
-      if (pass) passCount++;
-      const detail = pass ? '' : `mong đợi ${JSON.stringify(t.expected)}, nhận được ${JSON.stringify(actual)}`;
-      lines += `<div class="test-line ${pass ? 'pass' : 'fail'}"><span class="mark">${pass ? '✓' : '✗'}</span><span><span class="txt">test ${i+1} — input: ${JSON.stringify(t.args)}</span>${detail ? `<span class="detail">${detail}</span>` : ''}</span></div>`;
-    } catch(e){
-      lines += `<div class="test-line fail"><span class="mark">✗</span><span><span class="txt">test ${i+1} — lỗi khi chạy</span><span class="detail">${e.message}</span></span></div>`;
-    }
+      pass = t.normalize === 'anagram' ? anagramEqual(actual, t.expected) : deepEqual(actual, t.expected);
+    } catch(e){ pass = false; }
+    if (pass) passCount++;
+    lines += `<div class="test-line ${pass ? 'pass' : 'fail'}"><span class="mark">${pass ? '✓' : '✗'}</span><span><span class="txt">test ẩn ${i+1} — ${pass ? 'đúng' : 'sai'}</span></span></div>`;
   });
 
-  const allPass = passCount === problem.tests.length;
-  lines += `<div class="summary-line ${allPass ? 'pass' : 'fail'}">${passCount}/${problem.tests.length} test passed${allPass ? ' — hoàn thành bài này!' : ''}</div>`;
+  const total = publicTests.length + hiddenTests.length;
+  const allPass = passCount === total;
+  lines += `<div class="summary-line ${allPass ? 'pass' : 'fail'}">${passCount}/${total} test passed${allPass ? ' — ACCEPTED! 🎉' : ' — chưa qua hết, thử lại nhé'}</div>`;
   body.innerHTML = lines;
 
+  const isJava = algoLang === 'java';
+  const savedKey = problemId + (isJava ? ':java' : '');
+  savedCode[savedKey] = document.getElementById(editorId).value;
+  saveCode();
+
   if (allPass) {
+    algoProblemStatus[problemId] = 'solved';
     setDone(currentTrack, currentWeek, true);
-    renderSidebar();
-    renderMenu();
-    renderStreakWidget();
+    showToast(`Chính xác! Bạn đã giải xong "${problem.name}" — trạng thái đã được lưu.`, 'success');
+  } else {
+    if (algoProblemStatus[problemId] !== 'solved') algoProblemStatus[problemId] = 'attempted';
+    showToast(`${passCount}/${total} test passed — chưa Accepted, thử sửa lại và Submit lần nữa.`, 'warning');
   }
+  saveAlgoStatus();
+  renderSidebar();
+  renderMenu();
+  renderStreakWidget();
+  updateAlgoStatusBadge(problemId);
+}
+
+function updateAlgoStatusBadge(problemId){
+  const status = algoProblemStatus[problemId];
+  const badgeHtml = status === 'solved' ? '<span class="algo-status-badge solved">✅ Đã hoàn thành</span>' : status === 'attempted' ? '<span class="algo-status-badge attempted">🔶 Đã thử — chưa Accepted</span>' : '';
+  document.querySelectorAll('#main .section-head').forEach(head => {
+    const tagWrap = head.querySelector('div');
+    if (!tagWrap) return;
+    const existing = tagWrap.querySelector('.algo-status-badge');
+    if (existing) existing.remove();
+    if (badgeHtml) tagWrap.insertAdjacentHTML('beforeend', badgeHtml);
+  });
 }
 
 /* ============ INIT ============ */
