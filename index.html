@@ -387,29 +387,39 @@
 
   .teach-wrap{padding:22px 26px; overflow-y:auto; height:100%;}
   .teach-header h3{font-size:19px; font-weight:800; margin-bottom:6px;}
-  .teach-header p{font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:18px;}
+  .teach-header p{font-size:13px; color:var(--text-muted); line-height:1.7; margin-bottom:18px;}
+  .teach-legend{font-weight:700;}
+  .teach-legend.lop46{color:var(--teaching);}
+  .teach-legend.lop7{color:var(--react);}
+  .teach-since{display:inline-block; margin-top:4px; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
   .teach-stats{display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
-  .teach-stat{flex:1; min-width:140px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:14px 18px;}
+  .teach-stat{flex:1; min-width:130px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:14px 18px;}
   .teach-stat-num{display:block; font-family:var(--mono); font-size:24px; font-weight:800; color:var(--teaching);}
+  .teach-stat.lop7 .teach-stat-num{color:var(--react);}
   .teach-stat-label{font-size:11.5px; color:var(--text-muted);}
-  .teach-view-tabs{display:flex; gap:6px; margin-bottom:16px;}
+  .teach-filters{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+  .teach-view-tabs{display:flex; gap:6px;}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
+  .teach-group-tab.active{background:var(--react); border-color:var(--react);}
   .teach-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;}
-  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0;}
-  .teach-card{border:1px solid var(--border); border-radius:14px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
-  .teach-card.is-today{border-color:var(--teaching); box-shadow:0 0 0 3px var(--teaching-dim);}
+  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0; grid-column:1/-1;}
+  .teach-card{border:1px solid var(--border); border-left:3px solid var(--group-color); border-radius:14px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
+  .teach-card.is-today{border-color:var(--group-color); border-left-width:3px; box-shadow:0 0 0 3px color-mix(in srgb, var(--group-color) 18%, transparent);}
   .teach-card.taught{background:var(--fe-dim);}
   .teach-card-head{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border);}
-  .teach-date-block{display:flex; flex-direction:column;}
+  .teach-date-block{display:flex; flex-direction:column; gap:2px;}
+  .teach-group-badge{font-family:var(--mono); font-size:9px; font-weight:800; color:var(--group-color); text-transform:uppercase; letter-spacing:.03em;}
   .teach-dow{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary);}
   .teach-dm{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
-  .teach-time{flex:1; font-size:12px; color:var(--text-muted);}
-  .teach-check{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted); cursor:pointer; user-select:none;}
+  .teach-time{flex:1; font-size:12px; color:var(--text-muted); text-align:right;}
+  .teach-row-2{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .teach-check{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted); cursor:pointer; user-select:none; flex-shrink:0;}
   .teach-check input{width:16px; height:16px; accent-color:var(--fe); cursor:pointer;}
   .teach-card.taught .teach-check{color:var(--fe);}
   .teach-card-body{padding:12px 16px; display:flex; flex-direction:column; gap:10px;}
-  .teach-grade-select{font-family:var(--mono); font-size:12px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); align-self:flex-start;}
+  .teach-grade-select{font-family:var(--mono); font-size:12px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary);}
+  .teach-grade-fixed{font-family:var(--mono); font-size:12px; font-weight:700; padding:7px 12px; border-radius:8px; background:color-mix(in srgb, var(--group-color) 12%, transparent); color:var(--group-color);}
   .teach-note{width:100%; min-height:56px; font-family:var(--sans); font-size:13px; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); resize:vertical; line-height:1.5;}
 
   .convo-wrap{display:grid; grid-template-columns:260px 1fr; height:100%; min-height:0;}
@@ -558,7 +568,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v83</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v84</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5083,70 +5093,89 @@ async function checkGrammar(text){
 
 /* ============ TEACHING SCHEDULE (Lịch dạy học) ============ */
 const teachingSchedule = [
-  { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối' },
-  { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
-  { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều' },
+  { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
+  { day: 3, label: 'Thứ 4', time: '18:15 - 20:15', period: 'Tối', group: 'lop7', groupLabel: 'Lớp 7' },
+  { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
+  { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
+  { day: 0, label: 'Chủ nhật', time: '08:30 - 10:30', period: 'Sáng', group: 'lop7', groupLabel: 'Lớp 7' },
 ];
+const teachingGroupColor = { lop46: '--teaching', lop7: '--react' };
+const TEACHING_START_DATE = new Date(2026, 8, 1); // 1/9/2026
 const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 
 function teachingSessionKey(dateObj){
   return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
 }
-function generateTeachingSessions(daysBack, daysForward){
+function generateTeachingSessions(daysForward){
   const list = [];
   const today = new Date(); today.setHours(0,0,0,0);
-  for (let offset = -daysBack; offset <= daysForward; offset++) {
-    const d = new Date(today); d.setDate(d.getDate() + offset);
+  const todayKey = teachingSessionKey(today);
+  const start = new Date(TEACHING_START_DATE); start.setHours(0,0,0,0);
+  const end = new Date(today); end.setDate(end.getDate() + daysForward);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const slot = teachingSchedule.find(s => s.day === d.getDay());
     if (!slot) continue;
     const key = teachingSessionKey(d);
-    list.push({ date: d, key, slot, isToday: offset === 0, isPast: offset < 0 });
+    list.push({ date: new Date(d), key, slot, isToday: key === todayKey, isPast: key < todayKey });
   }
   return list;
 }
 
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all'
+let teachingGroupFilter = 'all'; // 'all' | 'lop46' | 'lop7'
 
 function renderTeachingScreen(){
   const main = document.getElementById('main');
-  const allSessions = generateTeachingSessions(7, 60);
+  const allSessions = generateTeachingSessions(60);
   const totalTaught = countTeachingCompleted();
+  const taughtByGroup = { lop46: 0, lop7: 0 };
+  Object.entries(teachingData.sessions).forEach(([k,s]) => {
+    if (!s || !s.taught) return;
+    const slot = teachingSchedule.find(sc => sc.day === new Date(k+'T00:00:00').getDay());
+    if (slot) taughtByGroup[slot.group]++;
+  });
   const thisMonthTaught = Object.entries(teachingData.sessions).filter(([k,s]) => {
     if (!s || !s.taught) return false;
     const now = new Date();
     return k.startsWith(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
   }).length;
 
-  let filtered;
-  if (teachingViewMode === 'upcoming') filtered = allSessions.filter(s => !s.isPast || s.isToday);
-  else if (teachingViewMode === 'past') filtered = allSessions.filter(s => s.isPast);
-  else filtered = allSessions;
+  let filtered = allSessions;
+  if (teachingViewMode === 'upcoming') filtered = filtered.filter(s => !s.isPast || s.isToday);
+  else if (teachingViewMode === 'past') filtered = filtered.filter(s => s.isPast);
+  if (teachingGroupFilter !== 'all') filtered = filtered.filter(s => s.slot.group === teachingGroupFilter);
   if (teachingViewMode === 'past') filtered = filtered.slice().reverse();
 
   const sessionsHtml = filtered.map(s => {
     const saved = teachingData.sessions[s.key] || {};
     const taught = !!saved.taught;
-    const grade = saved.grade || 'Cả hai';
     const note = saved.note || '';
     const dm = `${String(s.date.getDate()).padStart(2,'0')}/${String(s.date.getMonth()+1).padStart(2,'0')}`;
-    return `<div class="teach-card ${taught ? 'taught' : ''} ${s.isToday ? 'is-today' : ''}" data-key="${s.key}">
+    const colorVar = teachingGroupColor[s.slot.group];
+    const gradeField = s.slot.group === 'lop7'
+      ? `<span class="teach-grade-fixed">Lớp 7</span>`
+      : `<select class="teach-grade-select" data-key="${s.key}">
+          <option value="Lớp 4" ${saved.grade==='Lớp 4'?'selected':''}>Lớp 4</option>
+          <option value="Lớp 6" ${saved.grade==='Lớp 6'?'selected':''}>Lớp 6</option>
+          <option value="Cả hai" ${(!saved.grade || saved.grade==='Cả hai')?'selected':''}>Cả hai (Lớp 4 & 6)</option>
+        </select>`;
+    return `<div class="teach-card ${taught ? 'taught' : ''} ${s.isToday ? 'is-today' : ''}" data-key="${s.key}" style="--group-color:var(${colorVar})">
       <div class="teach-card-head">
         <div class="teach-date-block">
+          <span class="teach-group-badge">${s.slot.groupLabel}</span>
           <span class="teach-dow">${s.slot.label}${s.isToday ? ' · Hôm nay' : ''}</span>
           <span class="teach-dm">${dm}</span>
         </div>
         <span class="teach-time">${s.slot.period} · ${s.slot.time}</span>
-        <label class="teach-check">
-          <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
-          <span>${taught ? '✓ Đã dạy' : 'Đã dạy'}</span>
-        </label>
       </div>
       <div class="teach-card-body">
-        <select class="teach-grade-select" data-key="${s.key}">
-          <option value="Lớp 4" ${grade==='Lớp 4'?'selected':''}>Lớp 4</option>
-          <option value="Lớp 6" ${grade==='Lớp 6'?'selected':''}>Lớp 6</option>
-          <option value="Cả hai" ${grade==='Cả hai'?'selected':''}>Cả hai (Lớp 4 & 6)</option>
-        </select>
+        <div class="teach-row-2">
+          ${gradeField}
+          <label class="teach-check">
+            <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
+            <span>${taught ? '✓ Đã dạy' : 'Đã dạy'}</span>
+          </label>
+        </div>
         <textarea class="teach-note" data-key="${s.key}" placeholder="Ghi chú nội dung đã dạy hôm nay...">${note.replace(/</g,'&lt;')}</textarea>
       </div>
     </div>`;
@@ -5155,25 +5184,40 @@ function renderTeachingScreen(){
   main.innerHTML = `
     <div class="teach-wrap">
       <div class="teach-header">
-        <h3>📅 Lịch dạy học — Gia sư Toán</h3>
-        <p>Lịch cố định hàng tuần: <b>Tối Thứ 3 & Thứ 5</b> (17:45 - 19:45) và <b>Chiều Thứ 7</b> (14:00 - 16:00) — Lớp 4 & Lớp 6, môn Toán.</p>
+        <h3>📅 Lịch dạy học — Gia sư</h3>
+        <p>
+          <span class="teach-legend lop46">● Lớp 4 & 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00)<br>
+          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 4 (18:15-20:15), Sáng Chủ nhật (08:30-10:30)<br>
+          <span class="teach-since">Tính từ 01/09/2026</span>
+        </p>
       </div>
       <div class="teach-stats">
         <div class="teach-stat"><span class="teach-stat-num">${totalTaught}</span><span class="teach-stat-label">Tổng số buổi đã dạy</span></div>
-        <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi trong tháng này</span></div>
-        <div class="teach-stat"><span class="teach-stat-num">3</span><span class="teach-stat-label">Buổi cố định / tuần</span></div>
+        <div class="teach-stat lop46"><span class="teach-stat-num">${taughtByGroup.lop46}</span><span class="teach-stat-label">Buổi Lớp 4 & 6</span></div>
+        <div class="teach-stat lop7"><span class="teach-stat-num">${taughtByGroup.lop7}</span><span class="teach-stat-label">Buổi Lớp 7</span></div>
+        <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi tháng này</span></div>
       </div>
-      <div class="teach-view-tabs">
-        <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
-        <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
-        <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
+      <div class="teach-filters">
+        <div class="teach-view-tabs">
+          <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
+          <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
+          <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
+        </div>
+        <div class="teach-view-tabs">
+          <button class="teach-tab teach-group-tab ${teachingGroupFilter==='all'?'active':''}" data-group="all">Tất cả lớp</button>
+          <button class="teach-tab teach-group-tab ${teachingGroupFilter==='lop46'?'active':''}" data-group="lop46">Lớp 4 & 6</button>
+          <button class="teach-tab teach-group-tab ${teachingGroupFilter==='lop7'?'active':''}" data-group="lop7">Lớp 7</button>
+        </div>
       </div>
       <div class="teach-list">${sessionsHtml || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div>
     </div>
   `;
 
-  document.querySelectorAll('.teach-tab').forEach(btn => {
+  document.querySelectorAll('.teach-tab:not(.teach-group-tab)').forEach(btn => {
     btn.addEventListener('click', () => { teachingViewMode = btn.dataset.mode; renderTeachingScreen(); });
+  });
+  document.querySelectorAll('.teach-group-tab').forEach(btn => {
+    btn.addEventListener('click', () => { teachingGroupFilter = btn.dataset.group; renderTeachingScreen(); });
   });
   document.querySelectorAll('.teach-taught-cb').forEach(cb => {
     cb.addEventListener('change', () => {
