@@ -395,7 +395,7 @@
   .teach-view-tabs{display:flex; gap:6px; margin-bottom:16px;}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
-  .teach-list{display:flex; flex-direction:column; gap:12px; max-width:720px;}
+  .teach-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;}
   .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0;}
   .teach-card{border:1px solid var(--border); border-radius:14px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
   .teach-card.is-today{border-color:var(--teaching); box-shadow:0 0 0 3px var(--teaching-dim);}
@@ -558,7 +558,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v82</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v83</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5109,7 +5109,7 @@ let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all'
 
 function renderTeachingScreen(){
   const main = document.getElementById('main');
-  const allSessions = generateTeachingSessions(60, 60);
+  const allSessions = generateTeachingSessions(7, 60);
   const totalTaught = countTeachingCompleted();
   const thisMonthTaught = Object.entries(teachingData.sessions).filter(([k,s]) => {
     if (!s || !s.taught) return false;
