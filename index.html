@@ -568,7 +568,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v85</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v86</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5092,18 +5092,27 @@ async function checkGrammar(text){
 }
 
 /* ============ TEACHING SCHEDULE (Lịch dạy học) ============ */
-const teachingSchedule = [
-  { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
-  { day: 3, label: 'Thứ 4', time: '18:15 - 20:15', period: 'Tối', group: 'lop7', groupLabel: 'Lớp 7' },
-  { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
-  { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều', group: 'lop46', groupLabel: 'Lớp 4 & 6' },
-  { day: 0, label: 'Chủ nhật', time: '08:30 - 10:30', period: 'Sáng', group: 'lop7', groupLabel: 'Lớp 7' },
+// Mỗi period là 1 GIAI ĐOẠN lịch cố định của 1 nhóm lớp, có ngày bắt đầu/kết thúc riêng.
+// to: null nghĩa là áp dụng đến hiện tại (chưa có lịch đổi tiếp theo).
+const teachingPeriods = [
+  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 5, 1), to: new Date(2026, 7, 11),
+    slots: [
+      { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối' },
+      { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
+    ] },
+  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 8, 1), to: null,
+    slots: [
+      { day: 3, label: 'Thứ 4', time: '18:15 - 20:15', period: 'Tối' },
+      { day: 0, label: 'Chủ nhật', time: '08:30 - 10:30', period: 'Sáng' },
+    ] },
+  { group: 'lop46', groupLabel: 'Lớp 4 & 6', from: new Date(2026, 8, 1), to: null,
+    slots: [
+      { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối' },
+      { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
+      { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều' },
+    ] },
 ];
 const teachingGroupColor = { lop46: '--teaching', lop7: '--react' };
-const teachingGroupStartDate = {
-  lop7: new Date(2026, 5, 1),  // 1/6/2026 — Lớp 7 dạy từ tháng 6
-  lop46: new Date(2026, 8, 1), // 1/9/2026 — Lớp 4 & 6 dạy từ tháng 9
-};
 const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 
 function teachingSessionKey(dateObj){
@@ -5113,18 +5122,21 @@ function generateTeachingSessions(daysForward){
   const list = [];
   const today = new Date(); today.setHours(0,0,0,0);
   const todayKey = teachingSessionKey(today);
-  const earliestStart = new Date(Math.min(...Object.values(teachingGroupStartDate).map(d => d.getTime())));
+  const earliestStart = new Date(Math.min(...teachingPeriods.map(p => p.from.getTime())));
   earliestStart.setHours(0,0,0,0);
   const end = new Date(today); end.setDate(end.getDate() + daysForward);
   for (let d = new Date(earliestStart); d <= end; d.setDate(d.getDate() + 1)) {
-    const slot = teachingSchedule.find(s => s.day === d.getDay());
-    if (!slot) continue;
-    const groupStart = teachingGroupStartDate[slot.group];
-    if (d < groupStart) continue; // chưa đến ngày bắt đầu dạy nhóm này
-    const key = teachingSessionKey(d);
-    list.push({ date: new Date(d), key, slot, isToday: key === todayKey, isPast: key < todayKey });
+    for (const p of teachingPeriods) {
+      if (d < p.from) continue;
+      if (p.to && d > p.to) continue;
+      const matchSlot = p.slots.find(s => s.day === d.getDay());
+      if (!matchSlot) continue;
+      const key = teachingSessionKey(d);
+      const slot = { ...matchSlot, group: p.group, groupLabel: p.groupLabel };
+      list.push({ date: new Date(d), key, slot, isToday: key === todayKey, isPast: key < todayKey });
+    }
   }
-  return list;
+  return list.sort((a,b) => a.date - b.date || a.slot.time.localeCompare(b.slot.time));
 }
 
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all'
@@ -5137,8 +5149,9 @@ function renderTeachingScreen(){
   const taughtByGroup = { lop46: 0, lop7: 0 };
   Object.entries(teachingData.sessions).forEach(([k,s]) => {
     if (!s || !s.taught) return;
-    const slot = teachingSchedule.find(sc => sc.day === new Date(k+'T00:00:00').getDay());
-    if (slot) taughtByGroup[slot.group]++;
+    const d = new Date(k+'T00:00:00');
+    const p = teachingPeriods.find(pr => d >= pr.from && (!pr.to || d <= pr.to) && pr.slots.some(sl => sl.day === d.getDay()));
+    if (p) taughtByGroup[p.group]++;
   });
   const thisMonthTaught = Object.entries(teachingData.sessions).filter(([k,s]) => {
     if (!s || !s.taught) return false;
@@ -5193,7 +5206,7 @@ function renderTeachingScreen(){
         <h3>📅 Lịch dạy học — Gia sư</h3>
         <p>
           <span class="teach-legend lop46">● Lớp 4 & 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00) <span class="teach-since">· từ 01/09/2026</span><br>
-          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 4 (18:15-20:15), Sáng Chủ nhật (08:30-10:30) <span class="teach-since">· từ 01/06/2026</span>
+          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45) <span class="teach-since">· 01/06 - 11/08/2026</span>, sau đó đổi sang Tối Thứ 4 (18:15-20:15) & Sáng Chủ nhật (08:30-10:30) <span class="teach-since">· từ 01/09/2026</span>
         </p>
       </div>
       <div class="teach-stats">
