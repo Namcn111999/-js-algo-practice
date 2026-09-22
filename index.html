@@ -568,7 +568,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v84</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v85</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5100,7 +5100,10 @@ const teachingSchedule = [
   { day: 0, label: 'Chủ nhật', time: '08:30 - 10:30', period: 'Sáng', group: 'lop7', groupLabel: 'Lớp 7' },
 ];
 const teachingGroupColor = { lop46: '--teaching', lop7: '--react' };
-const TEACHING_START_DATE = new Date(2026, 8, 1); // 1/9/2026
+const teachingGroupStartDate = {
+  lop7: new Date(2026, 5, 1),  // 1/6/2026 — Lớp 7 dạy từ tháng 6
+  lop46: new Date(2026, 8, 1), // 1/9/2026 — Lớp 4 & 6 dạy từ tháng 9
+};
 const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 
 function teachingSessionKey(dateObj){
@@ -5110,11 +5113,14 @@ function generateTeachingSessions(daysForward){
   const list = [];
   const today = new Date(); today.setHours(0,0,0,0);
   const todayKey = teachingSessionKey(today);
-  const start = new Date(TEACHING_START_DATE); start.setHours(0,0,0,0);
+  const earliestStart = new Date(Math.min(...Object.values(teachingGroupStartDate).map(d => d.getTime())));
+  earliestStart.setHours(0,0,0,0);
   const end = new Date(today); end.setDate(end.getDate() + daysForward);
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(earliestStart); d <= end; d.setDate(d.getDate() + 1)) {
     const slot = teachingSchedule.find(s => s.day === d.getDay());
     if (!slot) continue;
+    const groupStart = teachingGroupStartDate[slot.group];
+    if (d < groupStart) continue; // chưa đến ngày bắt đầu dạy nhóm này
     const key = teachingSessionKey(d);
     list.push({ date: new Date(d), key, slot, isToday: key === todayKey, isPast: key < todayKey });
   }
@@ -5186,9 +5192,8 @@ function renderTeachingScreen(){
       <div class="teach-header">
         <h3>📅 Lịch dạy học — Gia sư</h3>
         <p>
-          <span class="teach-legend lop46">● Lớp 4 & 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00)<br>
-          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 4 (18:15-20:15), Sáng Chủ nhật (08:30-10:30)<br>
-          <span class="teach-since">Tính từ 01/09/2026</span>
+          <span class="teach-legend lop46">● Lớp 4 & 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00) <span class="teach-since">· từ 01/09/2026</span><br>
+          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 4 (18:15-20:15), Sáng Chủ nhật (08:30-10:30) <span class="teach-since">· từ 01/06/2026</span>
         </p>
       </div>
       <div class="teach-stats">
