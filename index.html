@@ -41,6 +41,8 @@
     --angular-dim:rgba(220,38,38,0.09);
     --convo:#059669;
     --convo-dim:rgba(5,150,105,0.09);
+    --teaching:#7C3AED;
+    --teaching-dim:rgba(124,58,237,0.09);
     --coral:#DC2626;
     --coral-dim:rgba(220,38,38,0.09);
     --amber2:#B45309;
@@ -383,6 +385,33 @@
   .confirm-danger{background:var(--coral); color:#fff;}
   .confirm-danger:hover{opacity:.9;}
 
+  .teach-wrap{padding:22px 26px; overflow-y:auto; height:100%;}
+  .teach-header h3{font-size:19px; font-weight:800; margin-bottom:6px;}
+  .teach-header p{font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:18px;}
+  .teach-stats{display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
+  .teach-stat{flex:1; min-width:140px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:14px 18px;}
+  .teach-stat-num{display:block; font-family:var(--mono); font-size:24px; font-weight:800; color:var(--teaching);}
+  .teach-stat-label{font-size:11.5px; color:var(--text-muted);}
+  .teach-view-tabs{display:flex; gap:6px; margin-bottom:16px;}
+  .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
+  .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
+  .teach-list{display:flex; flex-direction:column; gap:12px; max-width:720px;}
+  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0;}
+  .teach-card{border:1px solid var(--border); border-radius:14px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
+  .teach-card.is-today{border-color:var(--teaching); box-shadow:0 0 0 3px var(--teaching-dim);}
+  .teach-card.taught{background:var(--fe-dim);}
+  .teach-card-head{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border);}
+  .teach-date-block{display:flex; flex-direction:column;}
+  .teach-dow{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary);}
+  .teach-dm{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
+  .teach-time{flex:1; font-size:12px; color:var(--text-muted);}
+  .teach-check{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted); cursor:pointer; user-select:none;}
+  .teach-check input{width:16px; height:16px; accent-color:var(--fe); cursor:pointer;}
+  .teach-card.taught .teach-check{color:var(--fe);}
+  .teach-card-body{padding:12px 16px; display:flex; flex-direction:column; gap:10px;}
+  .teach-grade-select{font-family:var(--mono); font-size:12px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); align-self:flex-start;}
+  .teach-note{width:100%; min-height:56px; font-family:var(--sans); font-size:13px; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); resize:vertical; line-height:1.5;}
+
   .convo-wrap{display:grid; grid-template-columns:260px 1fr; height:100%; min-height:0;}
   .convo-sidebar{overflow-y:auto; border-right:1px solid var(--border); background:var(--bg-panel); padding:12px 0;}
   .convo-stage-block{margin-bottom:6px;}
@@ -529,7 +558,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v81</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v82</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4585,8 +4614,9 @@ const tracks = {
   toeic:{label:'TOEIC 800+', color:'--toeic', dim:'--toeic-dim', weeks:toeicWeeks, isAlgo:false, category:'tieng'},
   korean:{label:'Tiếng Hàn', color:'--korean', dim:'--korean-dim', weeks:koreanWeeks, isAlgo:false, category:'tieng'},
   convo:{label:'🎙️ Giao tiếp hàng ngày', color:'--convo', dim:'--convo-dim', weeks:[], isAlgo:false, category:'tieng', isConvo:true},
+  teaching:{label:'📅 Lịch dạy học', color:'--teaching', dim:'--teaching-dim', weeks:[], isAlgo:false, category:'quanly', isTeaching:true},
 };
-const categoryLabels = { frontend: {label:'Frontend', icon:'🎨'}, backend: {label:'Backend & Hệ thống', icon:'⚙️'}, tieng: {label:'Ngoại ngữ', icon:'🌐'} };
+const categoryLabels = { frontend: {label:'Frontend', icon:'🎨'}, backend: {label:'Backend & Hệ thống', icon:'⚙️'}, tieng: {label:'Ngoại ngữ', icon:'🌐'}, quanly: {label:'Quản lý', icon:'🗂️'} };
 
 /* ============ PROFILES ============ */
 let profiles = [];
@@ -4603,6 +4633,9 @@ let currentNoteTab = 0;
 let notes = {};
 let progress = {};
 let convoData = { completedTopics: {}, practiceLog: {}, selectedStage: 0, selectedTopic: 0 };
+let teachingData = { sessions: {} }; // sessions[dateStr] = { taught: bool, note: '', grade: 'Lớp 4'|'Lớp 6'|'Cả hai' }
+function saveTeachingData(){ localStorage.setItem(pKey('roadmap-teaching'), JSON.stringify(teachingData)); }
+function countTeachingCompleted(){ return Object.values(teachingData.sessions).filter(s => s && s.taught).length; }
 const savedCode = {};
 let algoProblemStatus = {}; // { [problemId]: 'solved' | 'attempted' }
 function saveAlgoStatus(){ localStorage.setItem(pKey('roadmap-algo-status'), JSON.stringify(algoProblemStatus)); }
@@ -4730,6 +4763,9 @@ function loadProfileData(){
   if (!convoData.practiceLog) convoData.practiceLog = {};
   if (convoData.selectedStage === undefined) convoData.selectedStage = 0;
   if (convoData.selectedTopic === undefined) convoData.selectedTopic = 0;
+  teachingData = { sessions: {} };
+  try { teachingData = JSON.parse(localStorage.getItem(pKey('roadmap-teaching')) || '{}'); } catch(e){}
+  if (!teachingData.sessions) teachingData.sessions = {};
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -5045,6 +5081,129 @@ async function checkGrammar(text){
   }
 }
 
+/* ============ TEACHING SCHEDULE (Lịch dạy học) ============ */
+const teachingSchedule = [
+  { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối' },
+  { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
+  { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều' },
+];
+const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
+
+function teachingSessionKey(dateObj){
+  return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
+}
+function generateTeachingSessions(daysBack, daysForward){
+  const list = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let offset = -daysBack; offset <= daysForward; offset++) {
+    const d = new Date(today); d.setDate(d.getDate() + offset);
+    const slot = teachingSchedule.find(s => s.day === d.getDay());
+    if (!slot) continue;
+    const key = teachingSessionKey(d);
+    list.push({ date: d, key, slot, isToday: offset === 0, isPast: offset < 0 });
+  }
+  return list;
+}
+
+let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all'
+
+function renderTeachingScreen(){
+  const main = document.getElementById('main');
+  const allSessions = generateTeachingSessions(60, 60);
+  const totalTaught = countTeachingCompleted();
+  const thisMonthTaught = Object.entries(teachingData.sessions).filter(([k,s]) => {
+    if (!s || !s.taught) return false;
+    const now = new Date();
+    return k.startsWith(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
+  }).length;
+
+  let filtered;
+  if (teachingViewMode === 'upcoming') filtered = allSessions.filter(s => !s.isPast || s.isToday);
+  else if (teachingViewMode === 'past') filtered = allSessions.filter(s => s.isPast);
+  else filtered = allSessions;
+  if (teachingViewMode === 'past') filtered = filtered.slice().reverse();
+
+  const sessionsHtml = filtered.map(s => {
+    const saved = teachingData.sessions[s.key] || {};
+    const taught = !!saved.taught;
+    const grade = saved.grade || 'Cả hai';
+    const note = saved.note || '';
+    const dm = `${String(s.date.getDate()).padStart(2,'0')}/${String(s.date.getMonth()+1).padStart(2,'0')}`;
+    return `<div class="teach-card ${taught ? 'taught' : ''} ${s.isToday ? 'is-today' : ''}" data-key="${s.key}">
+      <div class="teach-card-head">
+        <div class="teach-date-block">
+          <span class="teach-dow">${s.slot.label}${s.isToday ? ' · Hôm nay' : ''}</span>
+          <span class="teach-dm">${dm}</span>
+        </div>
+        <span class="teach-time">${s.slot.period} · ${s.slot.time}</span>
+        <label class="teach-check">
+          <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
+          <span>${taught ? '✓ Đã dạy' : 'Đã dạy'}</span>
+        </label>
+      </div>
+      <div class="teach-card-body">
+        <select class="teach-grade-select" data-key="${s.key}">
+          <option value="Lớp 4" ${grade==='Lớp 4'?'selected':''}>Lớp 4</option>
+          <option value="Lớp 6" ${grade==='Lớp 6'?'selected':''}>Lớp 6</option>
+          <option value="Cả hai" ${grade==='Cả hai'?'selected':''}>Cả hai (Lớp 4 & 6)</option>
+        </select>
+        <textarea class="teach-note" data-key="${s.key}" placeholder="Ghi chú nội dung đã dạy hôm nay...">${note.replace(/</g,'&lt;')}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+
+  main.innerHTML = `
+    <div class="teach-wrap">
+      <div class="teach-header">
+        <h3>📅 Lịch dạy học — Gia sư Toán</h3>
+        <p>Lịch cố định hàng tuần: <b>Tối Thứ 3 & Thứ 5</b> (17:45 - 19:45) và <b>Chiều Thứ 7</b> (14:00 - 16:00) — Lớp 4 & Lớp 6, môn Toán.</p>
+      </div>
+      <div class="teach-stats">
+        <div class="teach-stat"><span class="teach-stat-num">${totalTaught}</span><span class="teach-stat-label">Tổng số buổi đã dạy</span></div>
+        <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi trong tháng này</span></div>
+        <div class="teach-stat"><span class="teach-stat-num">3</span><span class="teach-stat-label">Buổi cố định / tuần</span></div>
+      </div>
+      <div class="teach-view-tabs">
+        <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
+        <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
+        <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
+      </div>
+      <div class="teach-list">${sessionsHtml || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div>
+    </div>
+  `;
+
+  document.querySelectorAll('.teach-tab').forEach(btn => {
+    btn.addEventListener('click', () => { teachingViewMode = btn.dataset.mode; renderTeachingScreen(); });
+  });
+  document.querySelectorAll('.teach-taught-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const key = cb.dataset.key;
+      if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
+      teachingData.sessions[key].taught = cb.checked;
+      saveTeachingData();
+      renderTeachingScreen();
+      renderMenu();
+      showToast(cb.checked ? 'Đã đánh dấu buổi này là đã dạy.' : 'Đã bỏ đánh dấu buổi này.', 'success');
+    });
+  });
+  document.querySelectorAll('.teach-grade-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const key = sel.dataset.key;
+      if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
+      teachingData.sessions[key].grade = sel.value;
+      saveTeachingData();
+    });
+  });
+  document.querySelectorAll('.teach-note').forEach(ta => {
+    ta.addEventListener('input', () => {
+      const key = ta.dataset.key;
+      if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
+      teachingData.sessions[key].note = ta.value;
+      saveTeachingData();
+    });
+  });
+}
+
 async function handleConvoUserSpeech(transcript){
   convoMessages.push({role:'user', text: transcript});
   renderConvoChat();
@@ -5064,7 +5223,7 @@ async function handleConvoUserSpeech(transcript){
 
 /* ============ RENDER: TOP MENU ============ */
 let currentCategory = tracks[currentTrack] ? tracks[currentTrack].category : 'frontend';
-let lastTrackByCategory = { frontend: 'fe', backend: 'javacore', tieng: 'toeic' };
+let lastTrackByCategory = { frontend: 'fe', backend: 'javacore', tieng: 'toeic', quanly: 'teaching' };
 function renderMenu(){
   const menu = document.getElementById('menu');
   menu.innerHTML = '';
@@ -5074,7 +5233,7 @@ function renderMenu(){
   Object.keys(categoryLabels).forEach(catKey => {
     const cat = categoryLabels[catKey];
     const catTracks = Object.keys(tracks).filter(k => tracks[k].category === catKey);
-    const weekTracks = catTracks.filter(k => !tracks[k].isConvo);
+    const weekTracks = catTracks.filter(k => !tracks[k].isConvo && !tracks[k].isTeaching);
     const totalDone = weekTracks.reduce((sum,k) => sum + countDone(k), 0);
     const totalWeeks = weekTracks.reduce((sum,k) => sum + tracks[k].weeks.length, 0);
     const btn = document.createElement('button');
@@ -5099,7 +5258,7 @@ function renderMenu(){
     const btn = document.createElement('button');
     btn.className = 'menu-btn' + (key === currentTrack ? ' active' : '');
     btn.style.setProperty('--track-color', `var(${t.color})`);
-    const subLabel = t.isConvo ? `${countConvoCompleted()}/80 chủ đề` : `${countDone(key)}/${t.weeks.length} tuần`;
+    const subLabel = t.isConvo ? `${countConvoCompleted()}/80 chủ đề` : t.isTeaching ? `${countTeachingCompleted()} buổi` : `${countDone(key)}/${t.weeks.length} tuần`;
     btn.innerHTML = `<span class="label">${t.label}</span><span class="sub">${subLabel}</span>`;
     btn.addEventListener('click', () => {
       currentTrack = key;
@@ -5963,6 +6122,11 @@ function renderAll(){
     document.getElementById('notesPanel').classList.add('app-hidden');
     appEl.classList.add('convo-mode');
     renderConvoScreen();
+  } else if (tracks[currentTrack] && tracks[currentTrack].isTeaching) {
+    document.getElementById('sidebar').classList.add('app-hidden');
+    document.getElementById('notesPanel').classList.add('app-hidden');
+    appEl.classList.add('convo-mode');
+    renderTeachingScreen();
   } else {
     document.getElementById('sidebar').classList.remove('app-hidden');
     document.getElementById('notesPanel').classList.remove('app-hidden');
