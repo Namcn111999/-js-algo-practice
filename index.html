@@ -402,25 +402,25 @@
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
   .teach-group-tab.active{background:var(--react); border-color:var(--react);}
-  .teach-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;}
-  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0; grid-column:1/-1;}
-  .teach-card{border:1px solid var(--border); border-left:3px solid var(--group-color); border-radius:14px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
+  .teach-list{display:flex; flex-direction:column; gap:8px;}
+  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0;}
+  .teach-card{border:1px solid var(--border); border-left:3px solid var(--group-color); border-radius:12px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
   .teach-card.is-today{border-color:var(--group-color); border-left-width:3px; box-shadow:0 0 0 3px color-mix(in srgb, var(--group-color) 18%, transparent);}
   .teach-card.taught{background:var(--fe-dim);}
-  .teach-card-head{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border);}
-  .teach-date-block{display:flex; flex-direction:column; gap:2px;}
-  .teach-group-badge{font-family:var(--mono); font-size:9px; font-weight:800; color:var(--group-color); text-transform:uppercase; letter-spacing:.03em;}
+  .teach-card-row{display:flex; align-items:center; gap:12px; padding:10px 14px;}
+  .teach-group-dot{width:8px; height:8px; border-radius:50%; background:var(--group-color); flex-shrink:0;}
+  .teach-date-block{display:flex; flex-direction:column; gap:1px; min-width:110px;}
   .teach-dow{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary);}
   .teach-dm{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
-  .teach-time{flex:1; font-size:12px; color:var(--text-muted); text-align:right;}
-  .teach-row-2{display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .teach-check{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-muted); cursor:pointer; user-select:none; flex-shrink:0;}
-  .teach-check input{width:16px; height:16px; accent-color:var(--fe); cursor:pointer;}
-  .teach-card.taught .teach-check{color:var(--fe);}
-  .teach-card-body{padding:12px 16px; display:flex; flex-direction:column; gap:10px;}
-  .teach-grade-select{font-family:var(--mono); font-size:12px; padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary);}
-  .teach-grade-fixed{font-family:var(--mono); font-size:12px; font-weight:700; padding:7px 12px; border-radius:8px; background:color-mix(in srgb, var(--group-color) 12%, transparent); color:var(--group-color);}
-  .teach-note{width:100%; min-height:56px; font-family:var(--sans); font-size:13px; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); resize:vertical; line-height:1.5;}
+  .teach-grade-select{font-family:var(--mono); font-size:11.5px; padding:6px 9px; border-radius:7px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); flex-shrink:0;}
+  .teach-grade-fixed{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:7px; background:color-mix(in srgb, var(--group-color) 12%, transparent); color:var(--group-color); flex-shrink:0; white-space:nowrap;}
+  .teach-note-btn{margin-left:auto; font-size:14px; width:32px; height:32px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-dim); cursor:pointer; transition:.15s; flex-shrink:0;}
+  .teach-note-btn:hover{border-color:var(--group-color); color:var(--group-color);}
+  .teach-note-btn.has-note{background:color-mix(in srgb, var(--group-color) 14%, transparent); color:var(--group-color); border-color:var(--group-color);}
+  .teach-check{display:flex; align-items:center; flex-shrink:0;}
+  .teach-check input{width:19px; height:19px; accent-color:var(--fe); cursor:pointer;}
+  .teach-note-box{width:420px;}
+  .teach-note-textarea{width:100%; min-height:140px; font-family:var(--sans); font-size:13.5px; padding:11px 13px; border-radius:10px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); resize:vertical; line-height:1.6; margin-bottom:16px;}
 
   .convo-wrap{display:grid; grid-template-columns:260px 1fr; height:100%; min-height:0;}
   .convo-sidebar{overflow-y:auto; border-right:1px solid var(--border); background:var(--bg-panel); padding:12px 0;}
@@ -568,7 +568,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v86</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v87</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5169,6 +5169,7 @@ function renderTeachingScreen(){
     const saved = teachingData.sessions[s.key] || {};
     const taught = !!saved.taught;
     const note = saved.note || '';
+    const hasNote = note.trim().length > 0;
     const dm = `${String(s.date.getDate()).padStart(2,'0')}/${String(s.date.getMonth()+1).padStart(2,'0')}`;
     const colorVar = teachingGroupColor[s.slot.group];
     const gradeField = s.slot.group === 'lop7'
@@ -5176,26 +5177,20 @@ function renderTeachingScreen(){
       : `<select class="teach-grade-select" data-key="${s.key}">
           <option value="Lớp 4" ${saved.grade==='Lớp 4'?'selected':''}>Lớp 4</option>
           <option value="Lớp 6" ${saved.grade==='Lớp 6'?'selected':''}>Lớp 6</option>
-          <option value="Cả hai" ${(!saved.grade || saved.grade==='Cả hai')?'selected':''}>Cả hai (Lớp 4 & 6)</option>
+          <option value="Cả hai" ${(!saved.grade || saved.grade==='Cả hai')?'selected':''}>Cả hai</option>
         </select>`;
     return `<div class="teach-card ${taught ? 'taught' : ''} ${s.isToday ? 'is-today' : ''}" data-key="${s.key}" style="--group-color:var(${colorVar})">
-      <div class="teach-card-head">
+      <div class="teach-card-row">
+        <span class="teach-group-dot"></span>
         <div class="teach-date-block">
-          <span class="teach-group-badge">${s.slot.groupLabel}</span>
           <span class="teach-dow">${s.slot.label}${s.isToday ? ' · Hôm nay' : ''}</span>
-          <span class="teach-dm">${dm}</span>
+          <span class="teach-dm">${dm} · ${s.slot.time}</span>
         </div>
-        <span class="teach-time">${s.slot.period} · ${s.slot.time}</span>
-      </div>
-      <div class="teach-card-body">
-        <div class="teach-row-2">
-          ${gradeField}
-          <label class="teach-check">
-            <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
-            <span>${taught ? '✓ Đã dạy' : 'Đã dạy'}</span>
-          </label>
-        </div>
-        <textarea class="teach-note" data-key="${s.key}" placeholder="Ghi chú nội dung đã dạy hôm nay...">${note.replace(/</g,'&lt;')}</textarea>
+        ${gradeField}
+        <button class="teach-note-btn ${hasNote ? 'has-note' : ''}" data-key="${s.key}" title="${hasNote ? 'Xem/sửa ghi chú' : 'Thêm ghi chú'}">📝${hasNote ? '' : '+'}</button>
+        <label class="teach-check">
+          <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
+        </label>
       </div>
     </div>`;
   }).join('');
@@ -5256,13 +5251,43 @@ function renderTeachingScreen(){
       saveTeachingData();
     });
   });
-  document.querySelectorAll('.teach-note').forEach(ta => {
-    ta.addEventListener('input', () => {
-      const key = ta.dataset.key;
-      if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
-      teachingData.sessions[key].note = ta.value;
-      saveTeachingData();
-    });
+  document.querySelectorAll('.teach-note-btn').forEach(btn => {
+    btn.addEventListener('click', () => showTeachNoteModal(btn.dataset.key));
+  });
+}
+
+function showTeachNoteModal(key){
+  const saved = teachingData.sessions[key] || {};
+  const [y,m,d] = key.split('-');
+  let overlay = document.getElementById('teachNoteOverlay');
+  if (overlay) overlay.remove();
+  overlay = document.createElement('div');
+  overlay.id = 'teachNoteOverlay';
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box teach-note-box">
+      <div class="confirm-title">📝 Ghi chú buổi ${d}/${m}/${y}</div>
+      <textarea class="teach-note-textarea" id="teachNoteTextarea" placeholder="Ghi chú nội dung đã dạy hôm nay...">${(saved.note||'').replace(/</g,'&lt;')}</textarea>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-cancel" id="teachNoteCancelBtn">Đóng</button>
+        <button class="confirm-btn confirm-primary" id="teachNoteSaveBtn">Lưu ghi chú</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('show'));
+  const close = () => { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 200); };
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.getElementById('teachNoteCancelBtn').addEventListener('click', close);
+  document.getElementById('teachNoteTextarea').focus();
+  document.getElementById('teachNoteSaveBtn').addEventListener('click', () => {
+    const val = document.getElementById('teachNoteTextarea').value;
+    if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
+    teachingData.sessions[key].note = val;
+    saveTeachingData();
+    close();
+    renderTeachingScreen();
+    showToast('Đã lưu ghi chú.', 'success');
   });
 }
 
