@@ -400,7 +400,14 @@
   .teach-stat.lop4 .teach-stat-num{color:var(--korean);}
   .teach-stat.lop7 .teach-stat-num{color:var(--react);}
   .teach-stat-label{font-size:11.5px; color:var(--text-muted);}
+  .teach-filters-row{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
   .teach-view-tabs{display:flex; gap:6px; flex-wrap:wrap;}
+  .teach-month-nav{display:flex; align-items:center; gap:8px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:5px 8px;}
+  .teach-month-btn{font-size:15px; font-weight:800; width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer;}
+  .teach-month-btn:hover{color:var(--teaching); border-color:var(--teaching);}
+  .teach-month-label{font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--text-primary); min-width:92px; text-align:center;}
+  .teach-month-today{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:5px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; margin-left:4px;}
+  .teach-month-today:hover{color:var(--teaching); border-color:var(--teaching);}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
   .teach-columns{display:grid; grid-template-columns:repeat(3, minmax(260px, 1fr)); gap:16px; align-items:start;}
@@ -574,7 +581,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v89</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v90</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5135,14 +5142,13 @@ const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 function teachingSessionKey(dateObj){
   return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
 }
-function generateTeachingSessions(daysForward){
+function generateTeachingSessions(endDate){
   const list = [];
   const today = new Date(); today.setHours(0,0,0,0);
   const todayKey = teachingSessionKey(today);
   const earliestStart = new Date(Math.min(...teachingPeriods.map(p => p.from.getTime())));
   earliestStart.setHours(0,0,0,0);
-  const end = new Date(today); end.setDate(end.getDate() + daysForward);
-  for (let d = new Date(earliestStart); d <= end; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(earliestStart); d <= endDate; d.setDate(d.getDate() + 1)) {
     for (const p of teachingPeriods) {
       if (d < p.from) continue;
       if (p.to && d > p.to) continue;
@@ -5156,12 +5162,16 @@ function generateTeachingSessions(daysForward){
   return list.sort((a,b) => a.date - b.date || a.slot.time.localeCompare(b.slot.time));
 }
 
-let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all'
-let teachingGroupFilter = 'all'; // 'all' | 'lop46' | 'lop7'
+let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
+const teachingMonthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+let teachingSelectedMonth = (() => { const n = new Date(); return { year: n.getFullYear(), month: n.getMonth() }; })();
 
 function renderTeachingScreen(){
   const main = document.getElementById('main');
-  const allSessions = generateTeachingSessions(60);
+  const today60 = new Date(); today60.setDate(today60.getDate() + 60);
+  const monthEnd = new Date(teachingSelectedMonth.year, teachingSelectedMonth.month + 1, 0);
+  const genEnd = teachingViewMode === 'month' && monthEnd > today60 ? monthEnd : today60;
+  const allSessions = generateTeachingSessions(genEnd);
   const totalTaught = countTeachingCompleted();
   const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0 };
   Object.entries(teachingData.sessions).forEach(([k,s]) => {
@@ -5179,6 +5189,9 @@ function renderTeachingScreen(){
   let filtered = allSessions;
   if (teachingViewMode === 'upcoming') filtered = filtered.filter(s => !s.isPast || s.isToday);
   else if (teachingViewMode === 'past') filtered = filtered.filter(s => s.isPast);
+  else if (teachingViewMode === 'month') {
+    filtered = filtered.filter(s => s.date.getFullYear() === teachingSelectedMonth.year && s.date.getMonth() === teachingSelectedMonth.month);
+  }
   if (teachingViewMode === 'past') filtered = filtered.slice().reverse();
 
   function buildCard(s){
@@ -5232,10 +5245,20 @@ function renderTeachingScreen(){
         <div class="teach-stat lop7"><span class="teach-stat-num">${taughtByGroup.lop7}</span><span class="teach-stat-label">Buổi Lớp 7</span></div>
         <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi tháng này</span></div>
       </div>
-      <div class="teach-view-tabs" style="margin-bottom:16px;">
-        <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
-        <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
-        <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
+      <div class="teach-filters-row">
+        <div class="teach-view-tabs">
+          <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
+          <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
+          <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
+          <button class="teach-tab ${teachingViewMode==='month'?'active':''}" data-mode="month">📆 Theo tháng</button>
+        </div>
+        ${teachingViewMode === 'month' ? `
+        <div class="teach-month-nav">
+          <button class="teach-month-btn" id="teachMonthPrev">‹</button>
+          <span class="teach-month-label">${teachingMonthNames[teachingSelectedMonth.month]}, ${teachingSelectedMonth.year}</span>
+          <button class="teach-month-btn" id="teachMonthNext">›</button>
+          <button class="teach-month-today" id="teachMonthToday">Tháng này</button>
+        </div>` : ''}
       </div>
       <div class="teach-columns">
         ${buildColumn('lop6', 'Lớp 6')}
@@ -5247,6 +5270,23 @@ function renderTeachingScreen(){
 
   document.querySelectorAll('.teach-tab').forEach(btn => {
     btn.addEventListener('click', () => { teachingViewMode = btn.dataset.mode; renderTeachingScreen(); });
+  });
+  const monthPrev = document.getElementById('teachMonthPrev');
+  if (monthPrev) monthPrev.addEventListener('click', () => {
+    teachingSelectedMonth.month--;
+    if (teachingSelectedMonth.month < 0) { teachingSelectedMonth.month = 11; teachingSelectedMonth.year--; }
+    renderTeachingScreen();
+  });
+  const monthNext = document.getElementById('teachMonthNext');
+  if (monthNext) monthNext.addEventListener('click', () => {
+    teachingSelectedMonth.month++;
+    if (teachingSelectedMonth.month > 11) { teachingSelectedMonth.month = 0; teachingSelectedMonth.year++; }
+    renderTeachingScreen();
+  });
+  const monthToday = document.getElementById('teachMonthToday');
+  if (monthToday) monthToday.addEventListener('click', () => {
+    const n = new Date(); teachingSelectedMonth = { year: n.getFullYear(), month: n.getMonth() };
+    renderTeachingScreen();
   });
   document.querySelectorAll('.teach-taught-cb').forEach(cb => {
     cb.addEventListener('change', () => {
