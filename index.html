@@ -400,26 +400,27 @@
   .teach-stat.lop4 .teach-stat-num{color:var(--korean);}
   .teach-stat.lop7 .teach-stat-num{color:var(--react);}
   .teach-stat-label{font-size:11.5px; color:var(--text-muted);}
-  .teach-filters{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
   .teach-view-tabs{display:flex; gap:6px; flex-wrap:wrap;}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
-  .teach-group-tab.lop6.active{background:var(--teaching); border-color:var(--teaching);}
-  .teach-group-tab.lop4.active{background:var(--korean); border-color:var(--korean);}
-  .teach-group-tab.lop7.active{background:var(--react); border-color:var(--react);}
+  .teach-columns{display:grid; grid-template-columns:repeat(3, minmax(260px, 1fr)); gap:16px; align-items:start;}
+  @media (max-width:900px){ .teach-columns{grid-template-columns:1fr;} }
+  .teach-col{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:14px;}
+  .teach-col-head{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .teach-col-head h4{font-size:14px; font-weight:800; color:var(--group-color);}
+  .teach-col-count{margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
+  .teach-group-dot.big{width:10px; height:10px;}
   .teach-list{display:flex; flex-direction:column; gap:8px;}
-  .teach-empty{font-size:13px; color:var(--text-dim); text-align:center; padding:30px 0;}
+  .teach-empty{font-size:12.5px; color:var(--text-dim); text-align:center; padding:20px 0;}
   .teach-card{border:1px solid var(--border); border-left:3px solid var(--group-color); border-radius:12px; background:var(--bg-panel); overflow:hidden; transition:.15s;}
   .teach-card.is-today{border-color:var(--group-color); border-left-width:3px; box-shadow:0 0 0 3px color-mix(in srgb, var(--group-color) 18%, transparent);}
   .teach-card.taught{background:var(--fe-dim);}
-  .teach-card-row{display:flex; align-items:center; gap:12px; padding:10px 14px;}
+  .teach-card-row{display:flex; align-items:center; gap:10px; padding:9px 12px;}
   .teach-group-dot{width:8px; height:8px; border-radius:50%; background:var(--group-color); flex-shrink:0;}
-  .teach-date-block{display:flex; flex-direction:column; gap:1px; min-width:110px;}
-  .teach-dow{font-family:var(--mono); font-size:12.5px; font-weight:800; color:var(--text-primary);}
-  .teach-dm{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
-  .teach-grade-select{font-family:var(--mono); font-size:11.5px; padding:6px 9px; border-radius:7px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); flex-shrink:0;}
-  .teach-grade-fixed{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:7px; background:color-mix(in srgb, var(--group-color) 12%, transparent); color:var(--group-color); flex-shrink:0; white-space:nowrap;}
-  .teach-note-btn{margin-left:auto; font-size:14px; width:32px; height:32px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-dim); cursor:pointer; transition:.15s; flex-shrink:0;}
+  .teach-date-block{display:flex; flex-direction:column; gap:1px;}
+  .teach-dow{font-family:var(--mono); font-size:12px; font-weight:800; color:var(--text-primary);}
+  .teach-dm{font-family:var(--mono); font-size:10px; color:var(--text-dim);}
+  .teach-note-btn{margin-left:auto; font-size:13px; width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-dim); cursor:pointer; transition:.15s; flex-shrink:0;}
   .teach-note-btn:hover{border-color:var(--group-color); color:var(--group-color);}
   .teach-note-btn.has-note{background:color-mix(in srgb, var(--group-color) 14%, transparent); color:var(--group-color); border-color:var(--group-color);}
   .teach-check{display:flex; align-items:center; flex-shrink:0;}
@@ -573,7 +574,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v88</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v89</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5178,10 +5179,9 @@ function renderTeachingScreen(){
   let filtered = allSessions;
   if (teachingViewMode === 'upcoming') filtered = filtered.filter(s => !s.isPast || s.isToday);
   else if (teachingViewMode === 'past') filtered = filtered.filter(s => s.isPast);
-  if (teachingGroupFilter !== 'all') filtered = filtered.filter(s => s.slot.group === teachingGroupFilter);
   if (teachingViewMode === 'past') filtered = filtered.slice().reverse();
 
-  const sessionsHtml = filtered.map(s => {
+  function buildCard(s){
     const saved = teachingData.sessions[s.key] || {};
     const taught = !!saved.taught;
     const note = saved.note || '';
@@ -5195,14 +5195,25 @@ function renderTeachingScreen(){
           <span class="teach-dow">${s.slot.label}${s.isToday ? ' · Hôm nay' : ''}</span>
           <span class="teach-dm">${dm} · ${s.slot.time}</span>
         </div>
-        <span class="teach-grade-fixed">${s.slot.groupLabel}</span>
         <button class="teach-note-btn ${hasNote ? 'has-note' : ''}" data-key="${s.key}" title="${hasNote ? 'Xem/sửa ghi chú' : 'Thêm ghi chú'}">📝${hasNote ? '' : '+'}</button>
         <label class="teach-check">
           <input type="checkbox" class="teach-taught-cb" data-key="${s.key}" ${taught ? 'checked' : ''}>
         </label>
       </div>
     </div>`;
-  }).join('');
+  }
+  function buildColumn(groupKey, groupLabel){
+    const sessions = filtered.filter(s => s.slot.group === groupKey);
+    const cards = sessions.map(buildCard).join('') || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>';
+    return `<div class="teach-col" style="--group-color:var(${teachingGroupColor[groupKey]})">
+      <div class="teach-col-head">
+        <span class="teach-group-dot big"></span>
+        <h4>${groupLabel}</h4>
+        <span class="teach-col-count">${taughtByGroup[groupKey]} đã dạy</span>
+      </div>
+      <div class="teach-list">${cards}</div>
+    </div>`;
+  }
 
   main.innerHTML = `
     <div class="teach-wrap">
@@ -5221,28 +5232,21 @@ function renderTeachingScreen(){
         <div class="teach-stat lop7"><span class="teach-stat-num">${taughtByGroup.lop7}</span><span class="teach-stat-label">Buổi Lớp 7</span></div>
         <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi tháng này</span></div>
       </div>
-      <div class="teach-filters">
-        <div class="teach-view-tabs">
-          <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
-          <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
-          <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
-        </div>
-        <div class="teach-view-tabs">
-          <button class="teach-tab teach-group-tab ${teachingGroupFilter==='all'?'active':''}" data-group="all">Tất cả lớp</button>
-          <button class="teach-tab teach-group-tab lop6 ${teachingGroupFilter==='lop6'?'active':''}" data-group="lop6">Lớp 6</button>
-          <button class="teach-tab teach-group-tab lop4 ${teachingGroupFilter==='lop4'?'active':''}" data-group="lop4">Lớp 4</button>
-          <button class="teach-tab teach-group-tab lop7 ${teachingGroupFilter==='lop7'?'active':''}" data-group="lop7">Lớp 7</button>
-        </div>
+      <div class="teach-view-tabs" style="margin-bottom:16px;">
+        <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
+        <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
+        <button class="teach-tab ${teachingViewMode==='all'?'active':''}" data-mode="all">Tất cả</button>
       </div>
-      <div class="teach-list">${sessionsHtml || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div>
+      <div class="teach-columns">
+        ${buildColumn('lop6', 'Lớp 6')}
+        ${buildColumn('lop4', 'Lớp 4')}
+        ${buildColumn('lop7', 'Lớp 7')}
+      </div>
     </div>
   `;
 
-  document.querySelectorAll('.teach-tab:not(.teach-group-tab)').forEach(btn => {
+  document.querySelectorAll('.teach-tab').forEach(btn => {
     btn.addEventListener('click', () => { teachingViewMode = btn.dataset.mode; renderTeachingScreen(); });
-  });
-  document.querySelectorAll('.teach-group-tab').forEach(btn => {
-    btn.addEventListener('click', () => { teachingGroupFilter = btn.dataset.group; renderTeachingScreen(); });
   });
   document.querySelectorAll('.teach-taught-cb').forEach(cb => {
     cb.addEventListener('change', () => {
