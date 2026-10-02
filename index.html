@@ -581,7 +581,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v91</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v92</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4792,6 +4792,7 @@ function loadProfileData(){
   try { teachingData = JSON.parse(localStorage.getItem(pKey('roadmap-teaching')) || '{}'); } catch(e){}
   if (!teachingData.sessions) teachingData.sessions = {};
   teachingAmbiguousDates = migrateTeachingDataKeys();
+  syncLop4WithLop6AndResetLop7Once();
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -5130,8 +5131,15 @@ const teachingPeriods = [
       { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
       { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều' },
     ] },
-  // Lớp 4 — từ tháng 9
-  { group: 'lop4', groupLabel: 'Lớp 4', from: new Date(2026, 8, 1), to: null,
+  // Lớp 4 — giai đoạn đầu: học chung với Lớp 6 (cùng lịch, cùng buổi)
+  { group: 'lop4', groupLabel: 'Lớp 4', from: new Date(2026, 8, 1), to: new Date(2026, 8, 25),
+    slots: [
+      { day: 2, label: 'Thứ 3', time: '17:45 - 19:45', period: 'Tối' },
+      { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
+      { day: 6, label: 'Thứ 7', time: '14:00 - 16:00', period: 'Chiều' },
+    ] },
+  // Lớp 4 — lịch riêng mới, từ 26/9
+  { group: 'lop4', groupLabel: 'Lớp 4', from: new Date(2026, 8, 26), to: null,
     slots: [
       { day: 5, label: 'Thứ 6', time: '17:45 - 19:45', period: 'Tối' },
       { day: 6, label: 'Thứ 7', time: '18:00 - 20:00', period: 'Tối' },
@@ -5190,6 +5198,25 @@ function migrateTeachingDataKeys(){
   });
   if (migrated > 0) saveTeachingData();
   return ambiguous;
+}
+
+// Chạy 1 lần: xóa sạch dữ liệu Lớp 7, và copy dữ liệu Lớp 6 sang Lớp 4 cho các buổi <= 25/9 (2 lớp học chung giai đoạn đó).
+function syncLop4WithLop6AndResetLop7Once(){
+  if (teachingData.didLop4Lop6SyncV1) return;
+  const cutoff = '2026-09-25';
+  let changed = false;
+  Object.keys(teachingData.sessions).forEach(k => {
+    if (k.endsWith('|lop7')) { delete teachingData.sessions[k]; changed = true; }
+  });
+  Object.entries(teachingData.sessions).forEach(([k, v]) => {
+    if (!k.endsWith('|lop6')) return;
+    const dateKey = k.split('|')[0];
+    if (dateKey > cutoff) return;
+    teachingData.sessions[`${dateKey}|lop4`] = { ...v };
+    changed = true;
+  });
+  teachingData.didLop4Lop6SyncV1 = true;
+  if (changed || true) saveTeachingData();
 }
 
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
@@ -5268,7 +5295,7 @@ function renderTeachingScreen(){
         <h3>📅 Lịch dạy học — Gia sư</h3>
         <p>
           <span class="teach-legend lop6">● Lớp 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00) <span class="teach-since">· từ 01/09/2026</span><br>
-          <span class="teach-legend lop4">● Lớp 4</span> — Tối Thứ 6 (17:45-19:45), Tối Thứ 7 (18:00-20:00), Sáng Chủ nhật (08:15-10:15) <span class="teach-since">· từ 01/09/2026</span><br>
+          <span class="teach-legend lop4">● Lớp 4</span> — Học chung lịch Lớp 6 (Tối T3 & T5, Chiều T7) <span class="teach-since">· 01/09 - 25/09/2026</span>, sau đó tách riêng: Tối Thứ 6 (17:45-19:45), Tối Thứ 7 (18:00-20:00), Sáng Chủ nhật (08:15-10:15) <span class="teach-since">· từ 26/09/2026</span><br>
           <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45) <span class="teach-since">· 01/06 - 11/08/2026</span>, sau đó đổi sang Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 01/09/2026</span>
         </p>
       </div>
