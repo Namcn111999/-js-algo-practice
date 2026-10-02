@@ -581,7 +581,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v90</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v91</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4656,7 +4656,9 @@ let currentNoteTab = 0;
 let notes = {};
 let progress = {};
 let convoData = { completedTopics: {}, practiceLog: {}, selectedStage: 0, selectedTopic: 0 };
-let teachingData = { sessions: {} }; // sessions[dateStr] = { taught: bool, note: '', grade: 'Lớp 4'|'Lớp 6'|'Cả hai' }
+let teachingData = { sessions: {} }; // sessions["dateStr|group"] = { taught: bool, note: '' }
+let teachingAmbiguousDates = [];
+let teachingAmbiguousWarningShown = false;
 function saveTeachingData(){ localStorage.setItem(pKey('roadmap-teaching'), JSON.stringify(teachingData)); }
 function countTeachingCompleted(){ return Object.values(teachingData.sessions).filter(s => s && s.taught).length; }
 const savedCode = {};
@@ -4789,6 +4791,7 @@ function loadProfileData(){
   teachingData = { sessions: {} };
   try { teachingData = JSON.parse(localStorage.getItem(pKey('roadmap-teaching')) || '{}'); } catch(e){}
   if (!teachingData.sessions) teachingData.sessions = {};
+  teachingAmbiguousDates = migrateTeachingDataKeys();
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
 function noteKey(tabIdx){ return `${currentTrack}:${currentWeek}:${tabIdx}`; }
@@ -5139,13 +5142,17 @@ const teachingGroupColor = { lop6: '--teaching', lop4: '--korean', lop7: '--reac
 const teachingGroupOrder = ['lop6', 'lop4', 'lop7'];
 const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 
-function teachingSessionKey(dateObj){
+function teachingDateKey(dateObj){
   return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
+}
+// Khóa lưu trữ PHẢI gồm cả group vì 1 ngày có thể có nhiều lớp khác nhau học (VD: Thứ 7 vừa có Lớp 6 chiều vừa có Lớp 4 tối).
+function teachingSessionKey(dateObj, group){
+  return `${teachingDateKey(dateObj)}|${group}`;
 }
 function generateTeachingSessions(endDate){
   const list = [];
   const today = new Date(); today.setHours(0,0,0,0);
-  const todayKey = teachingSessionKey(today);
+  const todayDateKey = teachingDateKey(today);
   const earliestStart = new Date(Math.min(...teachingPeriods.map(p => p.from.getTime())));
   earliestStart.setHours(0,0,0,0);
   for (let d = new Date(earliestStart); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -5154,12 +5161,35 @@ function generateTeachingSessions(endDate){
       if (p.to && d > p.to) continue;
       const matchSlot = p.slots.find(s => s.day === d.getDay());
       if (!matchSlot) continue;
-      const key = teachingSessionKey(d);
+      const dateKey = teachingDateKey(d);
+      const key = teachingSessionKey(d, p.group);
       const slot = { ...matchSlot, group: p.group, groupLabel: p.groupLabel };
-      list.push({ date: new Date(d), key, slot, isToday: key === todayKey, isPast: key < todayKey });
+      list.push({ date: new Date(d), key, slot, isToday: dateKey === todayDateKey, isPast: dateKey < todayDateKey });
     }
   }
   return list.sort((a,b) => a.date - b.date || a.slot.time.localeCompare(b.slot.time));
+}
+// Di chuyển dữ liệu cũ (khóa chỉ có ngày, trước bản sửa lỗi gộp lớp) sang khóa mới có group.
+function migrateTeachingDataKeys(){
+  let migrated = 0, ambiguous = [];
+  const oldKeys = Object.keys(teachingData.sessions).filter(k => !k.includes('|'));
+  oldKeys.forEach(oldKey => {
+    const d = new Date(oldKey + 'T00:00:00');
+    const matches = teachingPeriods.filter(pr => d >= pr.from && (!pr.to || d <= pr.to) && pr.slots.some(sl => sl.day === d.getDay()));
+    if (matches.length === 0) return;
+    const data = teachingData.sessions[oldKey];
+    if (matches.length === 1) {
+      teachingData.sessions[teachingSessionKey(d, matches[0].group)] = data;
+    } else {
+      // Ngày bị trùng (Thứ 7: Lớp 6 & Lớp 4, hoặc Chủ nhật: Lớp 7 & Lớp 4) — gán tạm cho nhóm đầu tiên, cần người dùng kiểm tra lại.
+      teachingData.sessions[teachingSessionKey(d, matches[0].group)] = data;
+      ambiguous.push(`${oldKey} (${matches.map(m=>m.groupLabel).join(' / ')})`);
+    }
+    delete teachingData.sessions[oldKey];
+    migrated++;
+  });
+  if (migrated > 0) saveTeachingData();
+  return ambiguous;
 }
 
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
@@ -5176,15 +5206,19 @@ function renderTeachingScreen(){
   const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0 };
   Object.entries(teachingData.sessions).forEach(([k,s]) => {
     if (!s || !s.taught) return;
-    const d = new Date(k+'T00:00:00');
-    const p = teachingPeriods.find(pr => d >= pr.from && (!pr.to || d <= pr.to) && pr.slots.some(sl => sl.day === d.getDay()));
-    if (p) taughtByGroup[p.group]++;
+    const group = k.split('|')[1];
+    if (group && taughtByGroup[group] !== undefined) taughtByGroup[group]++;
   });
   const thisMonthTaught = Object.entries(teachingData.sessions).filter(([k,s]) => {
     if (!s || !s.taught) return false;
     const now = new Date();
     return k.startsWith(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
   }).length;
+
+  if (teachingAmbiguousDates.length > 0 && !teachingAmbiguousWarningShown) {
+    teachingAmbiguousWarningShown = true;
+    showToast(`Đã cập nhật cách lưu buổi học theo đúng từng lớp. ${teachingAmbiguousDates.length} ngày trùng lịch 2 lớp (Thứ 7 / Chủ nhật) đã tạm gán về 1 lớp — vui lòng kiểm tra lại: ${teachingAmbiguousDates.slice(0,5).join(', ')}${teachingAmbiguousDates.length>5?'...':''}`, 'warning');
+  }
 
   let filtered = allSessions;
   if (teachingViewMode === 'upcoming') filtered = filtered.filter(s => !s.isPast || s.isToday);
@@ -5306,7 +5340,7 @@ function renderTeachingScreen(){
 
 function showTeachNoteModal(key){
   const saved = teachingData.sessions[key] || {};
-  const [y,m,d] = key.split('-');
+  const [y,m,d] = key.split('|')[0].split('-');
   let overlay = document.getElementById('teachNoteOverlay');
   if (overlay) overlay.remove();
   overlay = document.createElement('div');
