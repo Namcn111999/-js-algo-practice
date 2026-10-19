@@ -370,6 +370,15 @@
   .toast-warning{border-left:3px solid #D97706;}
   @media (max-width:640px){ .toast-container{left:14px; right:14px; top:14px;} .toast{min-width:0; max-width:none;} }
 
+  .sync-fab{position:fixed; right:16px; bottom:16px; z-index:300; display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; font-weight:700; padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.14);}
+  .sync-fab:hover{color:var(--text-primary); border-color:var(--text-dim);}
+  .sync-steps{font-size:13px; color:var(--text-muted); line-height:1.7; padding-left:20px; margin:0 0 12px;}
+  .sync-steps a{color:var(--fe); font-weight:700;}
+  .sync-steps code{font-family:var(--mono); font-size:12px; background:var(--bg-elevated); padding:1px 5px; border-radius:4px;}
+  .sync-input{width:100%; box-sizing:border-box; font-family:var(--mono); font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); margin-bottom:10px;}
+  .sync-note{font-size:11.5px; color:var(--text-dim); line-height:1.55; margin-bottom:12px;}
+  .sync-err{font-size:12.5px; color:var(--coral); min-height:16px; margin-bottom:8px;}
+  @media (max-width:640px){ .sync-fab .sync-txt{display:none;} .sync-fab{padding:11px 13px; font-size:15px;} }
   .confirm-overlay{position:fixed; inset:0; background:rgba(15,15,20,0); display:flex; align-items:center; justify-content:center; z-index:450; padding:20px; transition:background .2s ease;}
   .confirm-overlay.show{background:rgba(15,15,20,0.55); backdrop-filter:blur(2px);}
   .confirm-box{background:var(--bg-panel); border-radius:18px; width:380px; max-width:100%; padding:24px 24px 20px; box-shadow:0 24px 60px rgba(0,0,0,.28); opacity:0; transform:translateY(14px) scale(.97); transition:opacity .22s cubic-bezier(.2,.8,.3,1), transform .22s cubic-bezier(.2,.8,.3,1);}
@@ -581,7 +590,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt này · bản v92</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v93</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -6977,8 +6986,227 @@ function openCameraForLogin(targetProfile){
   })();
 }
 
+/* ============ CLOUD SYNC (GitHub Gist) ============ */
+const SYNC = (function(){
+  const LS = window.localStorage;
+  const protoSet = Storage.prototype.setItem, protoRemove = Storage.prototype.removeItem;
+  const rawSet = (k,v) => protoSet.call(LS,k,v), rawRemove = k => protoRemove.call(LS,k), rawGet = k => LS.getItem(k);
+  const DESC = 'namnt-learning-hub-sync', FILE = 'learning-hub-data.json';
+  const API = 'https://api.github.com';
+  let meta = {}; try { meta = JSON.parse(rawGet('sync-meta') || '{}'); } catch(e){ meta = {}; }
+  let state = { status: 'off', lastSync: Number(rawGet('sync-last') || 0), error: '' };
+  let busy = false, again = false, pushTimer = null, lastPullAt = 0;
+  const isSyncKey = k => k === 'site-profiles' || /^profile:/.test(k);
+  const token = () => rawGet('sync-token') || '';
+  const saveMeta = () => { try { rawSet('sync-meta', JSON.stringify(meta)); } catch(e){} };
+
+  // theo dõi mọi thay đổi localStorage của dữ liệu cần đồng bộ
+  Storage.prototype.setItem = function(k, v){
+    protoSet.call(this, k, v);
+    if (this === LS && isSyncKey(k)) { meta[k] = Date.now(); saveMeta(); schedulePush(); }
+  };
+  Storage.prototype.removeItem = function(k){
+    protoRemove.call(this, k);
+    if (this === LS && isSyncKey(k)) { meta[k] = Date.now(); saveMeta(); schedulePush(); }
+  };
+
+  function setStatus(s, err){ state.status = s; state.error = err || ''; updateUI(); }
+  function schedulePush(){
+    if (!token()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => syncNow({ silent: true }), 8000);
+  }
+  function headers(){ return { 'Authorization': 'Bearer ' + token(), 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }; }
+  async function api(path, opts){
+    const r = await fetch(API + path, Object.assign({ headers: headers(), cache: 'no-store' }, opts || {}));
+    if (r.status === 401) throw new Error('Token sai hoặc đã hết hạn (401)');
+    if (r.status === 403) throw new Error('Token không đủ quyền hoặc bị giới hạn (403) — cần quyền "gist"');
+    if (r.status === 404) throw new Error('Không tìm thấy (404)');
+    if (!r.ok) throw new Error('GitHub trả lỗi ' + r.status);
+    return r.json();
+  }
+  async function findGist(){
+    const id = rawGet('sync-gist-id');
+    if (id) { try { return await api('/gists/' + id); } catch(e){ if (!/404/.test(e.message)) throw e; rawRemove('sync-gist-id'); } }
+    for (let page = 1; page <= 10; page++) {
+      const list = await api('/gists?per_page=100&page=' + page);
+      const hit = list.find(g => g.description === DESC && g.files && g.files[FILE]);
+      if (hit) { rawSet('sync-gist-id', hit.id); return await api('/gists/' + hit.id); }
+      if (list.length < 100) break;
+    }
+    return null;
+  }
+  async function readRemote(gist){
+    const f = gist.files && gist.files[FILE];
+    if (!f) return { keys: {} };
+    let content = f.content;
+    if (f.truncated || content == null) { const r = await fetch(f.raw_url, { cache: 'no-store' }); content = await r.text(); }
+    try { const j = JSON.parse(content); return j && j.keys ? j : { keys: {} }; } catch(e){ return { keys: {} }; }
+  }
+  function localSnapshot(){
+    const keys = {};
+    for (let i = 0; i < LS.length; i++) { const k = LS.key(i); if (isSyncKey(k)) keys[k] = { v: LS.getItem(k), t: meta[k] || 1 }; }
+    Object.keys(meta).forEach(k => { if (isSyncKey(k) && !(k in keys)) keys[k] = { v: null, t: meta[k] }; });
+    return keys;
+  }
+  // trả về { merged, changedLocal, needPush }
+  function merge(remoteKeys, localKeys){
+    const merged = {}; let changedLocal = [], needPush = false;
+    new Set([...Object.keys(remoteKeys), ...Object.keys(localKeys)]).forEach(k => {
+      const r = remoteKeys[k], l = localKeys[k];
+      if (!r) { merged[k] = l; needPush = true; }
+      else if (!l) { merged[k] = r; if (r.v !== null) changedLocal.push(k); }
+      else if (r.t >= l.t) { merged[k] = r; if (r.v !== l.v) changedLocal.push(k); }   // hòa → ưu tiên bản trên cloud
+      else { merged[k] = l; needPush = true; }
+    });
+    return { merged, changedLocal, needPush };
+  }
+  function applyLocal(merged, changed){
+    changed.forEach(k => {
+      const e = merged[k];
+      if (e.v === null) rawRemove(k); else rawSet(k, e.v);
+      meta[k] = e.t;
+    });
+    // đồng bộ meta cho các key còn lại
+    Object.keys(merged).forEach(k => { if (!(k in meta) || meta[k] < merged[k].t) meta[k] = merged[k].t; });
+    saveMeta();
+  }
+  function refreshApp(changed){
+    if (!changed.length) return;
+    if (changed.includes('site-profiles')) { try { profiles = JSON.parse(rawGet('site-profiles') || '[]'); } catch(e){} }
+    const profScreen = document.getElementById('profileScreen');
+    if (profScreen && !profScreen.classList.contains('app-hidden')) { showProfileScreen(); return; }
+    if (!activeProfileId) return;
+    if (!profiles.find(p => p.id === activeProfileId)) { showProfileScreen(); return; }
+    if (changed.some(k => k.startsWith('profile:' + activeProfileId + ':'))) {
+      const t = currentTrack, w = currentWeek, d = currentDay;
+      loadProfileData();
+      if (tracks[t]) { currentTrack = t; currentWeek = w; currentDay = d; }
+      renderAll();
+    }
+  }
+  async function syncNow(opts){
+    opts = opts || {};
+    if (!token()) return;
+    if (busy) { again = true; return; }
+    busy = true; clearTimeout(pushTimer); setStatus('syncing');
+    try {
+      let gist = await findGist();
+      let remote = gist ? await readRemote(gist) : { keys: {} };
+      const first = !rawGet('sync-linked');
+      const local = localSnapshot();
+      const { merged, changedLocal, needPush } = merge(remote.keys || {}, local);
+      if (first && changedLocal.length) {            // lần đầu nối máy này: sao lưu dữ liệu cũ trước khi cloud ghi đè
+        const bk = {}; Object.keys(local).forEach(k => { if (local[k].v !== null) bk[k] = local[k].v; });
+        try { rawSet('sync-backup-' + Date.now(), JSON.stringify(bk)); } catch(e){}
+      }
+      applyLocal(merged, changedLocal);
+      if (!gist || needPush) {
+        const body = JSON.stringify({ v: 1, updated: Date.now(), keys: merged });
+        if (!gist) {
+          gist = await api('/gists', { method: 'POST', body: JSON.stringify({ description: DESC, public: false, files: { [FILE]: { content: body } } }) });
+          rawSet('sync-gist-id', gist.id);
+        } else {
+          await api('/gists/' + gist.id, { method: 'PATCH', body: JSON.stringify({ files: { [FILE]: { content: body } } }) });
+        }
+      }
+      rawSet('sync-linked', '1');
+      state.lastSync = Date.now(); rawSet('sync-last', String(state.lastSync)); lastPullAt = Date.now();
+      setStatus('ok');
+      refreshApp(changedLocal);
+      if (changedLocal.length && !opts.silent) showToast('Đã tải dữ liệu mới từ các thiết bị khác về (' + changedLocal.length + ' mục)');
+      else if (!opts.silent) showToast('Đã đồng bộ xong');
+      else if (changedLocal.length) showToast('Đã cập nhật dữ liệu từ thiết bị khác');
+    } catch(e) {
+      setStatus('error', e.message === 'Failed to fetch' ? 'Không kết nối được mạng/GitHub' : e.message);
+      if (!opts.silent) showToast('Đồng bộ lỗi: ' + state.error, 'error');
+    } finally {
+      busy = false;
+      if (again) { again = false; schedulePush(); }
+    }
+  }
+  async function connect(tk){
+    tk = (tk || '').trim();
+    if (!/^(ghp_|github_pat_|gho_)/.test(tk) && tk.length < 30) throw new Error('Token không hợp lệ');
+    const prev = rawGet('sync-token');
+    rawSet('sync-token', tk); rawRemove('sync-gist-id'); rawRemove('sync-linked');
+    try { await api('/gists?per_page=1'); } catch(e){ if (prev) rawSet('sync-token', prev); else rawRemove('sync-token'); throw e; }
+    await syncNow();
+    updateUI();
+  }
+  function disconnect(){
+    ['sync-token','sync-gist-id','sync-linked','sync-last'].forEach(rawRemove);
+    state = { status: 'off', lastSync: 0, error: '' }; updateUI();
+  }
+  function pullIfStale(){ if (token() && Date.now() - lastPullAt > 15000) syncNow({ silent: true }); }
+  function updateUI(){
+    const b = document.getElementById('syncFab'); if (!b) return;
+    const map = { off: ['☁️', 'Đồng bộ: chưa bật'], syncing: ['⏳', 'Đang đồng bộ...'], ok: ['✅', 'Đã đồng bộ'], error: ['⚠️', 'Lỗi đồng bộ'] };
+    const m = map[token() ? (state.status === 'off' ? 'ok' : state.status) : 'off'];
+    b.querySelector('.sync-ico').textContent = m[0];
+    b.querySelector('.sync-txt').textContent = token() ? (state.status === 'error' ? 'Lỗi đồng bộ' : state.status === 'syncing' ? 'Đang đồng bộ' : 'Đã đồng bộ') : 'Đồng bộ';
+    b.title = m[1] + (state.error ? ': ' + state.error : '');
+    const mb = document.getElementById('syncModalBody'); if (mb) renderModal();
+  }
+  function fmt(t){ return t ? new Date(t).toLocaleString('vi-VN') : 'chưa lần nào'; }
+  function renderModal(){
+    const body = document.getElementById('syncModalBody'); if (!body) return;
+    if (!token()) {
+      body.innerHTML = `
+        <div class="confirm-msg" style="margin-bottom:12px">Lưu dữ liệu (tiến độ, ghi chú, code, lịch dạy, streak...) lên <b>GitHub Gist riêng</b> của bạn để mọi máy đều thấy giống nhau.</div>
+        <ol class="sync-steps">
+          <li>Mở <a href="https://github.com/settings/tokens/new?scopes=gist&description=learning-hub-sync" target="_blank" rel="noopener">trang tạo token (classic)</a>, chọn hạn dùng, <b>chỉ tick quyền "gist"</b>, bấm Generate.</li>
+          <li>Dán token (<code>ghp_...</code>) vào ô dưới rồi bấm Kết nối.</li>
+          <li>Trên máy khác: mở trang này, bấm ☁️ và dán <b>cùng token</b>.</li>
+        </ol>
+        <input type="password" id="syncTokenInput" class="sync-input" placeholder="ghp_xxxxxxxx" autocomplete="off">
+        <div class="sync-note">Token chỉ lưu trên trình duyệt từng máy, không đưa vào mã trang. Gist ở chế độ "secret" (ẩn link, không phải riêng tư tuyệt đối) — dữ liệu hồ sơ, gồm mật khẩu khóa hồ sơ nếu có, nằm trong đó.</div>
+        <div id="syncModalErr" class="sync-err"></div>
+        <div class="confirm-actions"><button class="confirm-btn confirm-cancel" id="syncCloseBtn">Đóng</button><button class="confirm-btn confirm-primary" id="syncConnectBtn">Kết nối</button></div>`;
+      document.getElementById('syncConnectBtn').onclick = async () => {
+        const btn = document.getElementById('syncConnectBtn'), err = document.getElementById('syncModalErr');
+        btn.disabled = true; btn.textContent = 'Đang kết nối...'; err.textContent = '';
+        try { await connect(document.getElementById('syncTokenInput').value); }
+        catch(e){ const e2 = document.getElementById('syncModalErr'); if (e2) e2.textContent = e.message; const b2 = document.getElementById('syncConnectBtn'); if (b2) { b2.disabled = false; b2.textContent = 'Kết nối'; } }
+      };
+    } else {
+      const st = state.status === 'error' ? '⚠️ ' + state.error : state.status === 'syncing' ? '⏳ Đang đồng bộ...' : '✅ Đang bật — tự đồng bộ khi bạn thay đổi và khi mở lại trang';
+      body.innerHTML = `
+        <div class="confirm-msg" style="margin-bottom:10px">${st}<br>Lần đồng bộ gần nhất: <b>${fmt(state.lastSync)}</b></div>
+        <div class="confirm-actions" style="justify-content:space-between">
+          <button class="confirm-btn confirm-danger" id="syncOffBtn">Ngắt kết nối</button>
+          <span style="display:flex;gap:10px"><button class="confirm-btn confirm-cancel" id="syncCloseBtn">Đóng</button><button class="confirm-btn confirm-primary" id="syncNowBtn">Đồng bộ ngay</button></span>
+        </div>`;
+      document.getElementById('syncNowBtn').onclick = () => syncNow();
+      document.getElementById('syncOffBtn').onclick = () => { close(); showConfirmModal({ title: 'Ngắt đồng bộ?', message: 'Máy này sẽ ngừng đồng bộ và xóa token khỏi trình duyệt. Dữ liệu trên máy và trên Gist vẫn giữ nguyên.', confirmText: 'Ngắt kết nối', danger: true, onConfirm: () => { disconnect(); showToast('Đã ngắt đồng bộ trên máy này'); } }); };
+    }
+    const c = document.getElementById('syncCloseBtn'); if (c) c.onclick = close;
+  }
+  function close(){ const o = document.getElementById('syncModalOverlay'); if (o) { o.classList.remove('show'); setTimeout(() => o.remove(), 200); } }
+  function openModal(){
+    close();
+    const o = document.createElement('div'); o.id = 'syncModalOverlay'; o.className = 'confirm-overlay';
+    o.innerHTML = '<div class="confirm-box" style="width:460px"><div class="confirm-title">☁️ Đồng bộ giữa các thiết bị</div><div id="syncModalBody"></div></div>';
+    document.body.appendChild(o); requestAnimationFrame(() => o.classList.add('show'));
+    o.addEventListener('click', e => { if (e.target === o) close(); });
+    renderModal();
+  }
+  function init(){
+    const b = document.createElement('button'); b.id = 'syncFab'; b.className = 'sync-fab';
+    b.innerHTML = '<span class="sync-ico">☁️</span><span class="sync-txt">Đồng bộ</span>';
+    b.addEventListener('click', openModal); document.body.appendChild(b);
+    updateUI();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pullIfStale(); else if (token()) syncNow({ silent: true }); });
+    window.addEventListener('focus', pullIfStale);
+    setInterval(() => { if (document.visibilityState === 'visible') pullIfStale(); }, 60000);
+    if (token()) setTimeout(() => syncNow({ silent: true }), 300);
+  }
+  return { init, syncNow, openModal, _meta: () => meta, _state: () => state };
+})();
+
 /* ============ BOOT ============ */
 (function boot(){
+  SYNC.init();
   const lastId = localStorage.getItem('active-profile-id');
   const p = lastId && profiles.find(x => x.id === lastId);
   if (p && (!p.password && !p.faceDescriptor || isUnlocked(p.id))) {
