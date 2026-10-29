@@ -404,6 +404,7 @@
   .teach-legend.lop6{color:var(--teaching);}
   .teach-legend.lop4{color:var(--korean);}
   .teach-legend.lop7{color:var(--react);}
+  .teach-legend.lop9{color:var(--aws);}
   .teach-since{display:inline-block; margin-top:4px; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
   .teach-stats{display:flex; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
   .teach-stat{flex:1; min-width:130px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:14px 18px;}
@@ -411,6 +412,7 @@
   .teach-stat.lop6 .teach-stat-num{color:var(--teaching);}
   .teach-stat.lop4 .teach-stat-num{color:var(--korean);}
   .teach-stat.lop7 .teach-stat-num{color:var(--react);}
+  .teach-stat.lop9 .teach-stat-num{color:var(--aws);}
   .teach-stat-label{font-size:11.5px; color:var(--text-muted);}
   .teach-filters-row{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
   .teach-view-tabs{display:flex; gap:6px; flex-wrap:wrap;}
@@ -422,7 +424,7 @@
   .teach-month-today:hover{color:var(--teaching); border-color:var(--teaching);}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
-  .teach-columns{display:grid; grid-template-columns:repeat(3, minmax(260px, 1fr)); gap:16px; align-items:start;}
+  .teach-columns{display:grid; grid-template-columns:repeat(4, minmax(230px, 1fr)); gap:16px; align-items:start;}
   @media (max-width:900px){ .teach-columns{grid-template-columns:1fr;} }
   .teach-col{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:14px;}
   .teach-col-head{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
@@ -593,7 +595,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v95</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v96</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5133,7 +5135,19 @@ const teachingPeriods = [
       { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
     ] },
   // Lớp 7 — lịch hiện tại (từ tháng 9)
-  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 8, 1), to: null,
+  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 8, 1), to: new Date(2026, 9, 29),
+    slots: [
+      { day: 3, label: 'Thứ 4', time: '18:45 - 20:45', period: 'Tối' },
+      { day: 0, label: 'Chủ nhật', time: '18:30 - 20:30', period: 'Tối' },
+    ] },
+  // Lớp 7 — lịch mới từ 30/10: Sáng Thứ 7 và Chiều Chủ nhật (giờ học tạm đặt, chỉnh lại nếu khác)
+  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 9, 30), to: null,
+    slots: [
+      { day: 6, label: 'Thứ 7', time: '08:30 - 10:30', period: 'Sáng' },
+      { day: 0, label: 'Chủ nhật', time: '14:00 - 16:00', period: 'Chiều' },
+    ] },
+  // Lớp 9 — mới, từ 30/10: Tối Thứ 4 và Tối Chủ nhật (giờ học tạm đặt theo khung tối cũ, chỉnh lại nếu khác)
+  { group: 'lop9', groupLabel: 'Lớp 9', from: new Date(2026, 9, 30), to: null,
     slots: [
       { day: 3, label: 'Thứ 4', time: '18:45 - 20:45', period: 'Tối' },
       { day: 0, label: 'Chủ nhật', time: '18:30 - 20:30', period: 'Tối' },
@@ -5160,8 +5174,8 @@ const teachingPeriods = [
       { day: 0, label: 'Chủ nhật', time: '08:15 - 10:15', period: 'Sáng' },
     ] },
 ];
-const teachingGroupColor = { lop6: '--teaching', lop4: '--korean', lop7: '--react' };
-const teachingGroupOrder = ['lop6', 'lop4', 'lop7'];
+const teachingGroupColor = { lop6: '--teaching', lop4: '--korean', lop7: '--react', lop9: '--aws' };
+const teachingGroupOrder = ['lop6', 'lop4', 'lop7', 'lop9'];
 const weekdayShort = ['CN','T2','T3','T4','T5','T6','T7'];
 
 function teachingDateKey(dateObj){
@@ -5244,7 +5258,7 @@ function renderTeachingScreen(){
   const genEnd = teachingViewMode === 'month' && monthEnd > today60 ? monthEnd : today60;
   const allSessions = generateTeachingSessions(genEnd);
   const totalTaught = countTeachingCompleted();
-  const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0 };
+  const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0, lop9: 0 };
   Object.entries(teachingData.sessions).forEach(([k,s]) => {
     if (!s || !s.taught) return;
     const group = k.split('|')[1];
@@ -5310,7 +5324,8 @@ function renderTeachingScreen(){
         <p>
           <span class="teach-legend lop6">● Lớp 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00) <span class="teach-since">· từ 01/09/2026</span><br>
           <span class="teach-legend lop4">● Lớp 4</span> — Học chung lịch Lớp 6 (Tối T3 & T5, Chiều T7) <span class="teach-since">· 01/09 - 25/09/2026</span>, sau đó tách riêng: Tối Thứ 6 (17:45-19:45), Tối Thứ 7 (18:00-20:00), Sáng Chủ nhật (08:15-10:15) <span class="teach-since">· từ 26/09/2026</span><br>
-          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45) <span class="teach-since">· 01/06 - 11/08/2026</span>, sau đó đổi sang Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 01/09/2026</span>
+          <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45) <span class="teach-since">· 01/06 - 11/08/2026</span>, sau đó đổi sang Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 01/09/2026</span> → từ 30/10/2026: Sáng Thứ 7 (08:30-10:30) & Chiều Chủ nhật (14:00-16:00)<br>
+          <span class="teach-legend lop9">● Lớp 9</span> — Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 30/10/2026</span>
         </p>
       </div>
       <div class="teach-stats">
@@ -5318,6 +5333,7 @@ function renderTeachingScreen(){
         <div class="teach-stat lop6"><span class="teach-stat-num">${taughtByGroup.lop6}</span><span class="teach-stat-label">Buổi Lớp 6</span></div>
         <div class="teach-stat lop4"><span class="teach-stat-num">${taughtByGroup.lop4}</span><span class="teach-stat-label">Buổi Lớp 4</span></div>
         <div class="teach-stat lop7"><span class="teach-stat-num">${taughtByGroup.lop7}</span><span class="teach-stat-label">Buổi Lớp 7</span></div>
+        <div class="teach-stat lop9"><span class="teach-stat-num">${taughtByGroup.lop9}</span><span class="teach-stat-label">Buổi Lớp 9</span></div>
         <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi tháng này</span></div>
       </div>
       <div class="teach-filters-row">
@@ -5339,6 +5355,7 @@ function renderTeachingScreen(){
         ${buildColumn('lop6', 'Lớp 6')}
         ${buildColumn('lop4', 'Lớp 4')}
         ${buildColumn('lop7', 'Lớp 7')}
+        ${buildColumn('lop9', 'Lớp 9')}
       </div>
     </div>
   `;
