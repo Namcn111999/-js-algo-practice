@@ -595,7 +595,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v96</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v97</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -4808,6 +4808,12 @@ function loadProfileData(){
   try { teachingData = JSON.parse(localStorage.getItem(pKey('roadmap-teaching')) || '{}'); } catch(e){}
   if (!teachingData.sessions) teachingData.sessions = {};
   teachingAmbiguousDates = migrateTeachingDataKeys();
+  if (!teachingData.didMoveLop9V1) {
+    const oldK = '2026-10-28|lop7', newK = '2026-10-28|lop9';
+    if (teachingData.sessions[oldK] && !teachingData.sessions[newK]) { teachingData.sessions[newK] = teachingData.sessions[oldK]; }
+    delete teachingData.sessions[oldK];
+    teachingData.didMoveLop9V1 = true; saveTeachingData();
+  }
   syncLop4WithLop6AndResetLop7Once();
   currentTrack = 'fe'; currentWeek = 0; currentDay = 0; currentNoteTab = 0; currentGeneratedQuiz = null; currentExtraProblem = 0;
 }
@@ -5135,7 +5141,7 @@ const teachingPeriods = [
       { day: 4, label: 'Thứ 5', time: '17:45 - 19:45', period: 'Tối' },
     ] },
   // Lớp 7 — lịch hiện tại (từ tháng 9)
-  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 8, 1), to: new Date(2026, 9, 29),
+  { group: 'lop7', groupLabel: 'Lớp 7', from: new Date(2026, 8, 1), to: new Date(2026, 9, 27),
     slots: [
       { day: 3, label: 'Thứ 4', time: '18:45 - 20:45', period: 'Tối' },
       { day: 0, label: 'Chủ nhật', time: '18:30 - 20:30', period: 'Tối' },
@@ -5146,8 +5152,8 @@ const teachingPeriods = [
       { day: 6, label: 'Thứ 7', time: '08:30 - 10:30', period: 'Sáng' },
       { day: 0, label: 'Chủ nhật', time: '14:00 - 16:00', period: 'Chiều' },
     ] },
-  // Lớp 9 — mới, từ 30/10: Tối Thứ 4 và Tối Chủ nhật (giờ học tạm đặt theo khung tối cũ, chỉnh lại nếu khác)
-  { group: 'lop9', groupLabel: 'Lớp 9', from: new Date(2026, 9, 30), to: null,
+  // Lớp 9 — mới, dạy từ đầu tuần 26/10 (buổi đầu Tối T4 28/10): Tối Thứ 4 và Tối Chủ nhật (giờ học tạm đặt theo khung tối cũ, chỉnh lại nếu khác)
+  { group: 'lop9', groupLabel: 'Lớp 9', from: new Date(2026, 9, 26), to: null,
     slots: [
       { day: 3, label: 'Thứ 4', time: '18:45 - 20:45', period: 'Tối' },
       { day: 0, label: 'Chủ nhật', time: '18:30 - 20:30', period: 'Tối' },
@@ -5325,7 +5331,7 @@ function renderTeachingScreen(){
           <span class="teach-legend lop6">● Lớp 6</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45), Chiều Thứ 7 (14:00-16:00) <span class="teach-since">· từ 01/09/2026</span><br>
           <span class="teach-legend lop4">● Lớp 4</span> — Học chung lịch Lớp 6 (Tối T3 & T5, Chiều T7) <span class="teach-since">· 01/09 - 25/09/2026</span>, sau đó tách riêng: Tối Thứ 6 (17:45-19:45), Tối Thứ 7 (18:00-20:00), Sáng Chủ nhật (08:15-10:15) <span class="teach-since">· từ 26/09/2026</span><br>
           <span class="teach-legend lop7">● Lớp 7</span> — Tối Thứ 3 & Thứ 5 (17:45-19:45) <span class="teach-since">· 01/06 - 11/08/2026</span>, sau đó đổi sang Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 01/09/2026</span> → từ 30/10/2026: Sáng Thứ 7 (08:30-10:30) & Chiều Chủ nhật (14:00-16:00)<br>
-          <span class="teach-legend lop9">● Lớp 9</span> — Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 30/10/2026</span>
+          <span class="teach-legend lop9">● Lớp 9</span> — Tối Thứ 4 (18:45-20:45) & Tối Chủ nhật (18:30-20:30) <span class="teach-since">· từ 28/10/2026</span>
         </p>
       </div>
       <div class="teach-stats">
