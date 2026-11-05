@@ -424,6 +424,16 @@
   .teach-month-today:hover{color:var(--teaching); border-color:var(--teaching);}
   .teach-tab{font-family:var(--mono); font-size:12px; font-weight:700; padding:8px 16px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer; transition:.15s;}
   .teach-tab.active{background:var(--teaching); color:#fff; border-color:var(--teaching);}
+  .teach-class-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:12px;}
+  .teach-class-tab{display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12.5px; font-weight:700; padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer;}
+  .teach-class-tab .teach-group-dot{background:var(--group-color);}
+  .teach-class-tab:hover{color:var(--group-color); border-color:var(--group-color);}
+  .teach-class-tab.active{background:var(--group-color); color:#fff; border-color:var(--group-color);}
+  .teach-class-tab.active .teach-group-dot{background:#fff;}
+  .teach-class-count{font-size:10.5px; padding:1px 7px; border-radius:99px; background:rgba(127,127,127,.18);}
+  .teach-panel{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:16px;}
+  .teach-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:10px;}
+  .teach-cls{color:var(--group-color);}
   .teach-columns{display:grid; grid-template-columns:repeat(4, minmax(230px, 1fr)); gap:16px; align-items:start;}
   @media (max-width:900px){ .teach-columns{grid-template-columns:1fr;} }
   .teach-col{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:14px;}
@@ -595,7 +605,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v97</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v98</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5253,6 +5263,7 @@ function syncLop4WithLop6AndResetLop7Once(){
   if (changed || true) saveTeachingData();
 }
 
+let teachingClassTab = 'all'; // 'all' | 'lop6' | 'lop4' | 'lop7' | 'lop9'
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
 const teachingMonthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
 let teachingSelectedMonth = (() => { const n = new Date(); return { year: n.getFullYear(), month: n.getMonth() }; })();
@@ -5301,7 +5312,7 @@ function renderTeachingScreen(){
         <span class="teach-group-dot"></span>
         <div class="teach-date-block">
           <span class="teach-dow">${s.slot.label}${s.isToday ? ' · Hôm nay' : ''}</span>
-          <span class="teach-dm">${dm} · ${s.slot.time}</span>
+          <span class="teach-dm">${dm} · ${s.slot.time}${teachingClassTab === 'all' ? ` · <b class="teach-cls">${s.slot.groupLabel}</b>` : ''}</span>
         </div>
         <button class="teach-note-btn ${hasNote ? 'has-note' : ''}" data-key="${s.key}" title="${hasNote ? 'Xem/sửa ghi chú' : 'Thêm ghi chú'}">📝${hasNote ? '' : '+'}</button>
         <label class="teach-check">
@@ -5357,15 +5368,20 @@ function renderTeachingScreen(){
           <button class="teach-month-today" id="teachMonthToday">Tháng này</button>
         </div>` : ''}
       </div>
-      <div class="teach-columns">
-        ${buildColumn('lop6', 'Lớp 6')}
-        ${buildColumn('lop4', 'Lớp 4')}
-        ${buildColumn('lop7', 'Lớp 7')}
-        ${buildColumn('lop9', 'Lớp 9')}
+      <div class="teach-class-tabs">
+        ${[['all','Tất cả các lớp']].concat(teachingGroupOrder.map(g => [g, g.replace('lop','Lớp ')])).map(([k,l]) => `<button class="teach-class-tab ${teachingClassTab===k?'active':''}" data-cls="${k}" style="--group-color:var(${k==='all'?'--text-primary':teachingGroupColor[k]})"><span class="teach-group-dot"></span>${l}${k!=='all'?`<span class="teach-class-count">${taughtByGroup[k]}</span>`:''}</button>`).join('')}
       </div>
+      ${teachingClassTab === 'all' ? `<div class="teach-panel" style="--group-color:var(--text-primary)"><div class="teach-grid">${(filtered.map(buildCard).join('')) || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div></div>`
+        : `<div class="teach-panel" style="--group-color:var(${teachingGroupColor[teachingClassTab]})">
+            <div class="teach-col-head"><span class="teach-group-dot big"></span><h4>${teachingClassTab.replace('lop','Lớp ')}</h4><span class="teach-col-count">${taughtByGroup[teachingClassTab]} đã dạy · ${filtered.filter(s => s.slot.group === teachingClassTab).length} buổi trong khoảng này</span></div>
+            <div class="teach-grid">${filtered.filter(s => s.slot.group === teachingClassTab).map(buildCard).join('') || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div>
+          </div>`}
     </div>
   `;
 
+  document.querySelectorAll('.teach-class-tab').forEach(btn => {
+    btn.addEventListener('click', () => { teachingClassTab = btn.dataset.cls; renderTeachingScreen(); });
+  });
   document.querySelectorAll('.teach-tab').forEach(btn => {
     btn.addEventListener('click', () => { teachingViewMode = btn.dataset.mode; renderTeachingScreen(); });
   });
