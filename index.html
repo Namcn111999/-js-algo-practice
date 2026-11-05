@@ -434,6 +434,31 @@
   .teach-panel{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:16px;}
   .teach-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:10px;}
   .teach-cls{color:var(--group-color);}
+  .tcal-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  .tcal-sum{font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .tcal-sum b{color:var(--group-color); font-family:var(--mono); font-size:15px;}
+  .tcal-bar{width:110px; height:7px; border-radius:99px; background:var(--border); overflow:hidden; display:inline-block;}
+  .tcal-bar span{display:block; height:100%; background:var(--group-color); border-radius:99px;}
+  .tcal-sum-all{font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+  .tcal-grid{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px;}
+  .tcal-dow{text-align:center; font-family:var(--mono); font-size:11px; font-weight:700; color:var(--text-dim); padding:4px 0;}
+  .tcal-cell{min-height:86px; border:1px solid var(--border); border-radius:10px; background:var(--bg-panel); padding:6px; display:flex; flex-direction:column; gap:4px;}
+  .tcal-cell.empty{border:none; background:transparent;}
+  .tcal-cell:not(.has):not(.empty){opacity:.6;}
+  .tcal-cell.today{border-color:var(--group-color); box-shadow:0 0 0 2px color-mix(in srgb, var(--group-color) 22%, transparent); opacity:1;}
+  .tcal-d{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--text-dim);}
+  .tcal-cell.today .tcal-d{color:var(--group-color);}
+  .tcal-chip{display:flex; align-items:center; gap:4px; padding:5px 6px; border-radius:8px; background:color-mix(in srgb, var(--group-color) 13%, transparent); border:1px solid color-mix(in srgb, var(--group-color) 40%, transparent); color:var(--text-primary); font-size:11.5px; cursor:pointer; transition:.15s;}
+  .tcal-chip:hover{background:color-mix(in srgb, var(--group-color) 24%, transparent);}
+  .tcal-chip.taught{background:var(--group-color); border-color:var(--group-color); color:#fff;}
+  .tcal-time{font-family:var(--mono); font-weight:700;}
+  .tcal-per{font-size:10px; opacity:.75;}
+  .tcal-tick{margin-left:auto; font-weight:800;}
+  .tcal-note{border:none; background:transparent; cursor:pointer; font-size:11px; padding:0 2px; opacity:.45;}
+  .tcal-note.has-note{opacity:1;}
+  .tcal-chip.taught .tcal-note{filter:brightness(2);}
+  .tcal-hint{margin-top:12px; font-size:11.5px; color:var(--text-dim);}
+  @media (max-width:700px){ .tcal-cell{min-height:70px; padding:4px;} .tcal-per{display:none;} .tcal-chip{font-size:10.5px; padding:4px;} }
   .teach-columns{display:grid; grid-template-columns:repeat(4, minmax(230px, 1fr)); gap:16px; align-items:start;}
   @media (max-width:900px){ .teach-columns{grid-template-columns:1fr;} }
   .teach-col{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:14px;}
@@ -605,7 +630,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v98</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v99</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5272,7 +5297,7 @@ function renderTeachingScreen(){
   const main = document.getElementById('main');
   const today60 = new Date(); today60.setDate(today60.getDate() + 60);
   const monthEnd = new Date(teachingSelectedMonth.year, teachingSelectedMonth.month + 1, 0);
-  const genEnd = teachingViewMode === 'month' && monthEnd > today60 ? monthEnd : today60;
+  const genEnd = (teachingViewMode === 'month' || teachingClassTab !== 'all') && monthEnd > today60 ? monthEnd : today60;
   const allSessions = generateTeachingSessions(genEnd);
   const totalTaught = countTeachingCompleted();
   const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0, lop9: 0 };
@@ -5334,6 +5359,52 @@ function renderTeachingScreen(){
     </div>`;
   }
 
+  function buildCalendar(group){
+    const y = teachingSelectedMonth.year, m = teachingSelectedMonth.month;
+    const offset = (new Date(y, m, 1).getDay() + 6) % 7; // tuần bắt đầu từ Thứ 2
+    const dim = new Date(y, m + 1, 0).getDate();
+    const mine = allSessions.filter(s => s.slot.group === group && s.date.getFullYear() === y && s.date.getMonth() === m);
+    const byDay = {};
+    mine.forEach(s => { (byDay[s.date.getDate()] = byDay[s.date.getDate()] || []).push(s); });
+    const taughtN = mine.filter(s => (teachingData.sessions[s.key] || {}).taught).length;
+    const pct = mine.length ? Math.round(taughtN / mine.length * 100) : 0;
+    let cells = '';
+    for (let i = 0; i < offset; i++) cells += '<div class="tcal-cell empty"></div>';
+    const todayD = new Date();
+    for (let d = 1; d <= dim; d++) {
+      const isToday = todayD.getFullYear() === y && todayD.getMonth() === m && todayD.getDate() === d;
+      const chips = (byDay[d] || []).map(s => {
+        const sv = teachingData.sessions[s.key] || {};
+        const hasNote = (sv.note || '').trim().length > 0;
+        return `<div class="tcal-chip ${sv.taught ? 'taught' : ''}" data-key="${s.key}" title="${s.slot.label} · ${s.slot.time}${sv.taught ? ' · đã dạy' : ' · bấm để đánh dấu đã dạy'}">
+          <span class="tcal-time">${s.slot.time.split(' - ')[0]}</span>
+          <span class="tcal-per">${s.slot.period}</span>
+          <span class="tcal-tick">${sv.taught ? '✓' : ''}</span>
+          <button class="tcal-note ${hasNote ? 'has-note' : ''}" data-key="${s.key}" title="${hasNote ? 'Xem/sửa ghi chú' : 'Thêm ghi chú'}">📝</button>
+        </div>`;
+      }).join('');
+      cells += `<div class="tcal-cell ${isToday ? 'today' : ''} ${chips ? 'has' : ''}"><span class="tcal-d">${d}</span>${chips}</div>`;
+    }
+    return `<div class="teach-panel" style="--group-color:var(${teachingGroupColor[group]})">
+      <div class="tcal-head">
+        <div class="teach-month-nav">
+          <button class="teach-month-btn" id="teachMonthPrev">‹</button>
+          <span class="teach-month-label">${teachingMonthNames[m]}, ${y}</span>
+          <button class="teach-month-btn" id="teachMonthNext">›</button>
+          <button class="teach-month-today" id="teachMonthToday">Tháng này</button>
+        </div>
+        <div class="tcal-sum"><b>${taughtN}/${mine.length}</b> buổi đã dạy trong tháng
+          <span class="tcal-bar"><span style="width:${pct}%"></span></span>
+          <span class="tcal-sum-all">Tổng cộng: ${taughtByGroup[group]} buổi</span></div>
+      </div>
+      <div class="tcal-grid">
+        ${['T2','T3','T4','T5','T6','T7','CN'].map(n => `<div class="tcal-dow">${n}</div>`).join('')}
+        ${cells}
+      </div>
+      <div class="tcal-hint">Bấm vào buổi học để đánh dấu đã dạy / bỏ đánh dấu · bấm 📝 để ghi nội dung đã dạy</div>
+    </div>`;
+  }
+
   main.innerHTML = `
     <div class="teach-wrap">
       <div class="teach-header">
@@ -5353,7 +5424,7 @@ function renderTeachingScreen(){
         <div class="teach-stat lop9"><span class="teach-stat-num">${taughtByGroup.lop9}</span><span class="teach-stat-label">Buổi Lớp 9</span></div>
         <div class="teach-stat"><span class="teach-stat-num">${thisMonthTaught}</span><span class="teach-stat-label">Buổi tháng này</span></div>
       </div>
-      <div class="teach-filters-row">
+      ${teachingClassTab !== 'all' ? '' : `<div class="teach-filters-row">
         <div class="teach-view-tabs">
           <button class="teach-tab ${teachingViewMode==='upcoming'?'active':''}" data-mode="upcoming">Sắp tới & hôm nay</button>
           <button class="teach-tab ${teachingViewMode==='past'?'active':''}" data-mode="past">Đã qua</button>
@@ -5367,15 +5438,12 @@ function renderTeachingScreen(){
           <button class="teach-month-btn" id="teachMonthNext">›</button>
           <button class="teach-month-today" id="teachMonthToday">Tháng này</button>
         </div>` : ''}
-      </div>
+      </div>`}
       <div class="teach-class-tabs">
         ${[['all','Tất cả các lớp']].concat(teachingGroupOrder.map(g => [g, g.replace('lop','Lớp ')])).map(([k,l]) => `<button class="teach-class-tab ${teachingClassTab===k?'active':''}" data-cls="${k}" style="--group-color:var(${k==='all'?'--text-primary':teachingGroupColor[k]})"><span class="teach-group-dot"></span>${l}${k!=='all'?`<span class="teach-class-count">${taughtByGroup[k]}</span>`:''}</button>`).join('')}
       </div>
       ${teachingClassTab === 'all' ? `<div class="teach-panel" style="--group-color:var(--text-primary)"><div class="teach-grid">${(filtered.map(buildCard).join('')) || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div></div>`
-        : `<div class="teach-panel" style="--group-color:var(${teachingGroupColor[teachingClassTab]})">
-            <div class="teach-col-head"><span class="teach-group-dot big"></span><h4>${teachingClassTab.replace('lop','Lớp ')}</h4><span class="teach-col-count">${taughtByGroup[teachingClassTab]} đã dạy · ${filtered.filter(s => s.slot.group === teachingClassTab).length} buổi trong khoảng này</span></div>
-            <div class="teach-grid">${filtered.filter(s => s.slot.group === teachingClassTab).map(buildCard).join('') || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div>
-          </div>`}
+        : buildCalendar(teachingClassTab)}
     </div>
   `;
 
@@ -5412,6 +5480,21 @@ function renderTeachingScreen(){
       renderMenu();
       showToast(cb.checked ? 'Đã đánh dấu buổi này là đã dạy.' : 'Đã bỏ đánh dấu buổi này.', 'success');
     });
+  });
+  document.querySelectorAll('.tcal-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.key;
+      if (!teachingData.sessions[key]) teachingData.sessions[key] = { taught: false, note: '', grade: 'Cả hai' };
+      const now = !teachingData.sessions[key].taught;
+      teachingData.sessions[key].taught = now;
+      saveTeachingData();
+      renderTeachingScreen();
+      renderMenu();
+      showToast(now ? 'Đã đánh dấu buổi này là đã dạy.' : 'Đã bỏ đánh dấu buổi này.', 'success');
+    });
+  });
+  document.querySelectorAll('.tcal-note').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); showTeachNoteModal(btn.dataset.key); });
   });
   document.querySelectorAll('.teach-note-btn').forEach(btn => {
     btn.addEventListener('click', () => showTeachNoteModal(btn.dataset.key));
