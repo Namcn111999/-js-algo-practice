@@ -434,6 +434,22 @@
   .teach-panel{background:var(--bg-elevated); border:1px solid var(--border); border-top:3px solid var(--group-color); border-radius:14px; padding:16px;}
   .teach-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:10px;}
   .teach-cls{color:var(--group-color);}
+  .tstat-range{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px; font-size:12.5px; color:var(--text-muted);}
+  .tstat-range input[type=date]{font-family:var(--mono); font-size:12.5px; padding:7px 10px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-primary); margin-left:6px;}
+  .tstat-presets{display:flex; gap:6px; flex-wrap:wrap;}
+  .tstat-preset{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg-panel); color:var(--text-muted); cursor:pointer;}
+  .tstat-preset:hover{color:var(--teaching); border-color:var(--teaching);}
+  .tstat-cards{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .tstat-cards .teach-stat{min-width:120px;}
+  .tstat-table-wrap{overflow-x:auto;}
+  .tstat-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .tstat-table th{text-align:left; font-family:var(--mono); font-size:11px; color:var(--text-dim); padding:8px 10px; border-bottom:2px solid var(--border); white-space:nowrap;}
+  .tstat-table td{padding:10px; border-bottom:1px solid var(--border); font-family:var(--mono); white-space:nowrap;}
+  .tstat-table td:first-child{font-family:inherit; color:var(--group-color);}
+  .tstat-table td .teach-group-dot{display:inline-block; margin-right:7px;}
+  .tstat-table td.ok{color:var(--fe); font-weight:800;}
+  .tstat-table td.warn{color:#D97706; font-weight:800;}
+  .tstat-total td{border-top:2px solid var(--border); border-bottom:none; font-weight:800; background:var(--bg-panel);}
   .tcal-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
   .tcal-sum{font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   .tcal-sum b{color:var(--group-color); font-family:var(--mono); font-size:15px;}
@@ -630,7 +646,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v99</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v100</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5288,6 +5304,8 @@ function syncLop4WithLop6AndResetLop7Once(){
   if (changed || true) saveTeachingData();
 }
 
+let teachingStatsRange = (() => { const n = new Date(); const p = x => String(x).padStart(2,'0'); const last = new Date(n.getFullYear(), n.getMonth()+1, 0);
+  return { from: `${n.getFullYear()}-${p(n.getMonth()+1)}-01`, to: `${last.getFullYear()}-${p(last.getMonth()+1)}-${p(last.getDate())}` }; })();
 let teachingClassTab = 'all'; // 'all' | 'lop6' | 'lop4' | 'lop7' | 'lop9'
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
 const teachingMonthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
@@ -5297,7 +5315,8 @@ function renderTeachingScreen(){
   const main = document.getElementById('main');
   const today60 = new Date(); today60.setDate(today60.getDate() + 60);
   const monthEnd = new Date(teachingSelectedMonth.year, teachingSelectedMonth.month + 1, 0);
-  const genEnd = (teachingViewMode === 'month' || teachingClassTab !== 'all') && monthEnd > today60 ? monthEnd : today60;
+  let genEnd = (teachingViewMode === 'month' || (teachingClassTab !== 'all' && teachingClassTab !== 'stats')) && monthEnd > today60 ? monthEnd : today60;
+  if (teachingClassTab === 'stats') { const te = new Date(teachingStatsRange.to + 'T00:00:00'); if (!isNaN(te) && te > genEnd) genEnd = te; }
   const allSessions = generateTeachingSessions(genEnd);
   const totalTaught = countTeachingCompleted();
   const taughtByGroup = { lop6: 0, lop4: 0, lop7: 0, lop9: 0 };
@@ -5359,6 +5378,48 @@ function renderTeachingScreen(){
     </div>`;
   }
 
+  function buildStats(){
+    const p2 = x => String(x).padStart(2,'0');
+    const fmtD = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+    const r = teachingStatsRange;
+    const inRange = allSessions.filter(s => { const k = fmtD(s.date); return (!r.from || k >= r.from) && (!r.to || k <= r.to); });
+    const hoursOf = s => { const m = s.slot.time.match(/(\d+):(\d+)\s*-\s*(\d+):(\d+)/); return m ? ((+m[3]*60 + +m[4]) - (+m[1]*60 + +m[2])) / 60 : 0; };
+    const rows = teachingGroupOrder.map(g => {
+      const list = inRange.filter(s => s.slot.group === g);
+      const taught = list.filter(s => (teachingData.sessions[s.key] || {}).taught);
+      const missed = list.filter(s => s.isPast && !(teachingData.sessions[s.key] || {}).taught);
+      const upcoming = list.filter(s => !s.isPast);
+      return { g, total: list.length, taught: taught.length, missed: missed.length, upcoming: upcoming.length, hours: taught.reduce((a, s) => a + hoursOf(s), 0), planHours: list.reduce((a, s) => a + hoursOf(s), 0) };
+    });
+    const sum = k => rows.reduce((a, x) => a + x[k], 0);
+    const fh = h => (Math.round(h * 10) / 10).toString().replace('.', ',');
+    const presets = [['week','Tuần này'],['month','Tháng này'],['lastmonth','Tháng trước'],['d30','30 ngày qua'],['all','Từ đầu đến nay']];
+    const rowHtml = x => `<tr style="--group-color:var(${teachingGroupColor[x.g]})">
+      <td><span class="teach-group-dot"></span><b>${x.g.replace('lop','Lớp ')}</b></td>
+      <td>${x.total}</td><td class="ok">${x.taught}</td><td class="${x.missed ? 'warn' : ''}">${x.missed}</td><td>${x.upcoming}</td>
+      <td>${fh(x.hours)} / ${fh(x.planHours)} giờ</td>
+      <td><span class="tcal-bar"><span style="width:${x.total ? Math.round(x.taught / x.total * 100) : 0}%"></span></span> ${x.total ? Math.round(x.taught / x.total * 100) : 0}%</td></tr>`;
+    return `<div class="teach-panel" style="--group-color:var(--teaching)">
+      <div class="tstat-range">
+        <label>Từ <input type="date" id="tstatFrom" value="${r.from}"></label>
+        <label>Đến <input type="date" id="tstatTo" value="${r.to}"></label>
+        <div class="tstat-presets">${presets.map(([k,l]) => `<button class="tstat-preset" data-p="${k}">${l}</button>`).join('')}</div>
+      </div>
+      <div class="tstat-cards">
+        <div class="teach-stat"><span class="teach-stat-num">${sum('total')}</span><span class="teach-stat-label">Buổi theo lịch</span></div>
+        <div class="teach-stat"><span class="teach-stat-num" style="color:var(--fe)">${sum('taught')}</span><span class="teach-stat-label">Đã dạy</span></div>
+        <div class="teach-stat"><span class="teach-stat-num" style="color:#D97706">${sum('missed')}</span><span class="teach-stat-label">Đã qua, chưa đánh dấu</span></div>
+        <div class="teach-stat"><span class="teach-stat-num">${sum('upcoming')}</span><span class="teach-stat-label">Sắp tới</span></div>
+        <div class="teach-stat"><span class="teach-stat-num">${fh(rows.reduce((a, x) => a + x.hours, 0))}</span><span class="teach-stat-label">Giờ đã dạy</span></div>
+      </div>
+      <div class="tstat-table-wrap"><table class="tstat-table">
+        <thead><tr><th>Lớp</th><th>Theo lịch</th><th>Đã dạy</th><th>Chưa đánh dấu</th><th>Sắp tới</th><th>Giờ dạy (thực / lịch)</th><th>Hoàn thành</th></tr></thead>
+        <tbody>${rows.map(rowHtml).join('')}
+        <tr class="tstat-total"><td><b>Tổng</b></td><td>${sum('total')}</td><td class="ok">${sum('taught')}</td><td>${sum('missed')}</td><td>${sum('upcoming')}</td><td>${fh(rows.reduce((a, x) => a + x.hours, 0))} / ${fh(rows.reduce((a, x) => a + x.planHours, 0))} giờ</td><td>${sum('total') ? Math.round(sum('taught') / sum('total') * 100) : 0}%</td></tr></tbody>
+      </table></div>
+      <div class="tcal-hint">"Theo lịch" là số buổi xếp theo lịch cố định trong khoảng đã chọn; "Chưa đánh dấu" là buổi đã qua mà bạn chưa tick đã dạy. Giờ tính theo khung giờ mỗi buổi.</div>
+    </div>`;
+  }
   function buildCalendar(group){
     const y = teachingSelectedMonth.year, m = teachingSelectedMonth.month;
     const offset = (new Date(y, m, 1).getDay() + 6) % 7; // tuần bắt đầu từ Thứ 2
@@ -5440,10 +5501,10 @@ function renderTeachingScreen(){
         </div>` : ''}
       </div>`}
       <div class="teach-class-tabs">
-        ${[['all','Tất cả các lớp']].concat(teachingGroupOrder.map(g => [g, g.replace('lop','Lớp ')])).map(([k,l]) => `<button class="teach-class-tab ${teachingClassTab===k?'active':''}" data-cls="${k}" style="--group-color:var(${k==='all'?'--text-primary':teachingGroupColor[k]})"><span class="teach-group-dot"></span>${l}${k!=='all'?`<span class="teach-class-count">${taughtByGroup[k]}</span>`:''}</button>`).join('')}
+        ${[['all','Tất cả các lớp']].concat(teachingGroupOrder.map(g => [g, g.replace('lop','Lớp ')]), [['stats','📊 Thống kê']]).map(([k,l]) => `<button class="teach-class-tab ${teachingClassTab===k?'active':''}" data-cls="${k}" style="--group-color:var(${k==='all'||k==='stats'?'--text-primary':teachingGroupColor[k]})"><span class="teach-group-dot"></span>${l}${k!=='all'&&k!=='stats'?`<span class="teach-class-count">${taughtByGroup[k]}</span>`:''}</button>`).join('')}
       </div>
       ${teachingClassTab === 'all' ? `<div class="teach-panel" style="--group-color:var(--text-primary)"><div class="teach-grid">${(filtered.map(buildCard).join('')) || '<div class="teach-empty">Không có buổi nào trong khoảng này.</div>'}</div></div>`
-        : buildCalendar(teachingClassTab)}
+        : teachingClassTab === 'stats' ? buildStats() : buildCalendar(teachingClassTab)}
     </div>
   `;
 
@@ -5481,6 +5542,20 @@ function renderTeachingScreen(){
       showToast(cb.checked ? 'Đã đánh dấu buổi này là đã dạy.' : 'Đã bỏ đánh dấu buổi này.', 'success');
     });
   });
+  const tf = document.getElementById('tstatFrom'), tt = document.getElementById('tstatTo');
+  if (tf) tf.addEventListener('change', () => { teachingStatsRange.from = tf.value; renderTeachingScreen(); });
+  if (tt) tt.addEventListener('change', () => { teachingStatsRange.to = tt.value; renderTeachingScreen(); });
+  document.querySelectorAll('.tstat-preset').forEach(b => b.addEventListener('click', () => {
+    const p2 = x => String(x).padStart(2,'0'), f = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+    const n = new Date(); n.setHours(0,0,0,0); const k = b.dataset.p; let a, z;
+    if (k === 'week') { const dow = (n.getDay() + 6) % 7; a = new Date(n); a.setDate(n.getDate() - dow); z = new Date(a); z.setDate(a.getDate() + 6); }
+    else if (k === 'month') { a = new Date(n.getFullYear(), n.getMonth(), 1); z = new Date(n.getFullYear(), n.getMonth() + 1, 0); }
+    else if (k === 'lastmonth') { a = new Date(n.getFullYear(), n.getMonth() - 1, 1); z = new Date(n.getFullYear(), n.getMonth(), 0); }
+    else if (k === 'd30') { z = new Date(n); a = new Date(n); a.setDate(n.getDate() - 29); }
+    else { a = new Date(Math.min(...teachingPeriods.map(p => p.from.getTime()))); z = new Date(n); }
+    teachingStatsRange = { from: f(a), to: f(z) };
+    renderTeachingScreen();
+  }));
   document.querySelectorAll('.tcal-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const key = chip.dataset.key;
