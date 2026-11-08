@@ -450,6 +450,28 @@
   .tstat-table td.ok{color:var(--fe); font-weight:800;}
   .tstat-table td.warn{color:#D97706; font-weight:800;}
   .tstat-total td{border-top:2px solid var(--border); border-bottom:none; font-weight:800; background:var(--bg-panel);}
+  .tpay{margin-top:18px; border-top:1px dashed var(--border); padding-top:14px;}
+  .tpay-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;}
+  .tpay-head h5{font-size:14px; font-weight:800;}
+  .tpay-sum{font-size:12.5px; color:var(--text-muted); margin-left:auto;}
+  .tpay-sum b{color:var(--fe); font-family:var(--mono);}
+  .tpay-add{font-family:var(--mono); font-size:12px; font-weight:700; padding:7px 12px; border-radius:9px; border:1px solid var(--group-color); background:transparent; color:var(--group-color); cursor:pointer;}
+  .tpay-add:hover{background:var(--group-color); color:#fff;}
+  .tpay-list{display:flex; flex-direction:column; gap:8px;}
+  .tpay-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 12px; border:1px solid var(--border); border-radius:11px; background:var(--bg-panel);}
+  .tpay-row.paid{background:var(--fe-dim); border-color:var(--fe);}
+  .tpay-main{flex:1; min-width:180px; font-size:13px;}
+  .tpay-range{display:block; font-family:var(--mono); font-size:11.5px; color:var(--text-dim);}
+  .tpay-note{display:block; font-size:11.5px; color:var(--text-muted);}
+  .tpay-amt{font-family:var(--mono); font-weight:800; font-size:13px;}
+  .tpay-state{font-size:12px; color:var(--text-muted); min-width:110px;}
+  .tpay-btn{border:1px solid var(--border); background:var(--bg-elevated); border-radius:8px; width:28px; height:28px; cursor:pointer; color:var(--text-muted);}
+  .tpay-btn:hover{color:var(--group-color); border-color:var(--group-color);}
+  .tpay-toggle{display:block; margin-top:10px; font-size:12px; color:var(--text-muted); cursor:pointer;}
+  .tpay-hidden{color:var(--text-dim);}
+  .tpay-form{display:flex; flex-direction:column; gap:10px; margin:6px 0 14px;}
+  .tpay-form label{display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--text-muted);}
+  .tpay-form input{font-family:var(--mono); font-size:13px; padding:9px 11px; border-radius:9px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary);}
   .tcal-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
   .tcal-sum{font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   .tcal-sum b{color:var(--group-color); font-family:var(--mono); font-size:15px;}
@@ -646,7 +668,7 @@
   <aside class="notes-panel" id="notesPanel"></aside>
 </div>
 
-<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v100</footer>
+<footer class="app-hidden" id="siteFooter">tự học mỗi ngày, đều đặn mỗi tuần · tiến độ lưu trên trình duyệt, đồng bộ qua GitHub Gist (☁️) · bản v101</footer>
 
 <script>
 /* ============ ALGORITHM PROBLEMS BANK ============ */
@@ -5306,6 +5328,18 @@ function syncLop4WithLop6AndResetLop7Once(){
 
 let teachingStatsRange = (() => { const n = new Date(); const p = x => String(x).padStart(2,'0'); const last = new Date(n.getFullYear(), n.getMonth()+1, 0);
   return { from: `${n.getFullYear()}-${p(n.getMonth()+1)}-01`, to: `${last.getFullYear()}-${p(last.getMonth()+1)}-${p(last.getDate())}` }; })();
+let teachingShowPaid = false; // true: vẫn hiện các buổi thuộc đợt đã thu tiền
+function teachingPayList(group){
+  if (!teachingData.payments) teachingData.payments = {};
+  if (!teachingData.payments[group]) teachingData.payments[group] = [];
+  return teachingData.payments[group].slice().sort((a,b) => a.from.localeCompare(b.from));
+}
+function teachingIsPaidSession(s){
+  const k = teachingDateKey(s.date);
+  return teachingPayList(s.slot.group).some(p => p.paid && k >= p.from && k <= p.to);
+}
+const fmtMoney = n => (Number(n) || 0).toLocaleString('vi-VN') + ' ₫';
+const fmtDMY = k => k ? k.split('-').reverse().join('/') : '';
 let teachingClassTab = 'all'; // 'all' | 'lop6' | 'lop4' | 'lop7' | 'lop9'
 let teachingViewMode = 'upcoming'; // 'upcoming' | 'past' | 'all' | 'month'
 const teachingMonthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
@@ -5342,6 +5376,7 @@ function renderTeachingScreen(){
   else if (teachingViewMode === 'month') {
     filtered = filtered.filter(s => s.date.getFullYear() === teachingSelectedMonth.year && s.date.getMonth() === teachingSelectedMonth.month);
   }
+  if (!teachingShowPaid) filtered = filtered.filter(x => !teachingIsPaidSession(x));
   if (teachingViewMode === 'past') filtered = filtered.slice().reverse();
 
   function buildCard(s){
@@ -5434,7 +5469,7 @@ function renderTeachingScreen(){
     const todayD = new Date();
     for (let d = 1; d <= dim; d++) {
       const isToday = todayD.getFullYear() === y && todayD.getMonth() === m && todayD.getDate() === d;
-      const chips = (byDay[d] || []).map(s => {
+      const chips = (byDay[d] || []).filter(s => teachingShowPaid || !teachingIsPaidSession(s)).map(s => {
         const sv = teachingData.sessions[s.key] || {};
         const hasNote = (sv.note || '').trim().length > 0;
         return `<div class="tcal-chip ${sv.taught ? 'taught' : ''}" data-key="${s.key}" title="${s.slot.label} · ${s.slot.time}${sv.taught ? ' · đã dạy' : ' · bấm để đánh dấu đã dạy'}">
@@ -5463,6 +5498,30 @@ function renderTeachingScreen(){
         ${cells}
       </div>
       <div class="tcal-hint">Bấm vào buổi học để đánh dấu đã dạy / bỏ đánh dấu · bấm 📝 để ghi nội dung đã dạy</div>
+      ${buildPayments(group)}
+    </div>`;
+  }
+  function buildPayments(group){
+    const pays = teachingPayList(group);
+    const sessionsOf = p => allSessions.filter(x => x.slot.group === group && teachingDateKey(x.date) >= p.from && teachingDateKey(x.date) <= p.to).length;
+    const paidSum = pays.filter(p => p.paid).reduce((a,p) => a + (Number(p.amount) || 0), 0);
+    const totalSum = pays.reduce((a,p) => a + (Number(p.amount) || 0), 0);
+    const hiddenN = allSessions.filter(x => x.slot.group === group && teachingIsPaidSession(x)).length;
+    const rows = pays.map((p, i) => `<div class="tpay-row ${p.paid ? 'paid' : ''}">
+        <label class="tpay-check"><input type="checkbox" class="tpay-cb" data-group="${group}" data-id="${p.id}" ${p.paid ? 'checked' : ''}></label>
+        <div class="tpay-main"><b>Đợt ${i + 1}</b> <span class="tpay-range">${fmtDMY(p.from)} → ${fmtDMY(p.to)} · ${sessionsOf(p)} buổi</span>
+          ${p.note ? `<span class="tpay-note">${p.note.replace(/</g,'&lt;')}</span>` : ''}</div>
+        <div class="tpay-amt">${p.amount ? fmtMoney(p.amount) : '—'}</div>
+        <div class="tpay-state">${p.paid ? `✅ Đã thu${p.paidDate ? ' ' + fmtDMY(p.paidDate) : ''}` : '⏳ Chưa thu'}</div>
+        <button class="tpay-btn tpay-edit" data-group="${group}" data-id="${p.id}" title="Sửa đợt">✎</button>
+        <button class="tpay-btn tpay-del" data-group="${group}" data-id="${p.id}" title="Xóa đợt">🗑</button>
+      </div>`).join('') || '<div class="teach-empty">Chưa có đợt thu tiền nào. Bấm “+ Thêm đợt” để tạo.</div>';
+    return `<div class="tpay">
+      <div class="tpay-head"><h5>💰 Thu tiền học — ${group.replace('lop','Lớp ')}</h5>
+        <span class="tpay-sum">Đã thu <b>${fmtMoney(paidSum)}</b> / ${fmtMoney(totalSum)}</span>
+        <button class="tpay-add" data-group="${group}">+ Thêm đợt</button></div>
+      <div class="tpay-list">${rows}</div>
+      <label class="tpay-toggle"><input type="checkbox" id="tpayShowPaid" ${teachingShowPaid ? 'checked' : ''}> Hiện cả buổi thuộc đợt đã thu tiền${hiddenN ? ` <span class="tpay-hidden">(đang ẩn ${hiddenN} buổi)</span>` : ''}</label>
     </div>`;
   }
 
@@ -5542,6 +5601,59 @@ function renderTeachingScreen(){
       showToast(cb.checked ? 'Đã đánh dấu buổi này là đã dạy.' : 'Đã bỏ đánh dấu buổi này.', 'success');
     });
   });
+  function showPayModal(group, id){
+    const list = teachingPayList(group);
+    const cur = id ? list.find(p => p.id === id) : null;
+    const lastTo = list.length ? list[list.length - 1].to : null;
+    let defFrom = '';
+    if (lastTo) { const d = new Date(lastTo + 'T00:00:00'); d.setDate(d.getDate() + 1); defFrom = teachingDateKey(d); }
+    const v = cur || { from: defFrom, to: '', amount: '', note: '' };
+    const old = document.getElementById('payModalOverlay'); if (old) old.remove();
+    const o = document.createElement('div'); o.id = 'payModalOverlay'; o.className = 'confirm-overlay';
+    o.innerHTML = `<div class="confirm-box" style="width:420px"><div class="confirm-title">💰 ${cur ? 'Sửa' : 'Thêm'} đợt thu tiền — ${group.replace('lop','Lớp ')}</div>
+      <div class="tpay-form">
+        <label>Từ ngày<input type="date" id="payFrom" value="${v.from}"></label>
+        <label>Đến ngày<input type="date" id="payTo" value="${v.to}"></label>
+        <label>Số tiền (₫)<input type="number" id="payAmount" min="0" step="1000" value="${v.amount || ''}" placeholder="VD: 1200000"></label>
+        <label>Ghi chú<input type="text" id="payNote" value="${(v.note || '').replace(/"/g,'&quot;')}" placeholder="Tùy chọn"></label>
+        <div id="payErr" class="sync-err"></div>
+      </div>
+      <div class="confirm-actions"><button class="confirm-btn confirm-cancel" id="payCancel">Hủy</button><button class="confirm-btn confirm-primary" id="paySave">Lưu</button></div></div>`;
+    document.body.appendChild(o); requestAnimationFrame(() => o.classList.add('show'));
+    const close = () => { o.classList.remove('show'); setTimeout(() => o.remove(), 200); };
+    o.addEventListener('click', e => { if (e.target === o) close(); });
+    document.getElementById('payCancel').onclick = close;
+    document.getElementById('paySave').onclick = () => {
+      const from = document.getElementById('payFrom').value, to = document.getElementById('payTo').value;
+      const err = document.getElementById('payErr');
+      if (!from || !to) { err.textContent = 'Hãy chọn đủ ngày bắt đầu và kết thúc.'; return; }
+      if (to < from) { err.textContent = 'Ngày kết thúc phải sau ngày bắt đầu.'; return; }
+      const amount = Number(document.getElementById('payAmount').value) || 0;
+      const note = document.getElementById('payNote').value.trim();
+      if (!teachingData.payments) teachingData.payments = {};
+      if (!teachingData.payments[group]) teachingData.payments[group] = [];
+      if (cur) { Object.assign(teachingData.payments[group].find(p => p.id === id), { from, to, amount, note }); }
+      else teachingData.payments[group].push({ id: 'p' + Date.now().toString(36), from, to, amount, note, paid: false, paidDate: '' });
+      saveTeachingData(); close(); renderTeachingScreen();
+      showToast(cur ? 'Đã cập nhật đợt thu tiền.' : 'Đã thêm đợt thu tiền.');
+    };
+  }
+  document.querySelectorAll('.tpay-add').forEach(b => b.addEventListener('click', () => showPayModal(b.dataset.group, null)));
+  document.querySelectorAll('.tpay-edit').forEach(b => b.addEventListener('click', () => showPayModal(b.dataset.group, b.dataset.id)));
+  document.querySelectorAll('.tpay-del').forEach(b => b.addEventListener('click', () => {
+    showConfirmModal({ title: 'Xóa đợt thu tiền?', message: 'Chỉ xóa thông tin đợt thu tiền này. Các buổi học và ghi chú không bị ảnh hưởng (nếu đợt đang ẩn buổi, các buổi sẽ hiện lại).', confirmText: 'Xóa đợt', danger: true,
+      onConfirm: () => { teachingData.payments[b.dataset.group] = teachingData.payments[b.dataset.group].filter(p => p.id !== b.dataset.id); saveTeachingData(); renderTeachingScreen(); showToast('Đã xóa đợt thu tiền.'); } });
+  }));
+  document.querySelectorAll('.tpay-cb').forEach(cb => cb.addEventListener('change', () => {
+    const p = teachingData.payments[cb.dataset.group].find(x => x.id === cb.dataset.id);
+    p.paid = cb.checked; p.paidDate = cb.checked ? teachingDateKey(new Date()) : '';
+    saveTeachingData();
+    const n = allSessions.filter(x => x.slot.group === cb.dataset.group && teachingDateKey(x.date) >= p.from && teachingDateKey(x.date) <= p.to).length;
+    renderTeachingScreen();
+    showToast(cb.checked ? `Đã thu tiền đợt này. Đã ẩn ${n} buổi trong ${fmtDMY(p.from)} → ${fmtDMY(p.to)} khỏi lịch (bật “Hiện cả buổi…” để xem lại).` : `Đã bỏ đánh dấu thu tiền. ${n} buổi hiện lại trên lịch.`);
+  }));
+  const sp = document.getElementById('tpayShowPaid');
+  if (sp) sp.addEventListener('change', () => { teachingShowPaid = sp.checked; renderTeachingScreen(); });
   const tf = document.getElementById('tstatFrom'), tt = document.getElementById('tstatTo');
   if (tf) tf.addEventListener('change', () => { teachingStatsRange.from = tf.value; renderTeachingScreen(); });
   if (tt) tt.addEventListener('change', () => { teachingStatsRange.to = tt.value; renderTeachingScreen(); });
